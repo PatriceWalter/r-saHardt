@@ -11,17 +11,20 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; margin: 0; }
         body.login-mode { display: flex; align-items: center; justify-content: center; padding: 20px; }
         body.app-mode { display: block; padding: 20px; }
+
         #loginPage { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); width: 100%; max-width: 400px; text-align: center; }
         #loginPage h2 { color: #764ba2; margin-bottom: 25px; font-size: 1.5em; }
         .login-input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #eee; border-radius: 8px; font-size: 16px; outline: none; }
         .login-input[readonly] { background-color: #f8f9fa; color: #6c757d; cursor: not-allowed; }
         .btn-login { width: 100%; background: #667eea; color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1em; margin-top: 15px; }
+
         #mainApp { display: none; max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; }
         .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; text-align: center; position: relative; }
         .admin-gear { position: absolute; top: 15px; right: 20px; font-size: 1.5em; cursor: pointer; }
         .breadcrumb { background: #f8f9fa; padding: 15px 30px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
         .breadcrumb a { color: #667eea; text-decoration: none; font-weight: bold; cursor: pointer; }
         .content { padding: 30px; }
+        
         .months-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
         .month-card { background: white; border: 3px solid #e9ecef; border-radius: 10px; padding: 30px; text-align: center; cursor: pointer; transition: 0.3s; }
         .month-name { font-size: 1.5em; font-weight: bold; color: #667eea; }
@@ -29,20 +32,25 @@
         .day-card { background: white; border: 2px solid #e9ecef; border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s; min-height: 110px; display: flex; flex-direction: column; justify-content: center; }
         .day-number { font-size: 1.1em; font-weight: bold; color: #667eea; text-transform: capitalize; }
         .closed-morning { color: #dc3545; font-size: 0.85em; font-weight: bold; margin-top: 5px; }
+        
         .postes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
         .poste-box { background: #f8f9fa; border: 3px solid #dee2e6; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; position: relative; transition: 0.3s; height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .poste-box.libre { border-color: #28a745; background: #e8f5e9; }
         .poste-box.reserve { border-color: #ffc107; background: #fff9e6; }
         .poste-box.controle { border-color: #17a2b8; background: #e7f6f8; }
         .poste-box.controleur { border-color: #ffd700; border-width: 4px; background: #fffbf0; }
+        
         .poste-checkbox { position: absolute; top: 10px; right: 10px; width: 25px; height: 25px; cursor: pointer; z-index: 10; }
         .status-badge { position: absolute; top: 38px; right: 10px; font-size: 0.7em; font-weight: bold; }
+
         .badge-peche { color: #28a745; font-size: 0.75em; font-weight: bold; margin-top: 8px; border: 1.5px solid #28a745; padding: 3px 6px; border-radius: 5px; background: white; }
+
         .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
         .stat-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
         .stat-number { font-size: 2.5em; font-weight: bold; }
+
         .modal, .alert-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
-        .modal-content, .alert-content { background: white; margin: 5% auto; border-radius: 15px; width: 90%; max-width: 500px; overflow: hidden; }
+        .modal-content, .alert-content { background: white; margin: 5% auto; border-radius: 15px; width: 90%; max-width: 500px; overflow: hidden; animation: slideDown 0.3s; }
         .modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; }
         .modal-body { padding: 30px; }
         input[type="text"], input[type="password"] { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #dee2e6; border-radius: 8px; font-size: 16px; }
@@ -50,15 +58,16 @@
         .btn-save { background: #28a745; color: white; }
         .btn-delete { background: #dc3545; color: white; }
         .btn-info { background: #17a2b8; color: white; padding: 4px 8px; font-size: 0.8em; margin-top: 8px; border-radius: 4px; border:none; cursor:pointer;}
-        .btn-back { background: #6c757d; color: white; margin-bottom: 20px; display: inline-block; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+        .btn-back { background: #6c757d; color: white; margin-bottom: 20px; display: inline-block; padding: 10px 20px; text-decoration: none; border-radius: 8px; cursor: pointer; }
         .hidden { display: none; }
         .infraction-item { padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid; display: flex; justify-content: space-between; align-items: center; }
+        @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body class="login-mode">
 
     <div id="loginPage">
-        <h2>👮 Connexion<br>Réservations Hardt</h2>
+        <h2>👮 Connexion<br>Réservations / Contrôles Hardt</h2>
         <input type="text" id="loginID" class="login-input" value="HARDT" readonly tabindex="-1">
         <input type="password" id="loginPass" class="login-input" placeholder="Mot de passe" autofocus>
         <button class="btn-login" onclick="checkLogin()">Se connecter</button>
@@ -72,16 +81,18 @@
         </div>
         <div class="breadcrumb">
             <div><a onclick="showMonths()">Accueil</a></div>
-            <div><a onclick="location.reload()" style="color:#dc3545;">Déconnexion 🔒</a></div>
+            <div><a onclick="logout()" style="color:#dc3545;">Déconnexion 🔒</a></div>
         </div>
+        
         <div id="monthsPage" class="content">
             <div class="months-grid" id="monthsGrid"></div>
             <div style="text-align: center; margin-top: 40px;">
                 <button onclick="showInfractionsMenu()" style="background: #e53e3e; color: white; padding: 18px 35px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 1.1em; box-shadow: 0 4px 15px rgba(229, 62, 62, 0.4);">⚠️ LISTING DES INFRACTIONS</button>
             </div>
         </div>
+
         <div id="infractionsMenuPage" class="content hidden">
-            <button class="btn-back" onclick="showMonths()">← Retour Accueil</button>
+            <button class="btn btn-back" onclick="showMonths()">← Retour Accueil</button>
             <div class="months-grid">
                 <div class="month-card" onclick="showInfractionList('avertissements')" style="border-color: #ffc107;">
                     <div style="font-size: 3em;">⚠️</div>
@@ -95,18 +106,21 @@
                 </div>
             </div>
         </div>
+
         <div id="infractionsDetailPage" class="content hidden">
-            <button class="btn-back" onclick="showInfractionsMenu()">← Retour</button>
-            <h2 id="detailTitle" style="text-align: center; margin-bottom: 25px; color: #333;"></h2>
+            <button class="btn btn-back" onclick="showInfractionsMenu()">← Retour</button>
+            <h2 id="detailTitle" style="text-align: center; margin-bottom: 25px;"></h2>
             <div id="detailList"></div>
         </div>
+
         <div id="daysPage" class="content hidden">
-            <button class="btn-back" onclick="showMonths()">← Retour</button>
+            <button class="btn btn-back" onclick="showMonths()">← Retour</button>
             <h2 id="monthTitle" style="text-align: center; margin-bottom: 25px; color: #667eea;"></h2>
             <div class="days-grid" id="daysGrid"></div>
         </div>
+
         <div id="postesPage" class="content hidden">
-            <button class="btn-back" onclick="backToDays()">← Retour</button>
+            <button class="btn btn-back" onclick="backToDays()">← Retour</button>
             <h2 id="postePageTitle" style="text-align: center; color: #667eea; margin-bottom: 20px; text-transform: capitalize; font-size: 1.8em;"></h2>
             <div class="stats-bar">
                 <div class="stat-box"><div class="stat-number" id="statLibre">11</div><div>Libres</div></div>
@@ -121,33 +135,69 @@
         <div class="modal-content">
             <div class="modal-header"><h2 id="modalTitle">Poste</h2><p id="modalDate"></p></div>
             <div class="modal-body">
-                <label style="font-weight: bold; color: #444;">Nom du pêcheur</label>
-                <input type="text" id="modalNom" placeholder="NOM" style="text-transform: uppercase;" oninput="checkCardBadge()">
-                <label style="font-weight: bold; color: #444; margin-top: 10px; display: block;">Prénom</label>
-                <input type="text" id="modalPrenom" placeholder="Prénom" oninput="checkCardBadge()">
-                <div id="modalBadgeZone" style="display:none; margin-bottom: 10px;"><span class="badge-peche">🪪 Carte de pêche valide</span></div>
-                <div id="checkZone" style="margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #eee;">
-                    <input type="checkbox" id="modalControle" onchange="updateControlText()" style="width:20px; height:20px; vertical-align:middle; cursor: pointer;"> 
-                    <span id="controlStatusText" style="font-weight: bold; margin-left: 10px;">Non contrôlé</span>
+                <label>Nom</label><input type="text" id="modalNom" oninput="checkCardBadge()">
+                <label>Prénom</label><input type="text" id="modalPrenom" oninput="checkCardBadge()">
+                <div id="modalBadgeZone" style="display:none; margin-bottom: 10px;">
+                    <span class="badge-peche">🪪 Carte de pêche valide</span>
+                </div>
+                <div id="checkZone" style="margin: 15px 0;">
+                    <input type="checkbox" id="modalControle" onchange="updateControlText()" style="width:20px; height:20px; vertical-align:middle;"> 
+                    <span id="controlStatusText" style="margin-left: 10px;">Non contrôlé</span>
                     <input type="hidden" id="modalHeure">
                 </div>
-                <div id="infractionsButtons" style="display:none; border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px;">
-                    <p style="font-weight:bold; margin-bottom:10px; color: #e53e3e;">⚠️ Actions Sanctions :</p>
+                <div id="infractionsButtons" style="display:none; border-top: 1px solid #ddd; padding-top: 15px;">
+                    <p style="font-weight:bold; margin-bottom:10px;">⚠️ Actions Sanctions :</p>
                     <div style="display: flex; gap: 10px;">
-                        <button class="btn" onclick="askMotif('avertissements')" style="background: #ffc107; color: #000;">⚠️ Avertir</button>
+                        <button class="btn" onclick="askMotif('avertissements')" style="background: #ffc107;">⚠️ Avertir</button>
                         <button class="btn" onclick="askMotif('bannis')" style="background: #dc3545; color: white;">🚫 Bannir</button>
                     </div>
                 </div>
                 <div style="display:flex; gap:10px; margin-top:20px;">
                     <button class="btn btn-save" onclick="saveModal()">💾 Sauvegarder</button>
                     <button class="btn btn-delete" onclick="deleteModal()">🗑️ Effacer</button>
-                    <button class="btn" onclick="closeModal()" style="background: #6c757d; color: white;">Annuler</button>
+                    <button class="btn" onclick="closeModal()" style="background:#eee;">Annuler</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>🪪 Liste Pêcheurs Valides</h2></div>
+            <div class="modal-body">
+                <input type="text" id="adminAddNom" placeholder="NOM">
+                <input type="text" id="adminAddPrenom" placeholder="Prénom">
+                <button class="btn btn-save" style="width:100%; margin-bottom:15px;" onclick="addValidUser()">Ajouter à la liste</button>
+                <div id="adminValidList" style="max-height:200px; overflow-y:auto; border-top:1px solid #eee; padding-top:10px;"></div>
+                <button class="btn" style="width:100%; background:#eee; margin-top:15px;" onclick="closeAdmin()">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="motifModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="motifHeader"><h2>Motif de la sanction</h2></div>
+            <div class="modal-body">
+                <label>Veuillez saisir le motif :</label>
+                <input type="text" id="motifInput" placeholder="Ex: Sac de couchage oublié...">
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button class="btn btn-save" onclick="confirmSanction()">Confirmer</button>
+                    <button class="btn" onclick="closeMotif()" style="background:#eee;">Annuler</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="alertModal" class="alert-modal">
+        <div class="alert-content">
+            <div id="alertHeader" style="background:#667eea; color:white; padding:15px; text-align:center;"><h3>INFO</h3></div>
+            <div id="alertBody" class="alert-body" style="padding:20px;"></div>
+            <div style="text-align:center; padding-bottom:20px;"><button class="btn btn-save" onclick="closeAlert()">OK</button></div>
+        </div>
+    </div>
+
     <script>
+        // CONFIGURATION FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyADXcfDOBLHC7pdlGedDW-4wAHKyPHW19I",
             authDomain: "resahardt.firebaseapp.com",
@@ -159,44 +209,55 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // CALENDRIER STRICTEMENT IDENTIQUE A TON FICHIER TXT
-        const JOURS_OUVERTURE = { 2:[28], 3:[28], 4:[25], 5:[13], 7:[19], 8:[17], 9:[14] };
-        const FERME_MATIN = { 2:[28], 3:[25], 5:[13], 7:[19], 8:[17], 9:[14] };
-        const MOIS_NOMS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-        
-        let reservations = {}, infractions = { avertissements: [], bannis: [] }, validUsers = [];
-        let curM, curMName, curDKey, curP, curFullDate, pendingSanctionType;
-
-        // SYNC FIREBASE
-        db.ref('resas').on('value', s => { reservations = s.val() || {}; if(curDKey) renderPostes(); });
-        db.ref('infras').on('value', s => { infractions = s.val() || { avertissements: [], bannis: [] }; updateCounts(); });
-        db.ref('valids').on('value', s => { validUsers = Object.values(s.val() || {}); });
-
         function checkLogin() {
-            if(document.getElementById('loginPass').value === "911") {
+            const pass = document.getElementById('loginPass').value;
+            const error = document.getElementById('errorLogin');
+            if(pass === "911") {
                 document.getElementById('loginPage').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
-                document.body.className = 'app-mode'; renderMonths();
-            } else { document.getElementById('errorLogin').style.display = 'block'; }
+                document.body.className = 'app-mode';
+                renderMonths();
+            } else { error.style.display = 'block'; }
         }
+        document.getElementById("loginPass").addEventListener("keyup", function(event) { if (event.key === "Enter") { checkLogin(); } });
+        function logout() { location.reload(); }
 
-        function renderMonths() {
-            document.getElementById('monthsGrid').innerHTML = MOIS_NOMS.map((m, i) => JOURS_OUVERTURE[i+1] ? `<div class="month-card" onclick="showDays(${i+1}, '${m}')"><div class="month-name">${m}</div></div>` : '').join('');
-        }
+        const JOURS_OUVERTURE = { 1:[28], 2:[6,7,13,14,20,21,22,27,28], 3:[3,4,5,10,11,17,18,24,25], 4:[5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 5:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 6:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 7:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 8:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 9:[2,3,9,10,16,17,23,24,30,31], 10:[6,7,10,13,14,20,21,27,28], 11:[4,5,11,12,18,19,24,25,26] };
+        const FERME_MATIN = { 1:[28], 2:[28], 3:[25], 5:[13], 8:[19], 9:[17], 10:[14] };
+        const MOIS_NOMS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+        
+        let reservations = {};
+        let infractions = { avertissements: [], bannis: [] };
+        let validUsers = [];
+        let curM, curMName, curDKey, curP, curFullDate, pendingSanctionType;
 
+        // SYNC FIREBASE TEMPS RÉEL
+        db.ref('resas').on('value', (s) => { reservations = s.val() || {}; if(curDKey) renderPostes(); });
+        db.ref('infras').on('value', (s) => { infractions = s.val() || { avertissements: [], bannis: [] }; updateCounts(); });
+        db.ref('valids').on('value', (s) => { validUsers = Object.values(s.val() || {}); });
+
+        function renderMonths() { document.getElementById('monthsGrid').innerHTML = MOIS_NOMS.map((m, i) => i > 0 ? `<div class="month-card" onclick="showDays(${i}, '${m}')"><div class="month-name">${m}</div></div>` : '').join(''); }
         function showMonths() { hideAll(); document.getElementById('monthsPage').classList.remove('hidden'); }
+        function showInfractionsMenu() { hideAll(); document.getElementById('infractionsMenuPage').classList.remove('hidden'); }
+        function showInfractionList(type) {
+            hideAll(); document.getElementById('infractionsDetailPage').classList.remove('hidden');
+            document.getElementById('detailTitle').textContent = type === 'avertissements' ? '⚠️ AVERTISSEMENTS' : '🚫 BANNIS';
+            const list = infractions[type] || [];
+            document.getElementById('detailList').innerHTML = list.length ? list.map(p => `<div class="infraction-item" style="border-left-color: ${type==='bannis'?'#dc3545':'#ffc107'}"><div><strong>${p.nom.toUpperCase()} ${p.prenom}</strong><br><small>Le ${p.date}</small><br><span style="color:#666; font-size:0.9em;">Motif: ${p.motif || 'Non spécifié'}</span></div><button class="btn btn-delete" style="flex:none; padding:8px 15px;" onclick="removeInf('${type}', '${p.id}')">Retirer</button></div>`).join('') : '<p style="text-align:center;">Aucun dossier.</p>';
+        }
         function showDays(m, name) {
             curM = m; curMName = name; hideAll(); document.getElementById('daysPage').classList.remove('hidden');
             document.getElementById('monthTitle').textContent = name + ' 2026';
             document.getElementById('daysGrid').innerHTML = (JOURS_OUVERTURE[m] || []).map(j => {
-                const dateFull = `${j} ${name}`;
-                const key = `2026-${m}-${j}`;
-                return `<div class="day-card" onclick="showPostes('${key}', '${dateFull}')"><div class="day-number">${dateFull}</div>${FERME_MATIN[m] && FERME_MATIN[m].includes(j) ? '<div class="closed-morning">FERMÉ LE MATIN</div>' : ''}</div>`;
+                const dateObj = new Date(2026, m, j);
+                const dateFull = dateObj.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
+                const isClosed = FERME_MATIN[m] && FERME_MATIN[m].includes(j);
+                const key = `2026-${String(m+1).padStart(2,'0')}-${String(j).padStart(2,'0')}`;
+                return `<div class="day-card" onclick="showPostes(${j}, '${key}', '${dateFull}')"><div class="day-number">${dateFull}</div>${isClosed ? '<div class="closed-morning">FERMÉ LE MATIN</div>' : ''}</div>`;
             }).join('');
         }
-
-        function showPostes(key, t) { curDKey = key; curFullDate = t; hideAll(); document.getElementById('postesPage').classList.remove('hidden'); document.getElementById('postePageTitle').textContent = t + " 2026"; renderPostes(); }
-
+        function showPostes(j, key, dateFull) { curDKey = key; curFullDate = dateFull; hideAll(); document.getElementById('postesPage').classList.remove('hidden'); document.getElementById('postePageTitle').textContent = dateFull + " 2026"; renderPostes(); }
+        
         function renderPostes() {
             const grid = document.getElementById('postesGrid'); grid.innerHTML = '';
             const dayData = reservations[curDKey] || {};
@@ -215,8 +276,8 @@
             const isC = n === 4; const hasN = data.nom && data.nom.trim() !== '';
             div.className = `poste-box ${isC?'controleur':(data.controlled?'controle':(hasN?'reserve':'libre'))}`;
             div.onclick = (e) => { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') openModal(n, data); };
-            let html = `${!isC ? `<input type="checkbox" class="poste-checkbox" ${data.controlled?'checked':''} onclick="event.stopPropagation(); toggleControle(${n})"><span class="status-badge" style="color: ${data.controlled?'#17a2b8':'#666'}">${data.controlled?'Contrôlé':'Non contrôlé'}</span>` : ''}<div style="font-weight:bold;">Poste ${n}</div>`;
-            if(data.controlled && data.heure) html += `<div style="color:#17a2b8;font-size:0.85em;">🕒 ${data.heure}</div>`;
+            let html = `${!isC ? `<input type="checkbox" class="poste-checkbox" ${data.controlled?'checked':''} onclick="event.stopPropagation(); toggleControle(${n})"><span class="status-badge" style="color: ${data.controlled?'#17a2b8':'#666'}">${data.controlled?'Contrôlé':'Non contrôlé'}</span>` : ''}<div style="font-weight:bold; font-size: 1.1em;">Poste ${n}</div>`;
+            if(data.controlled && data.heure) html += `<div style="color:#17a2b8;font-size:0.85em;font-weight:bold;">🕒 ${data.heure}</div>`;
             if(hasN) {
                 html += `<div style="font-weight:bold;margin-top:8px;">${data.nom.toUpperCase()} ${data.prenom}</div>`;
                 if(isUserValid(data.nom, data.prenom)) html += `<div class="badge-peche">🪪 Carte de pêche valide</div>`;
@@ -225,29 +286,108 @@
             div.innerHTML = html; return div;
         }
 
+        function isUserValid(nom, prenom) {
+            if(!nom || !prenom) return false;
+            return validUsers.some(u => u.nom.toLowerCase() === nom.trim().toLowerCase() && u.prenom.toLowerCase() === prenom.trim().toLowerCase());
+        }
+
+        function checkCardBadge() {
+            const n = document.getElementById('modalNom').value; const p = document.getElementById('modalPrenom').value;
+            document.getElementById('modalBadgeZone').style.display = (n && p && isUserValid(n, p)) ? 'block' : 'none';
+        }
+
+        function checkInfo(nom, prenom) {
+            const full = (nom+' '+prenom).toLowerCase();
+            const av = (infractions.avertissements || []).filter(a => (a.nom+' '+a.prenom).toLowerCase() === full);
+            const isB = (infractions.bannis || []).some(b => (b.nom+' '+b.prenom).toLowerCase() === full);
+            let msg = `Historique de <strong>${nom.toUpperCase()} ${prenom}</strong> :<br><br>`;
+            msg += isB ? "🚫 <strong style='color:red;'>BANNISSEMENT ACTIF</strong><br>" : "✅ Statut autorisé<br>";
+            msg += `⚠️ Avertissements : ${av.length} / 3<br>`;
+            if(av.length > 0) { msg += "<ul style='margin-left:20px; font-size:0.9em; margin-top:10px;'>"; av.forEach(a => msg += `<li>${a.motif || 'Pas de motif'} <br><small>(${a.date})</small></li>`); msg += "</ul>"; }
+            showAlert(msg);
+        }
+
+        function openModal(n, data) {
+            curP = n; document.getElementById('modalTitle').textContent = 'Poste '+n; document.getElementById('modalDate').textContent = curFullDate + " 2026";
+            document.getElementById('modalNom').value = data.nom || ''; document.getElementById('modalPrenom').value = data.prenom || '';
+            document.getElementById('modalControle').checked = data.controlled || false; document.getElementById('modalHeure').value = data.heure || '';
+            updateControlText(); checkCardBadge(); document.getElementById('checkZone').style.display = n===4?'none':'block';
+            document.getElementById('infractionsButtons').style.display = (data.nom && n!==4)?'block':'none';
+            document.getElementById('posteModal').style.display = 'block';
+        }
+
+        function askMotif(type) { pendingSanctionType = type; document.getElementById('motifHeader').style.background = type === 'bannis' ? '#dc3545' : '#ffc107'; document.getElementById('motifInput').value = ''; document.getElementById('motifModal').style.display = 'block'; }
+        
+        function confirmSanction() {
+            const motif = document.getElementById('motifInput').value.trim() || "Non spécifié";
+            const nom = document.getElementById('modalNom').value.trim(); const prenom = document.getElementById('modalPrenom').value.trim();
+            const now = new Date().toLocaleString('fr-FR');
+            const newInf = { id: Date.now().toString(), nom, prenom, motif, date: now + " (" + curFullDate + ")" };
+            
+            if(!infractions[pendingSanctionType]) infractions[pendingSanctionType] = [];
+            infractions[pendingSanctionType].push(newInf);
+
+            if(pendingSanctionType === 'avertissements') {
+                const count = infractions.avertissements.filter(a => (a.nom+' '+a.prenom).toLowerCase() === (nom+' '+prenom).toLowerCase()).length;
+                if(count >= 3) {
+                    if(!infractions.bannis) infractions.bannis = [];
+                    infractions.bannis.push({ id: (Date.now()+1).toString(), nom, prenom, motif: "Auto : 3 avertissements", date: now });
+                    showAlert(`Banni automatiquement !`);
+                } else { showAlert("Avertissement enregistré."); }
+            } else { showAlert("Bannissement enregistré."); }
+            
+            db.ref('infras').set(infractions);
+            closeMotif(); closeModal();
+        }
+
+        function updateControlText() {
+            const cb = document.getElementById('modalControle'); const span = document.getElementById('controlStatusText'); const hInput = document.getElementById('modalHeure');
+            if(cb.checked) { if(!hInput.value) { const now = new Date(); hInput.value = now.getHours().toString().padStart(2,'0')+":"+now.getMinutes().toString().padStart(2,'0'); } span.textContent = "Contrôlé à " + hInput.value; span.style.color = "#17a2b8"; span.style.fontWeight = "bold"; }
+            else { hInput.value = ""; span.textContent = "Non contrôlé"; span.style.color = "black"; span.style.fontWeight = "normal"; }
+        }
+
+        function saveModal() {
+            const nom = document.getElementById('modalNom').value.trim(); const prenom = document.getElementById('modalPrenom').value.trim();
+            if(!nom || !prenom) { closeModal(); return; }
+            if((infractions.bannis || []).some(b => (b.nom+' '+b.prenom).toLowerCase() === (nom+' '+prenom).toLowerCase())) { showAlert(`🚫 <strong>${nom.toUpperCase()} est banni !</strong>`); return; }
+            db.ref(`resas/${curDKey}/${curP}`).set({ nom, prenom, controlled: document.getElementById('modalControle').checked, heure: document.getElementById('modalHeure').value });
+            closeModal();
+        }
+
         function toggleControle(n) {
-            const p = (reservations[curDKey] && reservations[curDKey][n]) ? JSON.parse(JSON.stringify(reservations[curDKey][n])) : {nom:'', prenom:'', controlled:false};
+            const p = (reservations[curDKey] && reservations[curDKey][n]) ? JSON.parse(JSON.stringify(reservations[curDKey][n])) : null;
+            if(!p) return;
             p.controlled = !p.controlled;
             if(p.controlled) { const now = new Date(); p.heure = now.getHours().toString().padStart(2,'0')+":"+now.getMinutes().toString().padStart(2,'0'); } else { p.heure = ""; }
             db.ref(`resas/${curDKey}/${n}`).set(p);
         }
 
-        function saveModal() {
-            const nom = document.getElementById('modalNom').value.trim();
-            const prenom = document.getElementById('modalPrenom').value.trim();
-            if(!nom || !prenom) { closeModal(); return; }
-            db.ref(`resas/${curDKey}/${curP}`).set({ nom, prenom, controlled: document.getElementById('modalControle').checked, heure: document.getElementById('modalHeure').value });
-            closeModal();
+        function removeInf(t, id) {
+            infractions[t] = infractions[t].filter(x => x.id !== id);
+            db.ref('infras').set(infractions);
+            showInfractionList(t);
         }
+        
+        function openAdmin() { if(prompt("Mot de passe Admin") === "admin") { renderAdminList(); document.getElementById('adminModal').style.display = 'block'; } }
+        function closeAdmin() { document.getElementById('adminModal').style.display = 'none'; }
+        function addValidUser() {
+            const n = document.getElementById('adminAddNom').value.trim(); const p = document.getElementById('adminAddPrenom').value.trim();
+            if(n && p) { db.ref('valids').push({nom:n, prenom:p}); document.getElementById('adminAddNom').value=''; document.getElementById('adminAddPrenom').value=''; }
+        }
+        function renderAdminList() {
+            const list = document.getElementById('adminValidList'); list.innerHTML = validUsers.length ? '' : 'Aucun pêcheur valide.';
+            validUsers.forEach((u, i) => { list.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:5px; background:#f8f9fa; padding:5px 10px; border-radius:5px;"><span>${u.nom.toUpperCase()} ${u.prenom}</span><button onclick="removeValidUser('${i}')" style="color:red; border:none; background:none; cursor:pointer; font-weight:bold;">✖</button></div>`; });
+        }
+        function removeValidUser(id) { db.ref('valids').child(id).remove(); }
 
-        function deleteModal() { db.ref(`resas/${curDKey}/${curP}`).remove(); closeModal(); }
         function hideAll() { ['monthsPage','daysPage','postesPage','infractionsMenuPage','infractionsDetailPage'].forEach(id => document.getElementById(id).classList.add('hidden')); }
         function closeModal() { document.getElementById('posteModal').style.display = 'none'; }
-        function updateControlText() { const cb = document.getElementById('modalControle'); document.getElementById('controlStatusText').textContent = cb.checked ? "Contrôlé" : "Non contrôlé"; }
-        function checkCardBadge() { const n = document.getElementById('modalNom').value; const p = document.getElementById('modalPrenom').value; document.getElementById('modalBadgeZone').style.display = isUserValid(n, p) ? 'block' : 'none'; }
-        function isUserValid(n, p) { if(!n || !p) return false; return validUsers.some(u => u.nom.toLowerCase() === n.trim().toLowerCase() && u.prenom.toLowerCase() === p.trim().toLowerCase()); }
+        function closeMotif() { document.getElementById('motifModal').style.display = 'none'; }
+        function deleteModal() { db.ref(`resas/${curDKey}/${curP}`).remove(); closeModal(); }
         function backToDays() { showDays(curM, curMName); }
-        function updateCounts() { document.getElementById('countAvertissement').textContent = (infractions.avertissements||[]).length+' dossier(s)'; document.getElementById('countBanni').textContent = (infractions.bannis||[]).length+' dossier(s)'; }
+        function updateCounts() { document.getElementById('countAvertissement').textContent = (infractions.avertissements || []).length+' dossier(s)'; document.getElementById('countBanni').textContent = (infractions.bannis || []).length+' dossier(s)'; }
+        function showAlert(msg) { document.getElementById('alertBody').innerHTML = msg; document.getElementById('alertModal').style.display = 'block'; }
+        function closeAlert() { document.getElementById('alertModal').style.display = 'none'; }
     </script>
 </body>
 </html>
