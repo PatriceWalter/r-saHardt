@@ -4,27 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion Postes Hardt 2026</title>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <style>
+        /* TOUT TON STYLE RESTE IDENTIQUE */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; margin: 0; }
         body.login-mode { display: flex; align-items: center; justify-content: center; padding: 20px; }
         body.app-mode { display: block; padding: 20px; }
-
         #loginPage { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); width: 100%; max-width: 400px; text-align: center; }
         #loginPage h2 { color: #764ba2; margin-bottom: 25px; font-size: 1.5em; }
         .login-input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #eee; border-radius: 8px; font-size: 16px; outline: none; }
         .login-input[readonly] { background-color: #f8f9fa; color: #6c757d; cursor: not-allowed; }
         .btn-login { width: 100%; background: #667eea; color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1em; margin-top: 15px; }
-
         #mainApp { display: none; max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; }
         .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; text-align: center; position: relative; }
         .admin-gear { position: absolute; top: 15px; right: 20px; font-size: 1.5em; cursor: pointer; }
         .breadcrumb { background: #f8f9fa; padding: 15px 30px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
         .breadcrumb a { color: #667eea; text-decoration: none; font-weight: bold; cursor: pointer; }
         .content { padding: 30px; }
-        
         .months-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
         .month-card { background: white; border: 3px solid #e9ecef; border-radius: 10px; padding: 30px; text-align: center; cursor: pointer; transition: 0.3s; }
         .month-name { font-size: 1.5em; font-weight: bold; color: #667eea; }
@@ -32,23 +28,18 @@
         .day-card { background: white; border: 2px solid #e9ecef; border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s; min-height: 110px; display: flex; flex-direction: column; justify-content: center; }
         .day-number { font-size: 1.1em; font-weight: bold; color: #667eea; text-transform: capitalize; }
         .closed-morning { color: #dc3545; font-size: 0.85em; font-weight: bold; margin-top: 5px; }
-        
         .postes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
         .poste-box { background: #f8f9fa; border: 3px solid #dee2e6; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; position: relative; transition: 0.3s; height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .poste-box.libre { border-color: #28a745; background: #e8f5e9; }
         .poste-box.reserve { border-color: #ffc107; background: #fff9e6; }
         .poste-box.controle { border-color: #17a2b8; background: #e7f6f8; }
         .poste-box.controleur { border-color: #ffd700; border-width: 4px; background: #fffbf0; }
-        
         .poste-checkbox { position: absolute; top: 10px; right: 10px; width: 25px; height: 25px; cursor: pointer; z-index: 10; }
         .status-badge { position: absolute; top: 38px; right: 10px; font-size: 0.7em; font-weight: bold; }
-
         .badge-peche { color: #28a745; font-size: 0.75em; font-weight: bold; margin-top: 8px; border: 1.5px solid #28a745; padding: 3px 6px; border-radius: 5px; background: white; }
-
         .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
         .stat-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
         .stat-number { font-size: 2.5em; font-weight: bold; }
-
         .modal, .alert-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
         .modal-content, .alert-content { background: white; margin: 5% auto; border-radius: 15px; width: 90%; max-width: 500px; overflow: hidden; animation: slideDown 0.3s; }
         .modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; }
@@ -196,16 +187,21 @@
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
     <script>
-        // CONFIGURATION FIREBASE
+        // REMPLACE PAR TES CLÉS FIREBASE ICI
         const firebaseConfig = {
             apiKey: "AIzaSyADXcfDOBLHC7pdlGedDW-4wAHKyPHW19I",
             authDomain: "resahardt.firebaseapp.com",
             projectId: "resahardt",
             storageBucket: "resahardt.firebasestorage.app",
             messagingSenderId: "159584744908",
-            appId: "1:159584744908:web:1cc909277052b56e945969"
+            appId: "1:159584744908:web:1cc909277052b56e945969",
+            measurementId: "G-ZCGBGZK2P9"
         };
+        
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
@@ -216,7 +212,7 @@
                 document.getElementById('loginPage').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
                 document.body.className = 'app-mode';
-                renderMonths();
+                renderMonths(); 
             } else { error.style.display = 'block'; }
         }
         document.getElementById("loginPass").addEventListener("keyup", function(event) { if (event.key === "Enter") { checkLogin(); } });
@@ -231,19 +227,30 @@
         let validUsers = [];
         let curM, curMName, curDKey, curP, curFullDate, pendingSanctionType;
 
-        // SYNC FIREBASE TEMPS RÉEL
-        db.ref('resas').on('value', (s) => { reservations = s.val() || {}; if(curDKey) renderPostes(); });
-        db.ref('infras').on('value', (s) => { infractions = s.val() || { avertissements: [], bannis: [] }; updateCounts(); });
-        db.ref('valids').on('value', (s) => { validUsers = Object.values(s.val() || {}); });
+        // SYNCHRO FIREBASE
+        db.ref('/').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                reservations = data.reservations || {};
+                infractions = data.infractions || { avertissements: [], bannis: [] };
+                validUsers = data.validUsers || [];
+                if (!document.getElementById('postesPage').classList.contains('hidden')) renderPostes();
+                updateCounts();
+            }
+        });
+
+        function saveToCloud() {
+            db.ref('/').set({ reservations, infractions, validUsers });
+        }
 
         function renderMonths() { document.getElementById('monthsGrid').innerHTML = MOIS_NOMS.map((m, i) => i > 0 ? `<div class="month-card" onclick="showDays(${i}, '${m}')"><div class="month-name">${m}</div></div>` : '').join(''); }
         function showMonths() { hideAll(); document.getElementById('monthsPage').classList.remove('hidden'); }
-        function showInfractionsMenu() { hideAll(); document.getElementById('infractionsMenuPage').classList.remove('hidden'); }
+        function showInfractionsMenu() { hideAll(); document.getElementById('infractionsMenuPage').classList.remove('hidden'); updateCounts(); }
         function showInfractionList(type) {
             hideAll(); document.getElementById('infractionsDetailPage').classList.remove('hidden');
             document.getElementById('detailTitle').textContent = type === 'avertissements' ? '⚠️ AVERTISSEMENTS' : '🚫 BANNIS';
-            const list = infractions[type] || [];
-            document.getElementById('detailList').innerHTML = list.length ? list.map(p => `<div class="infraction-item" style="border-left-color: ${type==='bannis'?'#dc3545':'#ffc107'}"><div><strong>${p.nom.toUpperCase()} ${p.prenom}</strong><br><small>Le ${p.date}</small><br><span style="color:#666; font-size:0.9em;">Motif: ${p.motif || 'Non spécifié'}</span></div><button class="btn btn-delete" style="flex:none; padding:8px 15px;" onclick="removeInf('${type}', '${p.id}')">Retirer</button></div>`).join('') : '<p style="text-align:center;">Aucun dossier.</p>';
+            const sorted = [...(infractions[type] || [])].sort((a,b) => a.nom.localeCompare(b.nom) || a.prenom.localeCompare(b.prenom));
+            document.getElementById('detailList').innerHTML = sorted.length ? sorted.map(p => `<div class="infraction-item" style="border-left-color: ${type==='bannis'?'#dc3545':'#ffc107'}"><div><strong>${p.nom.toUpperCase()} ${p.prenom}</strong><br><small>Le ${p.date}</small><br><span style="color:#666; font-size:0.9em;">Motif: ${p.motif || 'Non spécifié'}</span></div><button class="btn btn-delete" style="flex:none; padding:8px 15px;" onclick="removeInf('${type}', '${p.id}')">Retirer</button></div>`).join('') : '<p style="text-align:center;">Aucun dossier.</p>';
         }
         function showDays(m, name) {
             curM = m; curMName = name; hideAll(); document.getElementById('daysPage').classList.remove('hidden');
@@ -287,8 +294,8 @@
         }
 
         function isUserValid(nom, prenom) {
-            if(!nom || !prenom) return false;
-            return validUsers.some(u => u.nom.toLowerCase() === nom.trim().toLowerCase() && u.prenom.toLowerCase() === prenom.trim().toLowerCase());
+            const n = nom.trim().toLowerCase(); const p = prenom.trim().toLowerCase();
+            return validUsers.some(u => u.nom.toLowerCase() === n && u.prenom.toLowerCase() === p);
         }
 
         function checkCardBadge() {
@@ -322,22 +329,14 @@
             const motif = document.getElementById('motifInput').value.trim() || "Non spécifié";
             const nom = document.getElementById('modalNom').value.trim(); const prenom = document.getElementById('modalPrenom').value.trim();
             const now = new Date().toLocaleString('fr-FR');
-            const newInf = { id: Date.now().toString(), nom, prenom, motif, date: now + " (" + curFullDate + ")" };
-            
             if(!infractions[pendingSanctionType]) infractions[pendingSanctionType] = [];
-            infractions[pendingSanctionType].push(newInf);
-
+            infractions[pendingSanctionType].push({ id: Date.now().toString(), nom, prenom, motif, date: now + " (" + curFullDate + ")" });
             if(pendingSanctionType === 'avertissements') {
                 const count = infractions.avertissements.filter(a => (a.nom+' '+a.prenom).toLowerCase() === (nom+' '+prenom).toLowerCase()).length;
-                if(count >= 3) {
-                    if(!infractions.bannis) infractions.bannis = [];
-                    infractions.bannis.push({ id: (Date.now()+1).toString(), nom, prenom, motif: "Auto : 3 avertissements", date: now });
-                    showAlert(`Banni automatiquement !`);
-                } else { showAlert("Avertissement enregistré."); }
+                if(count >= 3) { infractions.bannis.push({ id: (Date.now()+1).toString(), nom, prenom, motif: "Auto : 3 avertissements", date: now }); showAlert(`Banni automatiquement !`); }
+                else { showAlert("Avertissement enregistré."); }
             } else { showAlert("Bannissement enregistré."); }
-            
-            db.ref('infras').set(infractions);
-            closeMotif(); closeModal();
+            saveToCloud(); closeMotif(); closeModal();
         }
 
         function updateControlText() {
@@ -350,42 +349,41 @@
             const nom = document.getElementById('modalNom').value.trim(); const prenom = document.getElementById('modalPrenom').value.trim();
             if(!nom || !prenom) { closeModal(); return; }
             if((infractions.bannis || []).some(b => (b.nom+' '+b.prenom).toLowerCase() === (nom+' '+prenom).toLowerCase())) { showAlert(`🚫 <strong>${nom.toUpperCase()} est banni !</strong>`); return; }
-            db.ref(`resas/${curDKey}/${curP}`).set({ nom, prenom, controlled: document.getElementById('modalControle').checked, heure: document.getElementById('modalHeure').value });
-            closeModal();
+            if(!reservations[curDKey]) reservations[curDKey] = {};
+            reservations[curDKey][curP] = { nom, prenom, controlled: document.getElementById('modalControle').checked, heure: document.getElementById('modalHeure').value };
+            saveToCloud(); closeModal();
         }
 
-        function toggleControle(n) {
-            const p = (reservations[curDKey] && reservations[curDKey][n]) ? JSON.parse(JSON.stringify(reservations[curDKey][n])) : null;
-            if(!p) return;
-            p.controlled = !p.controlled;
-            if(p.controlled) { const now = new Date(); p.heure = now.getHours().toString().padStart(2,'0')+":"+now.getMinutes().toString().padStart(2,'0'); } else { p.heure = ""; }
-            db.ref(`resas/${curDKey}/${n}`).set(p);
+        function toggleControle(n) { 
+            if(!reservations[curDKey] || !reservations[curDKey][n]) return; 
+            const p = reservations[curDKey][n]; p.controlled = !p.controlled; 
+            if(p.controlled) { const now = new Date(); p.heure = now.getHours().toString().padStart(2,'0')+":"+now.getMinutes().toString().padStart(2,'0'); } else { p.heure = ""; } 
+            saveToCloud(); 
         }
 
-        function removeInf(t, id) {
-            infractions[t] = infractions[t].filter(x => x.id !== id);
-            db.ref('infras').set(infractions);
-            showInfractionList(t);
-        }
-        
+        function removeInf(t, id) { infractions[t] = infractions[t].filter(x => x.id !== id); saveToCloud(); showInfractionList(t); }
+
         function openAdmin() { if(prompt("Mot de passe Admin") === "admin") { renderAdminList(); document.getElementById('adminModal').style.display = 'block'; } }
         function closeAdmin() { document.getElementById('adminModal').style.display = 'none'; }
         function addValidUser() {
             const n = document.getElementById('adminAddNom').value.trim(); const p = document.getElementById('adminAddPrenom').value.trim();
-            if(n && p) { db.ref('valids').push({nom:n, prenom:p}); document.getElementById('adminAddNom').value=''; document.getElementById('adminAddPrenom').value=''; }
+            if(n && p) { validUsers.push({nom:n, prenom:p}); saveToCloud(); renderAdminList(); document.getElementById('adminAddNom').value=''; document.getElementById('adminAddPrenom').value=''; }
         }
         function renderAdminList() {
-            const list = document.getElementById('adminValidList'); list.innerHTML = validUsers.length ? '' : 'Aucun pêcheur valide.';
-            validUsers.forEach((u, i) => { list.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:5px; background:#f8f9fa; padding:5px 10px; border-radius:5px;"><span>${u.nom.toUpperCase()} ${u.prenom}</span><button onclick="removeValidUser('${i}')" style="color:red; border:none; background:none; cursor:pointer; font-weight:bold;">✖</button></div>`; });
+            const list = document.getElementById('adminValidList'); list.innerHTML = (validUsers || []).length ? '' : 'Aucun pêcheur valide.';
+            (validUsers || []).forEach((u, i) => { list.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:5px; background:#f8f9fa; padding:5px 10px; border-radius:5px;"><span>${u.nom.toUpperCase()} ${u.prenom}</span><button onclick="removeValidUser(${i})" style="color:red; border:none; background:none; cursor:pointer; font-weight:bold;">✖</button></div>`; });
         }
-        function removeValidUser(id) { db.ref('valids').child(id).remove(); }
+        function removeValidUser(i) { validUsers.splice(i, 1); saveToCloud(); renderAdminList(); }
 
         function hideAll() { ['monthsPage','daysPage','postesPage','infractionsMenuPage','infractionsDetailPage'].forEach(id => document.getElementById(id).classList.add('hidden')); }
         function closeModal() { document.getElementById('posteModal').style.display = 'none'; }
         function closeMotif() { document.getElementById('motifModal').style.display = 'none'; }
-        function deleteModal() { db.ref(`resas/${curDKey}/${curP}`).remove(); closeModal(); }
+        function deleteModal() { if(reservations[curDKey]) delete reservations[curDKey][curP]; saveToCloud(); closeModal(); }
         function backToDays() { showDays(curM, curMName); }
-        function updateCounts() { document.getElementById('countAvertissement').textContent = (infractions.avertissements || []).length+' dossier(s)'; document.getElementById('countBanni').textContent = (infractions.bannis || []).length+' dossier(s)'; }
+        function updateCounts() { 
+            document.getElementById('countAvertissement').textContent = (infractions.avertissements || []).length+' dossier(s)'; 
+            document.getElementById('countBanni').textContent = (infractions.bannis || []).length+' dossier(s)'; 
+        }
         function showAlert(msg) { document.getElementById('alertBody').innerHTML = msg; document.getElementById('alertModal').style.display = 'block'; }
         function closeAlert() { document.getElementById('alertModal').style.display = 'none'; }
     </script>
