@@ -8,7 +8,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
         
-        /* CONNEXION */
+        /* LOGIN */
         body.login-mode { display: flex; align-items: center; justify-content: center; padding: 20px; }
         #loginPage { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); width: 100%; max-width: 400px; text-align: center; }
         
@@ -29,7 +29,7 @@
         .closed-morning { color: #dc3545; font-size: 0.8em; font-weight: bold; margin-top: 5px; }
 
         .postes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
-        .poste-box { height: 160px; border: 3px solid #dee2e6; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; background: #f8f9fa; text-align: center; padding: 10px; }
+        .poste-box { height: 160px; border: 3px solid #dee2e6; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; background: #f8f9fa; padding: 10px; text-align: center; }
         .poste-box.libre { border-color: #28a745; background: #e8f5e9; }
         .poste-box.reserve { border-color: #ffc107; background: #fff9e6; }
         .poste-box.controle { border-color: #17a2b8; background: #e7f6f8; }
@@ -41,7 +41,6 @@
         .modal-content { background:white; margin: 5% auto; padding:20px; border-radius:15px; width:90%; max-width:450px; }
         input[type="text"], input[type="password"] { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
         .btn { padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
-        .btn-save { background: #28a745; color: white; }
         .hidden { display: none; }
     </style>
 </head>
@@ -51,7 +50,6 @@
         <h2>👮 Connexion Hardt 2026</h2>
         <input type="password" id="loginPass" placeholder="Mot de passe" autofocus>
         <button class="btn" style="background:#667eea; color:white;" onclick="checkLogin()">Entrer</button>
-        <p id="errorLogin" style="color:red; display:none; margin-top:10px;">Accès refusé</p>
     </div>
 
     <div id="mainApp">
@@ -66,6 +64,7 @@
         
         <div id="monthsPage" class="content">
             <div class="months-grid" id="monthsGrid"></div>
+            <button onclick="showInfractions()" style="width:100%; margin-top:20px; background:#dc3545; color:white; padding:15px; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">⚠️ DOSSIERS INFRACTIONS</button>
         </div>
 
         <div id="daysPage" class="content hidden">
@@ -79,6 +78,12 @@
             <h3 id="postePageTitle" style="margin: 20px 0; text-align:center;"></h3>
             <div id="postesGrid" class="postes-grid"></div>
         </div>
+
+        <div id="infraPage" class="content hidden">
+            <button class="btn" style="width:auto; background:#6c757d; color:white;" onclick="showMonths()">← Retour</button>
+            <h2 style="margin:20px 0; color:#dc3545;">⚠️ Registre des Infractions</h2>
+            <div id="infraList" style="background:#f8f9fa; padding:15px; border-radius:10px;"></div>
+        </div>
     </div>
 
     <div id="posteModal" class="modal">
@@ -89,7 +94,13 @@
             <div id="cardStatus" style="margin-bottom:10px; display:none;"></div>
             <label><input type="checkbox" id="modalControle" onchange="updateTime()"> Contrôlé</label>
             <input type="hidden" id="modalHeure">
-            <button class="btn btn-save" onclick="savePoste()">💾 Enregistrer</button>
+            <button class="btn" style="background:#28a745; color:white;" onclick="savePoste()">💾 Enregistrer</button>
+            
+            <div id="actionInfra" style="margin-top:10px; display:none; gap:5px; display:flex;">
+                <button class="btn" style="background:#ffc107; margin:0;" onclick="addInfra('Avertissement')">⚠️ Avertir</button>
+                <button class="btn" style="background:#000; color:white; margin:0;" onclick="addInfra('Banni')">🚫 Bannir</button>
+            </div>
+
             <button class="btn" style="background:#dc3545; color:white;" onclick="deletePoste()">🗑️ Effacer</button>
             <button class="btn" style="background:#eee;" onclick="closeModal()">Fermer</button>
         </div>
@@ -100,22 +111,20 @@
             <h3>🪪 Liste Pêcheurs Valides</h3>
             <input type="text" id="addNom" placeholder="NOM">
             <input type="text" id="addPrenom" placeholder="Prénom">
-            <button class="btn btn-save" onclick="addPecheur()">Ajouter</button>
-            <div id="listPecheurs" style="max-height:200px; overflow-y:auto; margin-top:15px; border-top:1px solid #eee; padding-top:10px;"></div>
+            <button class="btn" style="background:#28a745; color:white;" onclick="addPecheur()">Ajouter</button>
+            <div id="listPecheurs" style="max-height:200px; overflow-y:auto; margin-top:15px; border-top:1px solid #eee;"></div>
             <button class="btn" onclick="document.getElementById('adminModal').style.display='none'">Fermer</button>
         </div>
     </div>
 
     <script>
-        // TES DATES EXACTES (SANS AJOUTS)
-        const OUVERTURE = {
-            2:[28], 3:[28], 4:[25], 5:[13], 7:[19], 8:[17], 9:[14]
-        };
+        const OUVERTURE = { 2:[28], 3:[28], 4:[25], 5:[13], 7:[19], 8:[17], 9:[14] };
         const FERME_M = { 2:[28], 3:[28], 4:[25], 5:[13], 7:[19], 8:[17], 9:[14] };
         const MOIS_NOMS = ["","","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre"];
 
         let dataRes = JSON.parse(localStorage.getItem('hardt_res_2026')) || {};
         let pecheursValides = JSON.parse(localStorage.getItem('hardt_valides')) || [];
+        let infractions = JSON.parse(localStorage.getItem('hardt_infra')) || [];
         let curM, curKey, curDF, curP;
 
         function checkLogin() {
@@ -124,7 +133,7 @@
                 document.getElementById('loginPage').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
                 renderMonths();
-            } else { document.getElementById('errorLogin').style.display = 'block'; }
+            }
         }
 
         function renderMonths() {
@@ -158,16 +167,17 @@
             for(let i=1; i<=12; i++) {
                 let p = dataRes[key][i] || {nom:"", prenom:"", controlled:false};
                 let hasN = p.nom && p.nom.trim() !== "";
-                // CASSE INSENSIBLE ICI
                 let isV = hasN && pecheursValides.some(x => x.nom.toLowerCase() === p.nom.toLowerCase() && x.prenom.toLowerCase() === p.prenom.toLowerCase());
-                
+                let isBanni = hasN && infractions.some(x => x.nom.toLowerCase() === p.nom.toLowerCase() && x.prenom.toLowerCase() === p.prenom.toLowerCase() && x.type === 'Banni');
+
                 let div = document.createElement('div');
                 div.className = `poste-box ${i===4?'controleur':(p.controlled?'controle':(hasN?'reserve':'libre'))}`;
+                if(isBanni) div.style.background = "#000";
                 div.innerHTML = `<strong>Poste ${i}</strong>`;
-                if(p.controlled) div.innerHTML += `<small>🕒 ${p.heure}</small>`;
                 if(hasN) {
-                    div.innerHTML += `<div style="text-transform:uppercase; font-weight:bold; margin-top:5px;">${p.nom} ${p.prenom}</div>`;
-                    if(isV) div.innerHTML += `<div class="badge-peche">🪪 Carte de pêche valide</div>`;
+                    div.innerHTML += `<div style="text-transform:uppercase; font-weight:bold; margin-top:5px; ${isBanni?'color:white;':''}">${p.nom} ${p.prenom}</div>`;
+                    if(isV && !isBanni) div.innerHTML += `<div class="badge-peche">🪪 Carte de pêche valide</div>`;
+                    if(isBanni) div.innerHTML += `<div style="color:red; font-size:0.8em; font-weight:bold;">🚫 BANNI</div>`;
                 }
                 div.onclick = () => openModal(i, p); grid.appendChild(div);
             }
@@ -177,7 +187,7 @@
             curP = n; document.getElementById('modalNom').value = p.nom || "";
             document.getElementById('modalPrenom').value = p.prenom || "";
             document.getElementById('modalControle').checked = p.controlled || false;
-            document.getElementById('modalHeure').value = p.heure || "";
+            document.getElementById('actionInfra').style.display = p.nom ? 'flex' : 'none';
             checkCard(); document.getElementById('posteModal').style.display = 'block';
         }
 
@@ -185,38 +195,52 @@
             const n = document.getElementById('modalNom').value.trim().toLowerCase();
             const p = document.getElementById('modalPrenom').value.trim().toLowerCase();
             const found = pecheursValides.some(x => x.nom.toLowerCase() === n && x.prenom.toLowerCase() === p);
-            const label = document.getElementById('cardStatus');
-            label.style.display = (n && p && found) ? 'block' : 'none';
-            label.innerHTML = '<span style="color:#28a745; font-weight:bold;">🪪 Carte de pêche valide</span>';
+            document.getElementById('cardStatus').style.display = (n && p && found) ? 'block' : 'none';
+            document.getElementById('cardStatus').innerHTML = '<span style="color:#28a745; font-weight:bold;">🪪 Carte de pêche valide</span>';
         }
 
         function savePoste() {
-            let n = document.getElementById('modalNom').value.trim();
-            let p = document.getElementById('modalPrenom').value.trim();
-            if(n) {
-                dataRes[curKey][curP] = { nom:n, prenom:p, controlled:document.getElementById('modalControle').checked, heure:document.getElementById('modalHeure').value };
-            } else { delete dataRes[curKey][curP]; }
+            let n = document.getElementById('modalNom').value.trim(), p = document.getElementById('modalPrenom').value.trim();
+            if(n) dataRes[curKey][curP] = { nom:n, prenom:p, controlled:document.getElementById('modalControle').checked, heure:document.getElementById('modalHeure').value };
+            else delete dataRes[curKey][curP];
             localStorage.setItem('hardt_res_2026', JSON.stringify(dataRes));
             showPostes(curKey, curDF); closeModal();
         }
 
+        function addInfra(type) {
+            let n = document.getElementById('modalNom').value.trim(), p = document.getElementById('modalPrenom').value.trim();
+            infractions.push({nom:n, prenom:p, type:type, date:curDF});
+            localStorage.setItem('hardt_infra', JSON.stringify(infractions));
+            alert(type + " enregistré pour " + n);
+            showPostes(curKey, curDF); closeModal();
+        }
+
+        function showInfractions() {
+            hideAll(); document.getElementById('infraPage').classList.remove('hidden');
+            const list = document.getElementById('infraList'); list.innerHTML = infractions.length ? "" : "Aucun dossier.";
+            infractions.forEach((x, i) => {
+                list.innerHTML += `<div style="padding:10px; border-bottom:1px solid #ddd; display:flex; justify-content:space-between;">
+                    <span><strong>${x.type}</strong>: ${x.nom} ${x.prenom} (${x.date})</span>
+                    <button onclick="removeInfra(${i})" style="color:red; border:none; background:none; cursor:pointer;">Supprimer</button>
+                </div>`;
+            });
+        }
+
+        function removeInfra(i) { infractions.splice(i,1); localStorage.setItem('hardt_infra', JSON.stringify(infractions)); showInfractions(); }
         function deletePoste() { delete dataRes[curKey][curP]; localStorage.setItem('hardt_res_2026', JSON.stringify(dataRes)); showPostes(curKey, curDF); closeModal(); }
         function updateTime() { if(document.getElementById('modalControle').checked) { let d=new Date(); document.getElementById('modalHeure').value = d.getHours()+":"+d.getMinutes().toString().padStart(2,'0'); } }
         function closeModal() { document.getElementById('posteModal').style.display='none'; }
-        function hideAll() { ['monthsPage','daysPage','postesPage'].forEach(id => document.getElementById(id).classList.add('hidden')); }
+        function hideAll() { ['monthsPage','daysPage','postesPage','infraPage'].forEach(id => document.getElementById(id).classList.add('hidden')); }
         function showMonths() { hideAll(); document.getElementById('monthsPage').classList.remove('hidden'); }
         function backToDays() { showDays(curM); }
-
         function openAdmin() { if(prompt("Pass Admin") === "admin") { renderAdminList(); document.getElementById('adminModal').style.display='block'; } }
         function addPecheur() {
             let n = document.getElementById('addNom').value.trim(), p = document.getElementById('addPrenom').value.trim();
-            if(n && p) { pecheursValides.push({nom:n, prenom:p}); localStorage.setItem('hardt_valides', JSON.stringify(pecheursValides)); renderAdminList(); document.getElementById('addNom').value=""; document.getElementById('addPrenom').value=""; }
+            if(n && p) { pecheursValides.push({nom:n, prenom:p}); localStorage.setItem('hardt_valides', JSON.stringify(pecheursValides)); renderAdminList(); }
         }
         function renderAdminList() {
             const list = document.getElementById('listPecheurs'); list.innerHTML = "";
-            pecheursValides.forEach((x, i) => {
-                list.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>${x.nom.toUpperCase()} ${x.prenom}</span><button onclick="removeP(${i})" style="color:red; border:none; background:none; cursor:pointer;">✖</button></div>`;
-            });
+            pecheursValides.forEach((x, i) => { list.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>${x.nom.toUpperCase()} ${x.prenom}</span><button onclick="removeP(${i})" style="color:red; border:none; background:none; cursor:pointer;">✖</button></div>`; });
         }
         function removeP(i) { pecheursValides.splice(i,1); localStorage.setItem('hardt_valides', JSON.stringify(pecheursValides)); renderAdminList(); }
     </script>
