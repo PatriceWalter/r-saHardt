@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion Postes Hardt 2026</title>
     <style>
-        /* TON STYLE ORIGINAL INTACT */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; margin: 0; }
         body.login-mode { display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -69,7 +68,7 @@
         <div class="header">
             <span class="admin-gear" onclick="openAdmin()">⚙️</span>
             <h1>📋 Réservation Postes Hardt 2026</h1>
-            <div id="statusSync" style="font-size: 0.7em; margin-top: 5px; opacity: 0.8;">Connexion...</div>
+            <div id="statusSync" style="font-size: 0.7em; margin-top: 5px; opacity: 0.8;">Connexion Cloud...</div>
         </div>
         <div class="breadcrumb">
             <div><a onclick="showMonths()">Accueil</a></div>
@@ -192,7 +191,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
     <script>
-        // CONFIGURATION CORRIGÉE SELON TON IMAGE
         const firebaseConfig = {
             apiKey: "AIzaSyAs7K-9-m7K8f5r6G2D3H1j4K5L6M7N8",
             authDomain: "resahardt.firebaseapp.com",
@@ -205,7 +203,6 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // VARIABLES GLOBALES (Initialisées via Firebase)
         let reservations = {}, infractions = { avertissements: [], bannis: [] }, validUsers = [];
         let curM, curMName, curDKey, curP, curFullDate, pendingSanctionType;
 
@@ -213,7 +210,6 @@
         const FERME_MATIN = { 1:[28], 2:[28], 3:[25], 5:[13], 8:[19], 9:[17], 10:[14] };
         const MOIS_NOMS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 
-        // ÉCOUTE DU CLOUD
         db.ref('/').on('value', (snapshot) => {
             const data = snapshot.val();
             if(data) {
@@ -228,10 +224,8 @@
 
         function save() { db.ref('/').set({ reservations, infractions, validUsers }); }
 
-        // TOUTES TES FONCTIONS ORIGINALES CONSERVÉES
         function checkLogin() {
-            const pass = document.getElementById('loginPass').value;
-            if(pass === "911") {
+            if(document.getElementById('loginPass').value === "911") {
                 document.getElementById('loginPage').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
                 document.body.className = 'app-mode';
@@ -303,18 +297,26 @@
         }
 
         function saveModal() {
-            const nom = document.getElementById('modalNom').value.trim(); const prenom = document.getElementById('modalPrenom').value.trim();
+            let nom = document.getElementById('modalNom').value.trim();
+            let prenom = document.getElementById('modalPrenom').value.trim();
             if(!nom || !prenom) { closeModal(); return; }
-            if(infractions.bannis.some(b => b.nom.toLowerCase() === nom.toLowerCase() && b.prenom.toLowerCase() === prenom.toLowerCase())) { showAlert(`🚫 <strong>${nom.toUpperCase()} est banni !</strong>`); return; }
+            nom = nom.toUpperCase();
+            prenom = prenom.charAt(0).toUpperCase() + prenom.slice(1).toLowerCase();
+            const full = (nom + ' ' + prenom).toLowerCase();
+            if(infractions.bannis.some(b => (b.nom + ' ' + b.prenom).toLowerCase() === full)) {
+                showAlert(`🚫 <strong>${nom} est banni !</strong>`);
+                return;
+            }
             if(!reservations[curDKey]) reservations[curDKey] = {};
             reservations[curDKey][curP] = { nom, prenom, controlled: document.getElementById('modalControle').checked, heure: document.getElementById('modalHeure').value };
-            save(); closeModal();
+            save(); renderPostes(); closeModal();
         }
 
         function toggleControle(n) { 
+            if(!reservations[curDKey][n]) return;
             const p = reservations[curDKey][n]; p.controlled = !p.controlled; 
             if(p.controlled) { const now = new Date(); p.heure = now.getHours().toString().padStart(2,'0')+":"+now.getMinutes().toString().padStart(2,'0'); } 
-            else { p.heure = ""; } save(); 
+            else { p.heure = ""; } save(); renderPostes();
         }
 
         function askMotif(type) { pendingSanctionType = type; document.getElementById('motifHeader').style.background = type === 'bannis' ? '#dc3545' : '#ffc107'; document.getElementById('motifInput').value = ''; document.getElementById('motifModal').style.display = 'block'; }
@@ -325,21 +327,26 @@
         }
 
         function checkInfo(nom, prenom) {
-            const av = infractions.avertissements.filter(a => a.nom.toLowerCase() === nom.toLowerCase());
-            const isB = infractions.bannis.some(b => b.nom.toLowerCase() === nom.toLowerCase());
-            showAlert(`Historique de <strong>${nom.toUpperCase()}</strong> :<br>${isB ? '🚫 BANNI' : '✅ OK'}<br>⚠️ Avertissements : ${av.length}/3`);
+            const full = (nom+' '+prenom).toLowerCase();
+            const av = infractions.avertissements.filter(a => (a.nom+' '+a.prenom).toLowerCase() === full);
+            const isB = infractions.bannis.some(b => (b.nom+' '+b.prenom).toLowerCase() === full);
+            showAlert(`Historique de <strong>${nom.toUpperCase()} ${prenom}</strong> :<br>${isB ? '🚫 BANNI' : '✅ OK'}<br>⚠️ Avertissements : ${av.length}/3`);
         }
 
         function removeInf(t, id) { infractions[t] = infractions[t].filter(x => x.id !== id); save(); showInfractionList(t); }
         function updateControlText() { const cb = document.getElementById('modalControle'); document.getElementById('controlStatusText').textContent = cb.checked ? "Contrôlé à " + document.getElementById('modalHeure').value : "Non contrôlé"; }
         function openAdmin() { if(prompt("Code Admin:") === "admin") { renderAdminList(); document.getElementById('adminModal').style.display = 'block'; } }
-        function addValidUser() { validUsers.push({nom:document.getElementById('adminAddNom').value, prenom:document.getElementById('adminAddPrenom').value}); save(); renderAdminList(); }
-        function renderAdminList() { document.getElementById('adminValidList').innerHTML = validUsers.map((u, i) => `<div>${u.nom} <button onclick="removeValidUser(${i})">✖</button></div>`).join(''); }
+        function addValidUser() { 
+            let n = document.getElementById('adminAddNom').value.trim(); 
+            let p = document.getElementById('adminAddPrenom').value.trim();
+            if(n && p) { validUsers.push({nom:n.toUpperCase(), prenom:p.charAt(0).toUpperCase()+p.slice(1).toLowerCase()}); save(); renderAdminList(); }
+        }
+        function renderAdminList() { document.getElementById('adminValidList').innerHTML = validUsers.map((u, i) => `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>${u.nom} ${u.prenom}</span><button onclick="removeValidUser(${i})">✖</button></div>`).join(''); }
         function removeValidUser(i) { validUsers.splice(i, 1); save(); renderAdminList(); }
         function hideAll() { ['monthsPage','daysPage','postesPage','infractionsMenuPage','infractionsDetailPage'].forEach(id => document.getElementById(id).classList.add('hidden')); }
         function closeModal() { document.getElementById('posteModal').style.display = 'none'; }
         function closeMotif() { document.getElementById('motifModal').style.display = 'none'; }
-        function deleteModal() { delete reservations[curDKey][curP]; save(); closeModal(); }
+        function deleteModal() { delete reservations[curDKey][curP]; save(); renderPostes(); closeModal(); }
         function backToDays() { showDays(curM, curMName); }
         function updateCounts() { document.getElementById('countAvertissement').textContent = infractions.avertissements.length+' dossier(s)'; document.getElementById('countBanni').textContent = infractions.bannis.length+' dossier(s)'; }
         function showAlert(msg) { document.getElementById('alertBody').innerHTML = msg; document.getElementById('alertModal').style.display = 'block'; }
