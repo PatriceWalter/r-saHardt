@@ -23,24 +23,26 @@
         .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
         .stat-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
         .stat-number { font-size: 2.5em; font-weight: bold; }
+        
         .postes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-        .poste-box { background: #f8f9fa; border: 3px solid #dee2e6; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; position: relative; transition: 0.3s; height: 140px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .poste-box { background: #f8f9fa; border: 3px solid #dee2e6; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; position: relative; transition: 0.3s; height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        
         .poste-checkbox { position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; cursor: pointer; z-index: 10; }
         .status-badge { position: absolute; top: 12px; right: 38px; font-size: 0.7em; font-weight: bold; }
         .poste-box.libre { border-color: #28a745; background: #e8f5e9; }
         .poste-box.reserve { border-color: #ffc107; background: #fff9e6; }
         .poste-box.controle { border-color: #17a2b8; background: #e7f6f8; }
         .poste-box.controleur { border-color: #ffd700; border-width: 4px; background: #fffbf0; }
+        
         .modal, .alert-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
         .modal-content, .alert-content { background: white; margin: 5% auto; border-radius: 15px; width: 90%; max-width: 500px; overflow: hidden; animation: slideDown 0.3s; }
         .modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; }
-        .alert-header.warning { background: #ff8c00; }
-        .alert-header.error { background: #dc3545; }
-        .modal-body, .alert-body { padding: 30px; }
+        .modal-body { padding: 30px; }
         input[type="text"] { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #dee2e6; border-radius: 8px; font-size: 16px; }
         .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; flex: 1; }
         .btn-save { background: #28a745; color: white; }
         .btn-delete { background: #dc3545; color: white; }
+        .btn-info { background: #17a2b8; color: white; padding: 4px 8px; font-size: 0.8em; margin-top: 8px; border-radius: 4px; }
         .btn-back { background: #6c757d; color: white; margin-bottom: 20px; display: inline-block; padding: 10px 20px; text-decoration: none; border-radius: 8px; cursor: pointer; }
         .hidden { display: none; }
         .infraction-item { padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid; display: flex; justify-content: space-between; align-items: center; }
@@ -114,10 +116,10 @@
                     <input type="hidden" id="modalHeure">
                 </div>
                 <div id="infractionsButtons" style="display:none; border-top: 1px solid #ddd; padding-top: 15px;">
-                    <p style="font-weight:bold; margin-bottom:10px;">⚠️ Sanctions :</p>
+                    <p style="font-weight:bold; margin-bottom:10px;">⚠️ Actions Sanctions :</p>
                     <div style="display: flex; gap: 10px;">
-                        <button class="btn" onclick="addInfWithMotif('avertissements')" style="background: #ffc107;">⚠️ Avertir</button>
-                        <button class="btn" onclick="addInfWithMotif('bannis')" style="background: #dc3545; color: white;">🚫 Bannir</button>
+                        <button class="btn" onclick="askMotif('avertissements')" style="background: #ffc107;">⚠️ Avertir</button>
+                        <button class="btn" onclick="askMotif('bannis')" style="background: #dc3545; color: white;">🚫 Bannir</button>
                     </div>
                 </div>
                 <div style="display:flex; gap:10px; margin-top:20px;">
@@ -129,33 +131,36 @@
         </div>
     </div>
 
+    <div id="motifModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="motifHeader"><h2>Motif de la sanction</h2></div>
+            <div class="modal-body">
+                <label>Veuillez saisir le motif :</label>
+                <input type="text" id="motifInput" placeholder="Ex: Feu non autorisé, etc...">
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button class="btn btn-save" onclick="confirmSanction()">Confirmer</button>
+                    <button class="btn" onclick="closeMotif()" style="background:#eee;">Annuler</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="alertModal" class="alert-modal">
         <div class="alert-content">
-            <div id="alertHeader" class="alert-header"></div>
-            <div id="alertBody" class="alert-body" style="padding:20px;"></div>
+            <div id="alertHeader" style="background:#667eea; color:white; padding:15px; text-align:center;"><h3>INFO</h3></div>
+            <div id="alertBody" class="alert-body"></div>
             <div style="text-align:center; padding-bottom:20px;"><button class="btn btn-save" onclick="closeAlert()">OK</button></div>
         </div>
     </div>
 
     <script>
-        // Jours d'ouverture standards 2026
-        const JOURS_OUVERTURE = { 
-            1:[28], 2:[6,7,13,14,20,21,22,27,28], 3:[3,4,5,10,11,17,18,24,25], 
-            4:[5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 
-            5:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 
-            6:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 
-            7:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 
-            8:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 
-            9:[2,3,9,10,16,17,23,24,30,31], 10:[6,7,10,13,14,20,21,27,28], 11:[4,5,11,12,18,19,24,25,26] 
-        };
-        
-        // CONFIGURATION FERMETURE MATIN (Index corrigés : 1=Fév, 2=Mars, 3=Avr, 5=Juin, 8=Sep, 9=Oct, 10=Nov)
+        const JOURS_OUVERTURE = { 1:[28], 2:[6,7,13,14,20,21,22,27,28], 3:[3,4,5,10,11,17,18,24,25], 4:[5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 5:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 6:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 7:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 8:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 9:[2,3,9,10,16,17,23,24,30,31], 10:[6,7,10,13,14,20,21,27,28], 11:[4,5,11,12,18,19,24,25,26] };
         const FERME_MATIN = { 1:[28], 2:[28], 3:[25], 5:[13], 8:[19], 9:[17], 10:[14] };
-        
         const MOIS_NOMS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+        
         let reservations = JSON.parse(localStorage.getItem('reservations_hardt_2026')) || {};
         let infractions = JSON.parse(localStorage.getItem('infractions_hardt_2026')) || { avertissements: [], bannis: [] };
-        let curM, curMName, curDKey, curP, curFullDate;
+        let curM, curMName, curDKey, curP, curFullDate, pendingSanctionType;
 
         window.onload = () => { renderMonths(); updateCounts(); };
         function renderMonths() { document.getElementById('monthsGrid').innerHTML = MOIS_NOMS.map((m, i) => i > 0 ? `<div class="month-card" onclick="showDays(${i}, '${m}')"><div class="month-name">${m}</div></div>` : '').join(''); }
@@ -168,7 +173,7 @@
             const sorted = [...infractions[type]].sort((a,b) => a.nom.localeCompare(b.nom) || a.prenom.localeCompare(b.prenom));
             document.getElementById('detailList').innerHTML = sorted.length ? sorted.map(p => `
                 <div class="infraction-item" style="border-left-color: ${type==='bannis'?'#dc3545':'#ffc107'}">
-                    <div><strong>${p.nom.toUpperCase()} ${p.prenom}</strong><br><small>Le ${p.date}</small></div>
+                    <div><strong>${p.nom.toUpperCase()} ${p.prenom}</strong><br><small>Le ${p.date}</small><br><span style="color:#666; font-style:italic;">Motif: ${p.motif || 'Non spécifié'}</span></div>
                     <button class="btn btn-delete" style="flex:none;" onclick="removeInf('${type}', '${p.id}')">Retirer</button>
                 </div>`).join('') : '<p style="text-align:center;">Aucun dossier.</p>';
         }
@@ -190,8 +195,7 @@
 
         function showPostes(j, key, dateFull) { 
             curDKey = key; curFullDate = dateFull;
-            hideAll(); 
-            document.getElementById('postesPage').classList.remove('hidden'); 
+            hideAll(); document.getElementById('postesPage').classList.remove('hidden'); 
             document.getElementById('postePageTitle').textContent = dateFull + " 2026";
             renderPostes(); 
         }
@@ -213,14 +217,36 @@
             const div = document.createElement('div');
             const isC = n === 4; const hasN = data.nom && data.nom.trim() !== '';
             div.className = `poste-box ${isC?'controleur':(data.controlled?'controle':(hasN?'reserve':'libre'))}`;
-            div.onclick = (e) => { if(e.target.type !== 'checkbox') openModal(n, data); };
-            div.innerHTML = `${!isC ? `
-                <span class="status-badge" style="color: ${data.controlled?'#17a2b8':'#666'}">${data.controlled?'Contrôlé':'Non contrôlé'}</span>
-                <input type="checkbox" class="poste-checkbox" ${data.controlled?'checked':''} onclick="event.stopPropagation(); toggleControle(${n})">` : ''}
+            div.onclick = (e) => { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') openModal(n, data); };
+            
+            let html = `
+                ${!isC ? `<input type="checkbox" class="poste-checkbox" ${data.controlled?'checked':''} onclick="event.stopPropagation(); toggleControle(${n})">
+                <span class="status-badge" style="color: ${data.controlled?'#17a2b8':'#666'}">${data.controlled?'Contrôlé':'Non contrôlé'}</span>` : ''}
                 <div style="font-weight:bold; font-size: 1.1em;">Poste ${n}</div>
-                ${data.controlled && data.heure ? `<div style="color:#17a2b8;font-size:0.85em;font-weight:bold;margin-top:2px;">🕒 ${data.heure}</div>` : ''}
-                ${hasN ? `<div style="font-weight:bold;margin-top:8px;color:#333;">${data.nom.toUpperCase()} ${data.prenom}</div>` : ''}`;
+            `;
+            
+            if(data.controlled && data.heure) html += `<div style="color:#17a2b8;font-size:0.85em;font-weight:bold;">🕒 ${data.heure}</div>`;
+            if(hasN) {
+                html += `<div style="font-weight:bold;margin-top:8px;">${data.nom.toUpperCase()} ${data.prenom}</div>`;
+                html += `<button class="btn-info" onclick="event.stopPropagation(); checkInfo('${data.nom}', '${data.prenom}')">ℹ️ Info</button>`;
+            }
+            div.innerHTML = html;
             return div;
+        }
+
+        function checkInfo(nom, prenom) {
+            const full = (nom+' '+prenom).toLowerCase();
+            const av = infractions.avertissements.filter(a => (a.nom+' '+a.prenom).toLowerCase() === full);
+            const isB = infractions.bannis.some(b => (b.nom+' '+b.prenom).toLowerCase() === full);
+            let msg = `Historique de <strong>${nom.toUpperCase()} ${prenom}</strong> :<br><br>`;
+            msg += isB ? "🚫 <strong style='color:red;'>BANNISSEMENT ACTIF</strong><br>" : "✅ Statut autorisé<br>";
+            msg += `⚠️ Avertissements : ${av.length} / 3<br>`;
+            if(av.length > 0) {
+                msg += "<ul style='margin-left:20px; font-size:0.9em;'>";
+                av.forEach(a => msg += `<li>${a.motif || 'Pas de motif'} (${a.date})</li>`);
+                msg += "</ul>";
+            }
+            showAlert(msg);
         }
 
         function openModal(n, data) {
@@ -235,6 +261,38 @@
             document.getElementById('checkZone').style.display = n===4?'none':'block';
             document.getElementById('infractionsButtons').style.display = (data.nom && n!==4)?'block':'none';
             document.getElementById('posteModal').style.display = 'block';
+        }
+
+        function askMotif(type) {
+            pendingSanctionType = type;
+            document.getElementById('motifHeader').style.background = type === 'bannis' ? '#dc3545' : '#ffc107';
+            document.getElementById('motifInput').value = '';
+            document.getElementById('motifModal').style.display = 'block';
+        }
+
+        function confirmSanction() {
+            const motif = document.getElementById('motifInput').value.trim() || "Non spécifié";
+            const nom = document.getElementById('modalNom').value.trim();
+            const prenom = document.getElementById('modalPrenom').value.trim();
+            const now = new Date().toLocaleString('fr-FR');
+            
+            infractions[pendingSanctionType].push({
+                id: Date.now().toString(), nom, prenom, motif, date: now + " (" + curFullDate + ")"
+            });
+
+            if(pendingSanctionType === 'avertissements') {
+                const count = infractions.avertissements.filter(a => (a.nom+' '+a.prenom).toLowerCase() === (nom+' '+prenom).toLowerCase()).length;
+                if(count >= 3) {
+                    infractions.bannis.push({ id: (Date.now()+1).toString(), nom, prenom, motif: "Auto : 3 avertissements accumulés", date: now });
+                    showAlert(`<strong>${nom.toUpperCase()}</strong> a atteint 3 avertissements et a été banni automatiquement !`);
+                } else {
+                    showAlert("Avertissement enregistré.");
+                }
+            } else {
+                showAlert("Bannissement enregistré.");
+            }
+            
+            save(); closeMotif(); closeModal();
         }
 
         function updateControlText() {
@@ -252,13 +310,16 @@
             const prenom = document.getElementById('modalPrenom').value.trim();
             if(!nom || !prenom) { closeModal(); return; }
             const full = (nom+' '+prenom).toLowerCase();
-            if(infractions.bannis.some(b => (b.nom+' '+b.prenom).toLowerCase() === full)) { showAlert(`<strong>${nom.toUpperCase()}</strong> est banni !`, 'error'); return; }
+            if(infractions.bannis.some(b => (b.nom+' '+b.prenom).toLowerCase() === full)) {
+                showAlert(`🚫 <strong style='color:red;'>${nom.toUpperCase()} est banni !</strong><br>Vous ne pouvez pas lui attribuer de poste.`);
+                return;
+            }
             reservations[curDKey][curP] = { nom, prenom, controlled: document.getElementById('modalControle').checked, heure: document.getElementById('modalHeure').value };
             save(); renderPostes(); closeModal();
         }
 
         function toggleControle(n) {
-            if(!reservations[curDKey][n]) reservations[curDKey][n] = {nom:'', prenom:'', controlled:false};
+            if(!reservations[curDKey][n]) return;
             const p = reservations[curDKey][n];
             p.controlled = !p.controlled;
             if(p.controlled) { const now = new Date(); p.heure = now.getHours().toString().padStart(2,'0')+":"+now.getMinutes().toString().padStart(2,'0'); }
@@ -266,27 +327,15 @@
             save(); renderPostes();
         }
 
-        function addInfWithMotif(t) {
-            const nom = document.getElementById('modalNom').value.trim();
-            const prenom = document.getElementById('modalPrenom').value.trim();
-            const now = new Date().toLocaleString('fr-FR');
-            infractions[t].push({ id: Date.now().toString(), nom, prenom, date: now + " (" + curFullDate + ")" });
-            if(t === 'avertissements') {
-                const count = infractions.avertissements.filter(a => (a.nom+' '+a.prenom).toLowerCase() === (nom+' '+prenom).toLowerCase()).length;
-                if(count >= 3) { infractions.bannis.push({ id: (Date.now()+1).toString(), nom, prenom, date: now + " (Auto 3 Strikes - " + curFullDate + ")" }); showAlert("3ème infraction : Banni automatiquement !", "error"); }
-                else { showAlert("Avertissement ajouté.", "warning"); }
-            }
-            save(); closeModal();
-        }
-
         function removeInf(t, id) { infractions[t] = infractions[t].filter(x => x.id !== id); save(); showInfractionList(t); }
         function save() { localStorage.setItem('reservations_hardt_2026', JSON.stringify(reservations)); localStorage.setItem('infractions_hardt_2026', JSON.stringify(infractions)); updateCounts(); }
         function hideAll() { ['monthsPage','daysPage','postesPage','infractionsMenuPage','infractionsDetailPage'].forEach(id => document.getElementById(id).classList.add('hidden')); }
         function closeModal() { document.getElementById('posteModal').style.display = 'none'; }
+        function closeMotif() { document.getElementById('motifModal').style.display = 'none'; }
         function deleteModal() { delete reservations[curDKey][curP]; save(); renderPostes(); closeModal(); }
         function backToDays() { showDays(curM, curMName); }
         function updateCounts() { document.getElementById('countAvertissement').textContent = infractions.avertissements.length+' dossier(s)'; document.getElementById('countBanni').textContent = infractions.bannis.length+' dossier(s)'; }
-        function showAlert(msg, type) { const h = document.getElementById('alertHeader'); h.className = 'alert-header ' + type; h.textContent = type==='error'?'🚫 BLOCAGE':'⚠️ INFO'; document.getElementById('alertBody').innerHTML = msg; document.getElementById('alertModal').style.display = 'block'; }
+        function showAlert(msg) { document.getElementById('alertBody').innerHTML = msg; document.getElementById('alertModal').style.display = 'block'; }
         function closeAlert() { document.getElementById('alertModal').style.display = 'none'; }
     </script>
 </body>
