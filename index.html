@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Réservation Postes Hardt 2026</title>
-
+    
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
@@ -460,34 +460,49 @@
             11: [4, 5, 11, 12, 18, 19, 24, 25, 26] 
         };
 
+        // Données globales
         let reservations = JSON.parse(localStorage.getItem('reservations_2026')) || {};
-        let infractions = JSON.parse(localStorage.getItem('infractions_hardt')) || { avertissements: [], bannis: [] };
+        let infractions = JSON.parse(localStorage.getItem('infractions_hardt')) || {
+            avertissements: [],
+            bannis: []
+        };
+
         let currentMonth = 0;
         let currentDay = 0;
         let currentDateKey = '';
         let currentPosteNum = 0;
 
+        // Navigation
         function showMonths() {
             const grid = document.getElementById('monthsGrid');
             grid.innerHTML = '';
+            
             MOIS_NOMS.forEach((nom, index) => {
                 if (index === 0) return;
+                
                 const card = document.createElement('div');
                 card.className = 'month-card';
-                card.innerHTML = `<div class="month-name">${nom}</div><div class="month-info">Saison 2026</div>`;
+                card.innerHTML = `
+                    <div class="month-name">${nom}</div>
+                    <div class="month-info">Saison 2026</div>
+                `;
                 card.onclick = () => showDays(index, nom);
                 grid.appendChild(card);
             });
+
             document.getElementById('monthsPage').classList.remove('hidden');
             document.getElementById('daysPage').classList.add('hidden');
             document.getElementById('postesPage').classList.add('hidden');
             document.getElementById('infractionsPage').classList.add('hidden');
+            document.getElementById('breadcrumb').innerHTML = '<a onclick="showMonths()">Accueil</a>';
+            document.getElementById('headerSubtitle').textContent = 'Sélectionnez un mois pour commencer';
         }
 
         function showDays(monthIndex, monthName) {
             currentMonth = monthIndex;
             const grid = document.getElementById('daysGrid');
             grid.innerHTML = '';
+            
             document.getElementById('monthTitle').textContent = monthName + " 2026";
             
             const jours = JOURS_OUVERTURE[monthIndex] || [];
@@ -496,16 +511,16 @@
                 const dateKey = `2026-${String(monthIndex + 1).padStart(2, '0')}-${String(jour).padStart(2, '0')}`;
                 const resCount = Object.keys(reservations[dateKey] || {}).length;
                 
-                // --- MODIFICATION ICI POUR DATE COMPLETE ---
+                // --- MODIFICATION DEMANDÉE : AFFICHAGE DATE COMPLETE ---
                 const dateObj = new Date(2026, monthIndex, jour);
                 const options = { weekday: 'long', day: 'numeric', month: 'long' };
                 const dateComplete = dateObj.toLocaleDateString('fr-FR', options);
-                const capitalDate = dateComplete.charAt(0).toUpperCase() + dateComplete.slice(1);
+                const labelDate = dateComplete.charAt(0).toUpperCase() + dateComplete.slice(1);
 
                 const card = document.createElement('div');
                 card.className = 'day-card';
                 card.innerHTML = `
-                    <div style="font-size: 1em; font-weight: bold; color: #4a5568;">${capitalDate}</div>
+                    <div style="font-size: 1em; font-weight: bold; color: #4a5568;">${labelDate}</div>
                     <div class="day-stats">${11 - resCount} postes libres</div>
                 `;
                 card.onclick = () => showPostes(monthIndex, jour, dateKey);
@@ -514,13 +529,24 @@
 
             document.getElementById('monthsPage').classList.add('hidden');
             document.getElementById('daysPage').classList.remove('hidden');
+            document.getElementById('breadcrumb').innerHTML = `
+                <a onclick="showMonths()">Accueil</a> > 
+                <span>${monthName}</span>
+            `;
         }
 
         function showPostes(month, day, dateKey) {
             currentDateKey = dateKey;
             currentDay = day;
+            
             document.getElementById('daysPage').classList.add('hidden');
             document.getElementById('postesPage').classList.remove('hidden');
+            document.getElementById('breadcrumb').innerHTML = `
+                <a onclick="showMonths()">Accueil</a> > 
+                <a onclick="showDays(${month}, '${MOIS_NOMS[month]}')">${MOIS_NOMS[month]}</a> > 
+                <span>Jour ${day}</span>
+            `;
+            
             renderPostes();
         }
 
@@ -531,23 +557,40 @@
         function renderPostes() {
             const grid = document.getElementById('postesGrid');
             grid.innerHTML = '';
+            
             const dayData = reservations[currentDateKey] || {};
-            let countLibre = 0, countReserve = 0, countControle = 0;
+            let countLibre = 0;
+            let countReserve = 0;
+            let countControle = 0;
 
             for (let i = 1; i <= NUM_POSTES; i++) {
                 const data = dayData[i] || { nom: '', prenom: '', controlled: false };
-                if (i === 4 && !data.nom) data.nom = "CONTRÔLEUR";
+                
+                if (i === 4 && !data.nom) {
+                    data.nom = "CONTRÔLEUR";
+                }
 
                 let statusClass = 'libre';
-                if (i === 4) statusClass = 'controleur';
-                else if (data.controlled) { statusClass = 'controle'; countControle++; }
-                else if (data.nom) { statusClass = 'reserve'; countReserve++; }
-                else { countLibre++; }
+                if (i === 4) {
+                    statusClass = 'controleur';
+                } else if (data.controlled) {
+                    statusClass = 'controle';
+                    countControle++;
+                } else if (data.nom) {
+                    statusClass = 'reserve';
+                    countReserve++;
+                } else {
+                    countLibre++;
+                }
 
                 const box = document.createElement('div');
                 box.className = `poste-box ${statusClass}`;
+                
                 const isChecked = data.controlled ? 'checked' : '';
-                const checkboxHtml = (i !== 4) ? `<input type="checkbox" class="poste-checkbox" ${isChecked} onclick="event.stopPropagation(); toggleQuickControle(${i})">` : '';
+                const checkboxHtml = (i !== 4) ? `
+                    <input type="checkbox" class="poste-checkbox" ${isChecked} 
+                           onclick="event.stopPropagation(); toggleQuickControle(${i})">
+                ` : '';
 
                 box.innerHTML = `
                     ${checkboxHtml}
@@ -556,91 +599,201 @@
                     <div style="font-weight: 600; min-height: 20px;">${data.nom}</div>
                     <div style="font-size: 0.9em;">${data.prenom || ''}</div>
                 `;
+                
                 box.onclick = () => openModal(i, data);
                 grid.appendChild(box);
             }
+
             document.getElementById('statLibre').textContent = countLibre;
             document.getElementById('statReserve').textContent = countReserve;
             document.getElementById('statControle').textContent = countControle;
         }
 
+        // Modal Logic
         function openModal(num, data) {
             currentPosteNum = num;
             document.getElementById('modalTitle').textContent = "Poste n°" + num;
             document.getElementById('modalDate').textContent = `Le ${currentDay} ${MOIS_NOMS[currentMonth]} 2026`;
-            document.getElementById('modalNom').value = (num === 4 && data.nom === "CONTRÔLEUR") ? "" : (data.nom || "");
-            document.getElementById('modalPrenom').value = data.prenom || "";
-            document.getElementById('modalControle').checked = data.controlled || false;
+            
+            const nomInput = document.getElementById('modalNom');
+            const prenomInput = document.getElementById('modalPrenom');
+            const ctrlCheck = document.getElementById('modalControle');
+            
+            nomInput.value = (num === 4 && data.nom === "CONTRÔLEUR") ? "" : (data.nom || "");
+            prenomInput.value = data.prenom || "";
+            ctrlCheck.checked = data.controlled || false;
+            
             document.getElementById('ctrlGroup').style.display = (num === 4) ? 'none' : 'block';
+            
+            // Afficher boutons infractions si quelqu'un est inscrit
             document.getElementById('infractionsButtons').style.display = (data.nom && data.nom !== "CONTRÔLEUR") ? 'block' : 'none';
+            
             document.getElementById('posteModal').style.display = 'block';
         }
 
-        function closeModal() { document.getElementById('posteModal').style.display = 'none'; }
+        function closeModal() {
+            document.getElementById('posteModal').style.display = 'none';
+        }
 
         function saveModal() {
             const nom = document.getElementById('modalNom').value.toUpperCase().trim();
             const prenom = document.getElementById('modalPrenom').value.trim();
             const isControlled = document.getElementById('modalControle').checked;
-            if (currentPosteNum !== 4 && (!nom || !prenom)) { showAlert('Veuillez saisir un nom et un prénom', 'warning'); return; }
+
+            if (currentPosteNum !== 4 && (!nom || !prenom)) {
+                showAlert('Veuillez saisir un nom et un prénom', 'warning');
+                return;
+            }
+
+            // --- VÉRIFICATION SÉCURITÉ (TON CODE ORIGINAL) ---
             const fullIdentity = (nom + " " + prenom).toLowerCase();
-            if (infractions.bannis.some(b => (b.nom + " " + b.prenom).toLowerCase() === fullIdentity)) { showAlert(`🚫 ACCÈS REFUSÉ`, 'error'); return; }
+            
+            // Vérification banni
+            if (infractions.bannis.some(b => (b.nom + " " + b.prenom).toLowerCase() === fullIdentity)) {
+                showAlert(`🚫 ACCÈS REFUSÉ<br><br><strong>${nom} ${prenom}</strong> est banni de l'étang.`, 'error');
+                return;
+            }
+
+            // Vérification avertissement
+            const hasAvertissement = infractions.avertissements.some(a => (a.nom + " " + a.prenom).toLowerCase() === fullIdentity);
+            if (hasAvertissement) {
+                showAlert(`⚠️ ATTENTION<br><br><strong>${nom} ${prenom}</strong> a un avertissement en cours.`, 'warning');
+            }
+
             if (!reservations[currentDateKey]) reservations[currentDateKey] = {};
-            reservations[currentDateKey][currentPosteNum] = { nom: nom || (currentPosteNum === 4 ? "CONTRÔLEUR" : ""), prenom: prenom, controlled: isControlled };
-            saveData(); renderPostes(); closeModal();
+            
+            reservations[currentDateKey][currentPosteNum] = {
+                nom: nom || (currentPosteNum === 4 ? "CONTRÔLEUR" : ""),
+                prenom: prenom,
+                controlled: isControlled
+            };
+
+            saveData();
+            renderPostes();
+            closeModal();
         }
 
-        function deleteModal() { if (reservations[currentDateKey]) delete reservations[currentDateKey][currentPosteNum]; saveData(); renderPostes(); closeModal(); }
+        function deleteModal() {
+            if (reservations[currentDateKey] && reservations[currentDateKey][currentPosteNum]) {
+                delete reservations[currentDateKey][currentPosteNum];
+                saveData();
+                renderPostes();
+            }
+            closeModal();
+        }
 
-        function toggleQuickControle(num) { if (reservations[currentDateKey] && reservations[currentDateKey][num]) { reservations[currentDateKey][num].controlled = !reservations[currentDateKey][num].controlled; saveData(); renderPostes(); } }
+        function toggleQuickControle(num) {
+            if (reservations[currentDateKey] && reservations[currentDateKey][num]) {
+                reservations[currentDateKey][num].controlled = !reservations[currentDateKey][num].controlled;
+                saveData();
+                renderPostes();
+            }
+        }
 
+        // Alerte Custom
         function showAlert(message, type) {
             const modal = document.getElementById('alertModal');
             const header = document.getElementById('alertHeader');
             const body = document.getElementById('alertBody');
+
             header.className = 'alert-header ' + type;
             header.textContent = type === 'error' ? '🚫 ACTION BLOQUÉE' : '⚠️ INFORMATION';
             body.innerHTML = message;
+            
             modal.style.display = 'block';
         }
 
-        function closeAlert() { document.getElementById('alertModal').style.display = 'none'; }
+        function closeAlert() {
+            document.getElementById('alertModal').style.display = 'none';
+        }
 
+        // Gestion Infractions
         function showInfractions() {
             document.getElementById('monthsPage').classList.add('hidden');
             document.getElementById('infractionsPage').classList.remove('hidden');
+            document.getElementById('breadcrumb').innerHTML = '<a onclick="showMonths()">Accueil</a> > Listing Infractions';
             renderInfractionsList();
         }
 
         function renderInfractionsList() {
             const listA = document.getElementById('avertissementsList');
             const listB = document.getElementById('bannisList');
-            listA.innerHTML = infractions.avertissements.map(a => `<div class="infraction-item"><span><strong>${a.nom}</strong> ${a.prenom}</span><button class="btn-remove" onclick="removeAvertissement('${a.id}')">Supprimer</button></div>`).join('') || '<p style="color:gray">Aucun</p>';
-            listB.innerHTML = infractions.bannis.map(b => `<div class="infraction-item"><span><strong>${b.nom}</strong> ${b.prenom}</span><button class="btn-remove" onclick="removeBanni('${b.id}')">Réhabiliter</button></div>`).join('') || '<p style="color:gray">Aucun</p>';
+            
+            listA.innerHTML = infractions.avertissements.length === 0 ? '<p style="color:gray">Aucun avertissement</p>' : '';
+            infractions.avertissements.forEach(a => {
+                listA.innerHTML += `
+                    <div class="infraction-item">
+                        <span><strong>${a.nom}</strong> ${a.prenom} (${a.date})</span>
+                        <button class="btn-remove" onclick="removeAvertissement('${a.id}')">Supprimer</button>
+                    </div>
+                `;
+            });
+
+            listB.innerHTML = infractions.bannis.length === 0 ? '<p style="color:gray">Aucun banni</p>' : '';
+            infractions.bannis.forEach(b => {
+                listB.innerHTML += `
+                    <div class="infraction-item">
+                        <span><strong>${b.nom}</strong> ${b.prenom} (${b.date})</span>
+                        <button class="btn-remove" onclick="removeBanni('${b.id}')">Réhabiliter</button>
+                    </div>
+                `;
+            });
         }
 
         function addAvertissement() {
-            const nom = document.getElementById('modalNom').value.trim(), prenom = document.getElementById('modalPrenom').value.trim();
-            if (!nom) return;
-            infractions.avertissements.push({ id: Date.now().toString(), nom, prenom, date: new Date().toLocaleDateString() });
-            saveData(); closeModal(); showAlert("Avertissement ajouté", "warning");
+            const nom = document.getElementById('modalNom').value.trim();
+            const prenom = document.getElementById('modalPrenom').value.trim();
+            
+            if (!nom || !prenom) {
+                showAlert('Veuillez d\'abord enregistrer un nom et prénom', 'warning');
+                return;
+            }
+            
+            const id = Date.now().toString();
+            const date = new Date().toLocaleDateString('fr-FR');
+            
+            infractions.avertissements.push({ id, nom, prenom, date });
+            saveData();
+            showAlert(`Avertissement ajouté pour<br><strong>${nom} ${prenom}</strong>`, 'warning');
+            closeModal();
         }
         
         function addBanni() {
-            const nom = document.getElementById('modalNom').value.trim(), prenom = document.getElementById('modalPrenom').value.trim();
-            if (!nom) return;
-            infractions.bannis.push({ id: Date.now().toString(), nom, prenom, date: new Date().toLocaleDateString() });
-            saveData(); closeModal(); showAlert("Banni ajouté", "error");
+            const nom = document.getElementById('modalNom').value.trim();
+            const prenom = document.getElementById('modalPrenom').value.trim();
+            
+            if (!nom || !prenom) {
+                showAlert('Veuillez d\'abord enregistrer un nom et prénom', 'warning');
+                return;
+            }
+            
+            const id = Date.now().toString();
+            const date = new Date().toLocaleDateString('fr-FR');
+            
+            infractions.bannis.push({ id, nom, prenom, date });
+            saveData();
+            showAlert(`<strong>${nom} ${prenom}</strong><br>a été banni`, 'error');
+            closeModal();
         }
         
-        function removeAvertissement(id) { infractions.avertissements = infractions.avertissements.filter(a => a.id !== id); saveData(); renderInfractionsList(); }
-        function removeBanni(id) { infractions.bannis = infractions.bannis.filter(b => b.id !== id); saveData(); renderInfractionsList(); }
+        function removeAvertissement(id) {
+            infractions.avertissements = infractions.avertissements.filter(a => a.id !== id);
+            saveData();
+            renderInfractionsList();
+        }
+        
+        function removeBanni(id) {
+            infractions.bannis = infractions.bannis.filter(b => b.id !== id);
+            saveData();
+            renderInfractionsList();
+        }
 
         function saveData() {
             localStorage.setItem('reservations_2026', JSON.stringify(reservations));
             localStorage.setItem('infractions_hardt', JSON.stringify(infractions));
         }
 
+        // Initialisation
         showMonths();
     </script>
 </body>
