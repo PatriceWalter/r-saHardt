@@ -6,74 +6,22 @@
     <title>Gestion Postes Hardt 2026</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        /* Style du fond */
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            min-height: 100vh; 
-            margin: 0;
-        }
-
-        /* Centrage de la page de connexion uniquement */
-        body.login-mode {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        /* Affichage de l'appli une fois connecté */
-        body.app-mode {
-            display: block;
-            padding: 20px;
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; margin: 0; }
+        body.login-mode { display: flex; align-items: center; justify-content: center; padding: 20px; }
+        body.app-mode { display: block; padding: 20px; }
 
         /* PAGE CONNEXION */
-        #loginPage { 
-            background: white; 
-            padding: 40px; 
-            border-radius: 15px; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3); 
-            width: 100%; 
-            max-width: 400px; 
-            text-align: center; 
-        }
+        #loginPage { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); width: 100%; max-width: 400px; text-align: center; }
         #loginPage h2 { color: #764ba2; margin-bottom: 25px; font-size: 1.5em; }
-        .login-input { 
-            width: 100%; 
-            padding: 12px; 
-            margin: 10px 0; 
-            border: 2px solid #eee; 
-            border-radius: 8px; 
-            font-size: 16px; 
-            outline: none; 
-        }
+        .login-input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #eee; border-radius: 8px; font-size: 16px; outline: none; }
         .login-input[readonly] { background-color: #f8f9fa; color: #6c757d; cursor: not-allowed; }
-        .btn-login { 
-            width: 100%; 
-            background: #667eea; 
-            color: white; 
-            padding: 12px; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 1.1em; 
-            margin-top: 15px; 
-        }
+        .btn-login { width: 100%; background: #667eea; color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1em; margin-top: 15px; }
 
         /* APPLICATION PRINCIPALE */
-        #mainApp { 
-            display: none; 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            background: white; 
-            border-radius: 15px; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3); 
-            overflow: hidden; 
-        }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; text-align: center; }
+        #mainApp { display: none; max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; text-align: center; position: relative; }
+        .admin-gear { position: absolute; top: 15px; right: 20px; font-size: 1.5em; cursor: pointer; opacity: 0.8; transition: 0.3s; }
+        .admin-gear:hover { opacity: 1; transform: rotate(45deg); }
         .breadcrumb { background: #f8f9fa; padding: 15px 30px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
         .breadcrumb a { color: #667eea; text-decoration: none; font-weight: bold; cursor: pointer; }
         .content { padding: 30px; }
@@ -90,30 +38,24 @@
         
         /* POSTES */
         .postes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-        .poste-box { background: #f8f9fa; border: 3px solid #dee2e6; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; position: relative; transition: 0.3s; height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .poste-box { background: #f8f9fa; border: 3px solid #dee2e6; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; position: relative; transition: 0.3s; height: 160px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .poste-box.libre { border-color: #28a745; background: #e8f5e9; }
         .poste-box.reserve { border-color: #ffc107; background: #fff9e6; }
         .poste-box.controle { border-color: #17a2b8; background: #e7f6f8; }
         .poste-box.controleur { border-color: #ffd700; border-width: 4px; background: #fffbf0; }
+        .badge-peche { color: #28a745; font-size: 0.8em; font-weight: bold; margin-top: 3px; display: flex; align-items: center; gap: 4px; }
         
-        /* STATS */
-        .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
-        .stat-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
-        .stat-number { font-size: 2.5em; font-weight: bold; }
-
-        /* MODALS & ALERTES */
+        /* MODALS */
         .modal, .alert-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
         .modal-content, .alert-content { background: white; margin: 5% auto; border-radius: 15px; width: 90%; max-width: 500px; overflow: hidden; animation: slideDown 0.3s; }
         .modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; }
-        .modal-body { padding: 30px; }
+        .modal-body { padding: 25px; }
         input[type="text"], input[type="password"] { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #dee2e6; border-radius: 8px; font-size: 16px; }
-        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; flex: 1; }
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; flex: 1; text-align: center; }
         .btn-save { background: #28a745; color: white; }
         .btn-delete { background: #dc3545; color: white; }
-        .btn-info { background: #17a2b8; color: white; padding: 4px 8px; font-size: 0.8em; margin-top: 8px; border-radius: 4px; border:none; cursor:pointer;}
         .btn-back { background: #6c757d; color: white; margin-bottom: 20px; display: inline-block; padding: 10px 20px; text-decoration: none; border-radius: 8px; cursor: pointer; }
         .hidden { display: none; }
-        .infraction-item { padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid; display: flex; justify-content: space-between; align-items: center; }
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
@@ -129,6 +71,7 @@
 
     <div id="mainApp">
         <div class="header">
+            <span class="admin-gear" onclick="openAdmin()">⚙️</span>
             <h1>📋 Réservation Postes Hardt 2026</h1>
         </div>
         <div class="breadcrumb">
@@ -146,16 +89,8 @@
         <div id="infractionsMenuPage" class="content hidden">
             <button class="btn btn-back" onclick="showMonths()">← Retour Accueil</button>
             <div class="months-grid">
-                <div class="month-card" onclick="showInfractionList('avertissements')" style="border-color: #ffc107;">
-                    <div style="font-size: 3em;">⚠️</div>
-                    <div class="month-name">AVERTISSEMENTS</div>
-                    <p id="countAvertissement" style="font-weight: bold; margin-top:10px;">0 dossier</p>
-                </div>
-                <div class="month-card" onclick="showInfractionList('bannis')" style="border-color: #dc3545;">
-                    <div style="font-size: 3em;">🚫</div>
-                    <div class="month-name">BANNISSEMENTS</div>
-                    <p id="countBanni" style="font-weight: bold; margin-top:10px;">0 dossier</p>
-                </div>
+                <div class="month-card" onclick="showInfractionList('avertissements')" style="border-color: #ffc107;"><div style="font-size: 3em;">⚠️</div><div class="month-name">AVERTISSEMENTS</div><p id="countAvertissement" style="font-weight: bold; margin-top:10px;">0 dossier</p></div>
+                <div class="month-card" onclick="showInfractionList('bannis')" style="border-color: #dc3545;"><div style="font-size: 3em;">🚫</div><div class="month-name">BANNISSEMENTS</div><p id="countBanni" style="font-weight: bold; margin-top:10px;">0 dossier</p></div>
             </div>
         </div>
 
@@ -174,10 +109,10 @@
         <div id="postesPage" class="content hidden">
             <button class="btn btn-back" onclick="backToDays()">← Retour</button>
             <h2 id="postePageTitle" style="text-align: center; color: #667eea; margin-bottom: 20px; text-transform: capitalize; font-size: 1.8em;"></h2>
-            <div class="stats-bar">
-                <div class="stat-box"><div class="stat-number" id="statLibre">11</div><div>Libres</div></div>
-                <div class="stat-box"><div class="stat-number" id="statReserve">0</div><div>Réservés</div></div>
-                <div class="stat-box"><div class="stat-number" id="statControle">0</div><div>Contrôlés</div></div>
+            <div class="stats-bar" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px;">
+                <div class="stat-box" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;"><div class="stat-number" id="statLibre" style="font-size: 2.5em; font-weight: bold;">11</div><div>Libres</div></div>
+                <div class="stat-box" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;"><div class="stat-number" id="statReserve" style="font-size: 2.5em; font-weight: bold;">0</div><div>Réservés</div></div>
+                <div class="stat-box" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;"><div class="stat-number" id="statControle" style="font-size: 2.5em; font-weight: bold;">0</div><div>Contrôlés</div></div>
             </div>
             <div id="postesGrid" class="postes-grid"></div>
         </div>
@@ -187,8 +122,9 @@
         <div class="modal-content">
             <div class="modal-header"><h2 id="modalTitle">Poste</h2><p id="modalDate"></p></div>
             <div class="modal-body">
-                <label>Nom</label><input type="text" id="modalNom">
-                <label>Prénom</label><input type="text" id="modalPrenom">
+                <label>Nom</label><input type="text" id="modalNom" oninput="checkValidCard()">
+                <label>Prénom</label><input type="text" id="modalPrenom" oninput="checkValidCard()">
+                <div id="cardStatusLabel" style="margin-bottom: 15px; display: none;"></div>
                 <div id="checkZone" style="margin: 15px 0;">
                     <input type="checkbox" id="modalControle" onchange="updateControlText()"> 
                     <span id="controlStatusText" style="margin-left: 10px;">Non contrôlé</span>
@@ -210,11 +146,25 @@
         </div>
     </div>
 
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>🪪 Base Pêcheurs Valides</h2></div>
+            <div class="modal-body">
+                <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+                    <input type="text" id="addPecheurNom" placeholder="NOM" style="flex: 1;">
+                    <input type="text" id="addPecheurPrenom" placeholder="Prénom" style="flex: 1;">
+                    <button class="btn-save" onclick="addPecheurToList()" style="padding: 5px 15px; border-radius: 8px; border:none; cursor:pointer;">+</button>
+                </div>
+                <div id="pecheurList" style="max-height: 250px; overflow-y: auto; border-top: 1px solid #eee; padding-top: 10px;"></div>
+                <div style="text-align: right; margin-top: 15px;"><button class="btn" onclick="document.getElementById('adminModal').style.display='none'" style="background:#eee;">Fermer</button></div>
+            </div>
+        </div>
+    </div>
+
     <div id="motifModal" class="modal">
         <div class="modal-content">
             <div class="modal-header" id="motifHeader"><h2>Motif de la sanction</h2></div>
             <div class="modal-body">
-                <label>Veuillez saisir le motif :</label>
                 <input type="text" id="motifInput" placeholder="Ex: Sac de couchage oublié...">
                 <div style="display:flex; gap:10px; margin-top:20px;">
                     <button class="btn btn-save" onclick="confirmSanction()">Confirmer</button>
@@ -227,7 +177,7 @@
     <div id="alertModal" class="alert-modal">
         <div class="alert-content">
             <div id="alertHeader" style="background:#667eea; color:white; padding:15px; text-align:center;"><h3>INFO</h3></div>
-            <div id="alertBody" class="alert-body" style="padding:20px;"></div>
+            <div id="alertBody" style="padding:20px;"></div>
             <div style="text-align:center; padding-bottom:20px;"><button class="btn btn-save" onclick="closeAlert()">OK</button></div>
         </div>
     </div>
@@ -236,30 +186,69 @@
         // CONNEXION
         function checkLogin() {
             const pass = document.getElementById('loginPass').value;
-            const error = document.getElementById('errorLogin');
             if(pass === "911") {
                 document.getElementById('loginPage').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
                 document.body.className = 'app-mode';
                 renderMonths(); updateCounts();
             } else {
-                error.style.display = 'block';
+                document.getElementById('errorLogin').style.display = 'block';
             }
         }
-        // Permettre de valider avec la touche Entrée
-        document.getElementById("loginPass").addEventListener("keyup", function(event) {
-            if (event.key === "Enter") { checkLogin(); }
-        });
-
+        document.getElementById("loginPass").addEventListener("keyup", (e) => { if(e.key === "Enter") checkLogin(); });
         function logout() { location.reload(); }
 
-        // LOGIQUE APP (Identique à la version précédente mais intégrée)
+        // ADMIN
+        function openAdmin() {
+            const p = prompt("Mot de passe Admin :");
+            if(p === "admin") {
+                renderPecheurList();
+                document.getElementById('adminModal').style.display = 'block';
+            } else if(p !== null) { alert("Code erroné."); }
+        }
+
+        function addPecheurToList() {
+            const n = document.getElementById('addPecheurNom').value.trim().toUpperCase();
+            const p = document.getElementById('addPecheurPrenom').value.trim();
+            if(!n || !p) return;
+            pecheursValides.push({ nom: n, prenom: p });
+            savePecheurs(); renderPecheurList();
+            document.getElementById('addPecheurNom').value = ""; document.getElementById('addPecheurPrenom').value = "";
+        }
+
+        function renderPecheurList() {
+            const list = document.getElementById('pecheurList');
+            pecheursValides.sort((a,b) => a.nom.localeCompare(b.nom));
+            list.innerHTML = pecheursValides.map((x, i) => `
+                <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #f8f9fa;">
+                    <span>🪪 <strong>${x.nom}</strong> ${x.prenom}</span>
+                    <button onclick="removePecheur(${i})" style="color:red; background:none; border:none; cursor:pointer;">✖</button>
+                </div>
+            `).join('') || '<p style="text-align:center;color:#999;">Aucun pêcheur enregistré.</p>';
+        }
+
+        function removePecheur(i) { pecheursValides.splice(i, 1); savePecheurs(); renderPecheurList(); }
+        function savePecheurs() { localStorage.setItem('pecheurs_hardt_2026', JSON.stringify(pecheursValides)); }
+
+        function checkValidCard() {
+            const n = document.getElementById('modalNom').value.trim().toUpperCase();
+            const p = document.getElementById('modalPrenom').value.trim();
+            const label = document.getElementById('cardStatusLabel');
+            const found = pecheursValides.some(x => x.nom === n && x.prenom.toLowerCase() === p.toLowerCase());
+            if(n && p && found) {
+                label.innerHTML = '<span style="color:#28a745; font-weight:bold;">🪪 Carte de pêche en cours de validité</span>';
+                label.style.display = 'block';
+            } else { label.style.display = 'none'; }
+        }
+
+        // LOGIQUE APP
         const JOURS_OUVERTURE = { 1:[28], 2:[6,7,13,14,20,21,22,27,28], 3:[3,4,5,10,11,17,18,24,25], 4:[5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 5:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 6:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 7:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 8:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 9:[2,3,9,10,16,17,23,24,30,31], 10:[6,7,10,13,14,20,21,27,28], 11:[4,5,11,12,18,19,24,25,26] };
         const FERME_MATIN = { 1:[28], 2:[28], 3:[25], 5:[13], 8:[19], 9:[17], 10:[14] };
         const MOIS_NOMS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
         
         let reservations = JSON.parse(localStorage.getItem('reservations_hardt_2026')) || {};
         let infractions = JSON.parse(localStorage.getItem('infractions_hardt_2026')) || { avertissements: [], bannis: [] };
+        let pecheursValides = JSON.parse(localStorage.getItem('pecheurs_hardt_2026')) || [];
         let curM, curMName, curDKey, curP, curFullDate, pendingSanctionType;
 
         function renderMonths() { document.getElementById('monthsGrid').innerHTML = MOIS_NOMS.map((m, i) => i > 0 ? `<div class="month-card" onclick="showDays(${i}, '${m}')"><div class="month-name">${m}</div></div>` : '').join(''); }
@@ -270,7 +259,7 @@
             hideAll(); document.getElementById('infractionsDetailPage').classList.remove('hidden');
             document.getElementById('detailTitle').textContent = type === 'avertissements' ? '⚠️ AVERTISSEMENTS' : '🚫 BANNIS';
             const sorted = [...infractions[type]].sort((a,b) => a.nom.localeCompare(b.nom) || a.prenom.localeCompare(b.prenom));
-            document.getElementById('detailList').innerHTML = sorted.length ? sorted.map(p => `<div class="infraction-item" style="border-left-color: ${type==='bannis'?'#dc3545':'#ffc107'}"><div><strong>${p.nom.toUpperCase()} ${p.prenom}</strong><br><small>Le ${p.date}</small><br><span style="color:#666; font-size:0.9em;">Motif: ${p.motif || 'Non spécifié'}</span></div><button class="btn btn-delete" style="flex:none; padding:8px 15px;" onclick="removeInf('${type}', '${p.id}')">Retirer</button></div>`).join('') : '<p style="text-align:center;">Aucun dossier.</p>';
+            document.getElementById('detailList').innerHTML = sorted.length ? sorted.map(p => `<div class="infraction-item" style="border-left: 5px solid ${type==='bannis'?'#dc3545':'#ffc107'}; padding:15px; background:#f8f9fa; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;"><div><strong>${p.nom.toUpperCase()} ${p.prenom}</strong><br><small>Le ${p.date}</small><br><span style="color:#666; font-size:0.9em;">Motif: ${p.motif || 'Non spécifié'}</span></div><button class="btn btn-delete" style="flex:none; padding:8px 15px;" onclick="removeInf('${type}', '${p.id}')">Retirer</button></div>`).join('') : '<p style="text-align:center;">Aucun dossier.</p>';
         }
 
         function showDays(m, name) {
@@ -303,13 +292,15 @@
         function createBox(n, data) {
             const div = document.createElement('div');
             const isC = n === 4; const hasN = data.nom && data.nom.trim() !== '';
+            const isPecheurValide = hasN && pecheursValides.some(x => x.nom === data.nom.toUpperCase() && x.prenom.toLowerCase() === data.prenom.toLowerCase());
             div.className = `poste-box ${isC?'controleur':(data.controlled?'controle':(hasN?'reserve':'libre'))}`;
             div.onclick = (e) => { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') openModal(n, data); };
-            let html = `${!isC ? `<input type="checkbox" class="poste-checkbox" ${data.controlled?'checked':''} onclick="event.stopPropagation(); toggleControle(${n})"><span class="status-badge" style="color: ${data.controlled?'#17a2b8':'#666'}">${data.controlled?'Contrôlé':'Non contrôlé'}</span>` : ''}<div style="font-weight:bold; font-size: 1.1em;">Poste ${n}</div>`;
+            let html = `${!isC ? `<input type="checkbox" class="poste-checkbox" style="position:absolute;top:10px;right:10px;width:22px;height:22px;" ${data.controlled?'checked':''} onclick="event.stopPropagation(); toggleControle(${n})"><span style="position:absolute;top:12px;right:38px;font-size:0.7em;font-weight:bold;color:${data.controlled?'#17a2b8':'#666'}">${data.controlled?'Contrôlé':'Non contrôlé'}</span>` : ''}<div style="font-weight:bold; font-size: 1.1em;">Poste ${n}</div>`;
             if(data.controlled && data.heure) html += `<div style="color:#17a2b8;font-size:0.85em;font-weight:bold;">🕒 ${data.heure}</div>`;
             if(hasN) {
                 html += `<div style="font-weight:bold;margin-top:8px;">${data.nom.toUpperCase()} ${data.prenom}</div>`;
-                html += `<button class="btn-info" onclick="event.stopPropagation(); checkInfo('${data.nom}', '${data.prenom}')">ℹ️ Info</button>`;
+                if(isPecheurValide) html += `<div class="badge-peche">🪪 Valide</div>`;
+                html += `<button class="btn-info" style="background:#17a2b8;color:white;padding:4px 8px;font-size:0.8em;margin-top:8px;border-radius:4px;border:none;cursor:pointer;" onclick="event.stopPropagation(); checkInfo('${data.nom}', '${data.prenom}')">ℹ️ Info</button>`;
             }
             div.innerHTML = html; return div;
         }
@@ -321,7 +312,7 @@
             let msg = `Historique de <strong>${nom.toUpperCase()} ${prenom}</strong> :<br><br>`;
             msg += isB ? "🚫 <strong style='color:red;'>BANNISSEMENT ACTIF</strong><br>" : "✅ Statut autorisé<br>";
             msg += `⚠️ Avertissements : ${av.length} / 3<br>`;
-            if(av.length > 0) { msg += "<ul style='margin-left:20px; font-size:0.9em; margin-top:10px;'>"; av.forEach(a => msg += `<li>${a.motif || 'Pas de motif'} <br><small>(${a.date})</small></li>`); msg += "</ul>"; }
+            if(av.length > 0) { msg += "<ul style='margin-left:20px; font-size:0.9em; margin-top:10px;'>"; av.forEach(a => msg += `<li>${a.motif} <br><small>(${a.date})</small></li>`); msg += "</ul>"; }
             showAlert(msg);
         }
 
@@ -329,7 +320,7 @@
             curP = n; document.getElementById('modalTitle').textContent = 'Poste '+n; document.getElementById('modalDate').textContent = curFullDate + " 2026";
             document.getElementById('modalNom').value = data.nom || ''; document.getElementById('modalPrenom').value = data.prenom || '';
             document.getElementById('modalControle').checked = data.controlled || false; document.getElementById('modalHeure').value = data.heure || '';
-            updateControlText(); document.getElementById('checkZone').style.display = n===4?'none':'block';
+            updateControlText(); checkValidCard(); document.getElementById('checkZone').style.display = n===4?'none':'block';
             document.getElementById('infractionsButtons').style.display = (data.nom && n!==4)?'block':'none'; document.getElementById('posteModal').style.display = 'block';
         }
 
