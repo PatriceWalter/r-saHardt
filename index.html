@@ -38,6 +38,10 @@
         .poste-box.controle { border-color: #17a2b8; background: #e7f6f8; }
         .poste-box.controleur { border-color: #ffd700; border-width: 4px; background: #fffbf0; }
         
+        /* MODIFICATION : Checkbox plus grande et en haut à droite */
+        .poste-checkbox { position: absolute; top: 10px; right: 10px; width: 25px; height: 25px; cursor: pointer; z-index: 10; }
+        .status-badge { position: absolute; top: 38px; right: 10px; font-size: 0.7em; font-weight: bold; }
+
         .badge-peche { color: #28a745; font-size: 0.75em; font-weight: bold; margin-top: 8px; border: 1.5px solid #28a745; padding: 3px 6px; border-radius: 5px; background: white; }
 
         .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
@@ -136,7 +140,7 @@
                     <span class="badge-peche">🪪 Carte de pêche valide</span>
                 </div>
                 <div id="checkZone" style="margin: 15px 0;">
-                    <input type="checkbox" id="modalControle" onchange="updateControlText()"> 
+                    <input type="checkbox" id="modalControle" onchange="updateControlText()" style="width:20px; height:20px; vertical-align:middle;"> 
                     <span id="controlStatusText" style="margin-left: 10px;">Non contrôlé</span>
                     <input type="hidden" id="modalHeure">
                 </div>
