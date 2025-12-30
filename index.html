@@ -335,14 +335,29 @@
 
         function removeInf(t, id) { infractions[t] = infractions[t].filter(x => x.id !== id); save(); showInfractionList(t); }
         function updateControlText() { const cb = document.getElementById('modalControle'); document.getElementById('controlStatusText').textContent = cb.checked ? "Contrôlé à " + document.getElementById('modalHeure').value : "Non contrôlé"; }
+        
+        // --- SECTION MODIFIÉE POUR REPARER LE BOUTON FERMER ---
         function openAdmin() { if(prompt("Code Admin:") === "admin") { renderAdminList(); document.getElementById('adminModal').style.display = 'block'; } }
+        
+        function closeAdmin() { 
+            document.getElementById('adminModal').style.display = 'none'; 
+        }
+        
         function addValidUser() { 
             let n = document.getElementById('adminAddNom').value.trim(); 
             let p = document.getElementById('adminAddPrenom').value.trim();
-            if(n && p) { validUsers.push({nom:n.toUpperCase(), prenom:p.charAt(0).toUpperCase()+p.slice(1).toLowerCase()}); save(); renderAdminList(); }
+            if(n && p) { 
+                validUsers.push({nom:n.toUpperCase(), prenom:p.charAt(0).toUpperCase()+p.slice(1).toLowerCase()}); 
+                save(); 
+                renderAdminList(); 
+                document.getElementById('adminAddNom').value = "";
+                document.getElementById('adminAddPrenom').value = "";
+            }
         }
-        function renderAdminList() { document.getElementById('adminValidList').innerHTML = validUsers.map((u, i) => `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>${u.nom} ${u.prenom}</span><button onclick="removeValidUser(${i})">✖</button></div>`).join(''); }
+        function renderAdminList() { document.getElementById('adminValidList').innerHTML = validUsers.map((u, i) => `<div style="display:flex; justify-content:space-between; margin-bottom:5px; background:#f8f9fa; padding:5px 10px; border-radius:5px;"><span>${u.nom} ${u.prenom}</span><button onclick="removeValidUser(${i})" style="color:red; border:none; background:none; cursor:pointer;">✖</button></div>`).join(''); }
         function removeValidUser(i) { validUsers.splice(i, 1); save(); renderAdminList(); }
+        // -----------------------------------------------------
+
         function hideAll() { ['monthsPage','daysPage','postesPage','infractionsMenuPage','infractionsDetailPage'].forEach(id => document.getElementById(id).classList.add('hidden')); }
         function closeModal() { document.getElementById('posteModal').style.display = 'none'; }
         function closeMotif() { document.getElementById('motifModal').style.display = 'none'; }
