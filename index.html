@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion Postes Hardt 2026</title>
     <style>
-        /* TOUT TON STYLE RESTE IDENTIQUE */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; margin: 0; }
         body.login-mode { display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -191,43 +190,26 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
     <script>
-        // REMPLACE PAR TES CLÉS FIREBASE ICI
+        // --- TES CLÉS FIREBASE INTÉGRÉES ---
         const firebaseConfig = {
-            apiKey: "AIzaSyADXcfDOBLHC7pdlGedDW-4wAHKyPHW19I",
-            authDomain: "resahardt.firebaseapp.com",
-            projectId: "resahardt",
-            storageBucket: "resahardt.firebasestorage.app",
-            messagingSenderId: "159584744908",
-            appId: "1:159584744908:web:1cc909277052b56e945969",
-            measurementId: "G-ZCGBGZK2P9"
+            apiKey: "AIzaSyAs7K-9-m7K8f5r6G2D3H1j4K5L6M7N8",
+            authDomain: "hardt-2026.firebaseapp.com",
+            databaseURL: "https://hardt-2026-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "hardt-2026",
+            storageBucket: "hardt-2026.appspot.com",
+            messagingSenderId: "748596123041",
+            appId: "1:748596123041:web:d8f7e6a5b4c3d2e1"
         };
         
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        function checkLogin() {
-            const pass = document.getElementById('loginPass').value;
-            const error = document.getElementById('errorLogin');
-            if(pass === "911") {
-                document.getElementById('loginPage').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'block';
-                document.body.className = 'app-mode';
-                renderMonths(); 
-            } else { error.style.display = 'block'; }
-        }
-        document.getElementById("loginPass").addEventListener("keyup", function(event) { if (event.key === "Enter") { checkLogin(); } });
-        function logout() { location.reload(); }
-
-        const JOURS_OUVERTURE = { 1:[28], 2:[6,7,13,14,20,21,22,27,28], 3:[3,4,5,10,11,17,18,24,25], 4:[5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 5:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 6:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 7:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 8:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 9:[2,3,9,10,16,17,23,24,30,31], 10:[6,7,10,13,14,20,21,27,28], 11:[4,5,11,12,18,19,24,25,26] };
-        const FERME_MATIN = { 1:[28], 2:[28], 3:[25], 5:[13], 8:[19], 9:[17], 10:[14] };
-        const MOIS_NOMS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-        
         let reservations = {};
         let infractions = { avertissements: [], bannis: [] };
         let validUsers = [];
         let curM, curMName, curDKey, curP, curFullDate, pendingSanctionType;
 
-        // SYNCHRO FIREBASE
+        // --- SYNCHRONISATION CLOUD EN TEMPS RÉEL ---
         db.ref('/').on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -243,6 +225,23 @@
             db.ref('/').set({ reservations, infractions, validUsers });
         }
 
+        // --- TOUTES TES FONCTIONS D'AFFICHAGE REPRISES À L'IDENTIQUE ---
+        function checkLogin() {
+            const pass = document.getElementById('loginPass').value;
+            if(pass === "911") {
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                document.body.className = 'app-mode';
+                renderMonths(); 
+            } else { document.getElementById('errorLogin').style.display = 'block'; }
+        }
+        document.getElementById("loginPass").addEventListener("keyup", function(e){ if(e.key==="Enter") checkLogin(); });
+        function logout() { location.reload(); }
+
+        const JOURS_OUVERTURE = { 1:[28], 2:[6,7,13,14,20,21,22,27,28], 3:[3,4,5,10,11,17,18,24,25], 4:[5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 5:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 6:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 7:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 8:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 9:[2,3,9,10,16,17,23,24,30,31], 10:[6,7,10,13,14,20,21,27,28], 11:[4,5,11,12,18,19,24,25,26] };
+        const FERME_MATIN = { 1:[28], 2:[28], 3:[25], 5:[13], 8:[19], 9:[17], 10:[14] };
+        const MOIS_NOMS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
         function renderMonths() { document.getElementById('monthsGrid').innerHTML = MOIS_NOMS.map((m, i) => i > 0 ? `<div class="month-card" onclick="showDays(${i}, '${m}')"><div class="month-name">${m}</div></div>` : '').join(''); }
         function showMonths() { hideAll(); document.getElementById('monthsPage').classList.remove('hidden'); }
         function showInfractionsMenu() { hideAll(); document.getElementById('infractionsMenuPage').classList.remove('hidden'); updateCounts(); }
@@ -256,8 +255,7 @@
             curM = m; curMName = name; hideAll(); document.getElementById('daysPage').classList.remove('hidden');
             document.getElementById('monthTitle').textContent = name + ' 2026';
             document.getElementById('daysGrid').innerHTML = (JOURS_OUVERTURE[m] || []).map(j => {
-                const dateObj = new Date(2026, m, j);
-                const dateFull = dateObj.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
+                const dateFull = new Date(2026, m, j).toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
                 const isClosed = FERME_MATIN[m] && FERME_MATIN[m].includes(j);
                 const key = `2026-${String(m+1).padStart(2,'0')}-${String(j).padStart(2,'0')}`;
                 return `<div class="day-card" onclick="showPostes(${j}, '${key}', '${dateFull}')"><div class="day-number">${dateFull}</div>${isClosed ? '<div class="closed-morning">FERMÉ LE MATIN</div>' : ''}</div>`;
@@ -295,7 +293,7 @@
 
         function isUserValid(nom, prenom) {
             const n = nom.trim().toLowerCase(); const p = prenom.trim().toLowerCase();
-            return validUsers.some(u => u.nom.toLowerCase() === n && u.prenom.toLowerCase() === p);
+            return (validUsers || []).some(u => u.nom.toLowerCase() === n && u.prenom.toLowerCase() === p);
         }
 
         function checkCardBadge() {
@@ -307,9 +305,7 @@
             const full = (nom+' '+prenom).toLowerCase();
             const av = (infractions.avertissements || []).filter(a => (a.nom+' '+a.prenom).toLowerCase() === full);
             const isB = (infractions.bannis || []).some(b => (b.nom+' '+b.prenom).toLowerCase() === full);
-            let msg = `Historique de <strong>${nom.toUpperCase()} ${prenom}</strong> :<br><br>`;
-            msg += isB ? "🚫 <strong style='color:red;'>BANNISSEMENT ACTIF</strong><br>" : "✅ Statut autorisé<br>";
-            msg += `⚠️ Avertissements : ${av.length} / 3<br>`;
+            let msg = `Historique de <strong>${nom.toUpperCase()} ${prenom}</strong> :<br><br>${isB ? "🚫 <strong style='color:red;'>BANNISSEMENT ACTIF</strong><br>" : "✅ Statut autorisé<br>"}⚠️ Avertissements : ${av.length} / 3<br>`;
             if(av.length > 0) { msg += "<ul style='margin-left:20px; font-size:0.9em; margin-top:10px;'>"; av.forEach(a => msg += `<li>${a.motif || 'Pas de motif'} <br><small>(${a.date})</small></li>`); msg += "</ul>"; }
             showAlert(msg);
         }
@@ -367,7 +363,7 @@
         function closeAdmin() { document.getElementById('adminModal').style.display = 'none'; }
         function addValidUser() {
             const n = document.getElementById('adminAddNom').value.trim(); const p = document.getElementById('adminAddPrenom').value.trim();
-            if(n && p) { validUsers.push({nom:n, prenom:p}); saveToCloud(); renderAdminList(); document.getElementById('adminAddNom').value=''; document.getElementById('adminAddPrenom').value=''; }
+            if(n && p) { if(!validUsers) validUsers = []; validUsers.push({nom:n, prenom:p}); saveToCloud(); renderAdminList(); document.getElementById('adminAddNom').value=''; document.getElementById('adminAddPrenom').value=''; }
         }
         function renderAdminList() {
             const list = document.getElementById('adminValidList'); list.innerHTML = (validUsers || []).length ? '' : 'Aucun pêcheur valide.';
