@@ -25,7 +25,8 @@
         .stat-number { font-size: 2.5em; font-weight: bold; }
         .postes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
         .poste-box { background: #f8f9fa; border: 3px solid #dee2e6; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; position: relative; transition: 0.3s; }
-        .poste-checkbox { position: absolute; top: 10px; right: 10px; width: 24px; height: 24px; cursor: pointer; z-index: 10; }
+        .poste-checkbox { position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; cursor: pointer; z-index: 10; }
+        .status-badge { position: absolute; top: 12px; right: 38px; font-size: 0.7em; font-weight: bold; }
         .poste-box.libre { border-color: #28a745; background: #e8f5e9; }
         .poste-box.reserve { border-color: #ffc107; background: #fff9e6; }
         .poste-box.controle { border-color: #17a2b8; background: #e7f6f8; }
@@ -133,7 +134,10 @@
 
     <script>
         const JOURS_OUVERTURE = { 1:[28], 2:[6,7,13,14,20,21,22,27,28], 3:[3,4,5,10,11,17,18,24,25], 4:[5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 5:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 6:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 7:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 8:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 9:[2,3,9,10,16,17,23,24,30,31], 10:[6,7,10,13,14,20,21,27,28], 11:[4,5,11,12,18,19,24,25,26] };
-        const FERME_MATIN = { 2:[6,13,20,27], 3:[3,10,17,24], 10:[6,13,20,27], 11:[4,11,18,24] };
+        
+        // DATES DE FERMETURE MISES À JOUR SELON TES ORDRES
+        const FERME_MATIN = { 2:[28], 3:[28], 4:[25], 6:[13], 9:[19], 10:[17], 11:[14] };
+        
         const MOIS_NOMS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
         let reservations = JSON.parse(localStorage.getItem('reservations_hardt_2026')) || {};
         let infractions = JSON.parse(localStorage.getItem('infractions_hardt_2026')) || { avertissements: [], bannis: [] };
@@ -189,7 +193,9 @@
             const isC = n === 4; const hasN = data.nom && data.nom.trim() !== '';
             div.className = `poste-box ${isC?'controleur':(data.controlled?'controle':(hasN?'reserve':'libre'))}`;
             div.onclick = (e) => { if(e.target.type !== 'checkbox') openModal(n, data); };
-            div.innerHTML = `${!isC ? `<input type="checkbox" class="poste-checkbox" ${data.controlled?'checked':''} onclick="event.stopPropagation(); toggleControle(${n})">` : ''}
+            div.innerHTML = `${!isC ? `
+                <span class="status-badge" style="color: ${data.controlled?'#17a2b8':'#666'}">${data.controlled?'Contrôlé':'Non contrôlé'}</span>
+                <input type="checkbox" class="poste-checkbox" ${data.controlled?'checked':''} onclick="event.stopPropagation(); toggleControle(${n})">` : ''}
                 <div style="font-weight:bold;">Poste ${n}</div>
                 ${data.controlled && data.heure ? `<div style="color:#17a2b8;font-size:0.8em;font-weight:bold;">🕒 ${data.heure}</div>` : ''}
                 ${hasN ? `<div style="font-weight:bold;margin-top:5px;">${data.nom} ${data.prenom}</div>` : ''}`;
