@@ -23,11 +23,8 @@
         .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
         .stat-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
         .stat-number { font-size: 2.5em; font-weight: bold; }
-        
-        /* CASES DE TAILLE UNIFORME */
         .postes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
         .poste-box { background: #f8f9fa; border: 3px solid #dee2e6; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; position: relative; transition: 0.3s; height: 140px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        
         .poste-checkbox { position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; cursor: pointer; z-index: 10; }
         .status-badge { position: absolute; top: 12px; right: 38px; font-size: 0.7em; font-weight: bold; }
         .poste-box.libre { border-color: #28a745; background: #e8f5e9; }
@@ -141,11 +138,19 @@
     </div>
 
     <script>
-        // Jours d'ouverture standards
-        const JOURS_OUVERTURE = { 1:[28], 2:[6,7,13,14,20,21,22,27,28], 3:[3,4,5,10,11,17,18,24,25], 4:[5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 5:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 6:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 7:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 8:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 9:[2,3,9,10,16,17,23,24,30,31], 10:[6,7,10,13,14,20,21,27,28], 11:[4,5,11,12,18,19,24,25,26] };
+        // Jours d'ouverture standards 2026
+        const JOURS_OUVERTURE = { 
+            1:[28], 2:[6,7,13,14,20,21,22,27,28], 3:[3,4,5,10,11,17,18,24,25], 
+            4:[5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 
+            5:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 
+            6:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 
+            7:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 
+            8:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 
+            9:[2,3,9,10,16,17,23,24,30,31], 10:[6,7,10,13,14,20,21,27,28], 11:[4,5,11,12,18,19,24,25,26] 
+        };
         
-        // CORRECTION FINALE DES DATES DE FERMETURE MATIN (Index Mois : Fév=2, Mars=3, Avr=4, Juin=6, Sep=9, Oct=10, Nov=11)
-        const FERME_MATIN = { 2:[28], 3:[28], 4:[25], 6:[13], 9:[19], 10:[17], 11:[14] };
+        // CONFIGURATION FERMETURE MATIN (Index corrigés : 1=Fév, 2=Mars, 3=Avr, 5=Juin, 8=Sep, 9=Oct, 10=Nov)
+        const FERME_MATIN = { 1:[28], 2:[28], 3:[25], 5:[13], 8:[19], 9:[17], 10:[14] };
         
         const MOIS_NOMS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
         let reservations = JSON.parse(localStorage.getItem('reservations_hardt_2026')) || {};
