@@ -24,7 +24,7 @@
         .stat-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
         .stat-number { font-size: 2.5em; font-weight: bold; }
         
-        /* GRILLE ET CASES UNIFORMES */
+        /* CASES DE TAILLE UNIFORME */
         .postes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
         .poste-box { background: #f8f9fa; border: 3px solid #dee2e6; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; position: relative; transition: 0.3s; height: 140px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         
@@ -36,7 +36,7 @@
         .poste-box.controleur { border-color: #ffd700; border-width: 4px; background: #fffbf0; }
         .modal, .alert-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
         .modal-content, .alert-content { background: white; margin: 5% auto; border-radius: 15px; width: 90%; max-width: 500px; overflow: hidden; animation: slideDown 0.3s; }
-        .modal-header, .alert-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; }
+        .modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; }
         .alert-header.warning { background: #ff8c00; }
         .alert-header.error { background: #dc3545; }
         .modal-body, .alert-body { padding: 30px; }
@@ -141,10 +141,13 @@
     </div>
 
     <script>
+        // Jours d'ouverture standards
         const JOURS_OUVERTURE = { 1:[28], 2:[6,7,13,14,20,21,22,27,28], 3:[3,4,5,10,11,17,18,24,25], 4:[5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 5:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 6:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 7:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 8:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 9:[2,3,9,10,16,17,23,24,30,31], 10:[6,7,10,13,14,20,21,27,28], 11:[4,5,11,12,18,19,24,25,26] };
-        const FERME_MATIN = { 2:[28], 3:[28], 4:[25], 6:[13], 9:[19], 10:[17], 11:[14] };
-        const MOIS_NOMS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
         
+        // CORRECTION FINALE DES DATES DE FERMETURE MATIN (Index Mois : Fév=2, Mars=3, Avr=4, Juin=6, Sep=9, Oct=10, Nov=11)
+        const FERME_MATIN = { 2:[28], 3:[28], 4:[25], 6:[13], 9:[19], 10:[17], 11:[14] };
+        
+        const MOIS_NOMS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
         let reservations = JSON.parse(localStorage.getItem('reservations_hardt_2026')) || {};
         let infractions = JSON.parse(localStorage.getItem('infractions_hardt_2026')) || { avertissements: [], bannis: [] };
         let curM, curMName, curDKey, curP, curFullDate;
@@ -209,7 +212,7 @@
             div.innerHTML = `${!isC ? `
                 <span class="status-badge" style="color: ${data.controlled?'#17a2b8':'#666'}">${data.controlled?'Contrôlé':'Non contrôlé'}</span>
                 <input type="checkbox" class="poste-checkbox" ${data.controlled?'checked':''} onclick="event.stopPropagation(); toggleControle(${n})">` : ''}
-                <div style="font-weight:bold; font-size: 1.2em;">Poste ${n}</div>
+                <div style="font-weight:bold; font-size: 1.1em;">Poste ${n}</div>
                 ${data.controlled && data.heure ? `<div style="color:#17a2b8;font-size:0.85em;font-weight:bold;margin-top:2px;">🕒 ${data.heure}</div>` : ''}
                 ${hasN ? `<div style="font-weight:bold;margin-top:8px;color:#333;">${data.nom.toUpperCase()} ${data.prenom}</div>` : ''}`;
             return div;
