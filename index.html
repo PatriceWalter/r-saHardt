@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Réservation Postes Hardt 2026</title>
+    <title>Gestion Postes Hardt 2026 - Pro</title>
     <style>
-        /* DESIGN CONSERVÉ À 100% */
+        /* DESIGN CONSERVÉ */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; }
@@ -41,6 +41,7 @@
         .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; flex: 1; }
         .btn-save { background: #28a745; color: white; }
         .btn-delete { background: #dc3545; color: white; }
+        .btn-info { background: #17a2b8; color: white; padding: 5px 10px; font-size: 0.8em; margin-top: 5px; }
         .btn-back { background: #6c757d; color: white; margin-bottom: 20px; display: inline-block; padding: 10px 20px; text-decoration: none; border-radius: 8px; cursor: pointer; }
         .hidden { display: none; }
         .infraction-item { padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid; display: flex; justify-content: space-between; align-items: center; }
@@ -53,7 +54,7 @@
             <p id="headerSubtitle">Sélectionnez un mois</p>
         </div>
 
-        <div class="breadcrumb" id="breadcrumb">
+        <div class="breadcrumb">
             <a onclick="showMonths()">Accueil</a>
         </div>
 
@@ -113,10 +114,10 @@
                     <input type="checkbox" id="modalControle" style="width:20px; height:20px;"> <label for="modalControle">Marquer comme contrôlé</label>
                 </div>
                 <div id="infractionsButtons" style="display:none; border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px;">
-                    <p style="font-weight: bold; color: #666; margin-bottom: 10px;">⚠️ Actions rapides :</p>
+                    <p style="font-weight: bold; color: #666; margin-bottom: 10px;">⚠️ Sanctions :</p>
                     <div style="display: flex; gap: 10px;">
-                        <button class="btn" onclick="addInfDirect('avertissements')" style="background: #ffc107;">⚠️ Avertir</button>
-                        <button class="btn" onclick="addInfDirect('bannis')" style="background: #dc3545; color: white;">🚫 Bannir</button>
+                        <button class="btn" onclick="addInfWithMotif('avertissements')" style="background: #ffc107;">⚠️ Avertir</button>
+                        <button class="btn" onclick="addInfWithMotif('bannis')" style="background: #dc3545; color: white;">🚫 Bannir</button>
                     </div>
                 </div>
                 <div style="display:flex; gap:10px; margin-top:20px;">
@@ -152,8 +153,8 @@
             document.getElementById('monthsGrid').innerHTML = MOIS_NOMS.map((m, i) => i > 0 ? `<div class="month-card" onclick="showDays(${i}, '${m}')"><div class="month-name">${m}</div><div class="month-info">2026</div></div>` : '').join('');
         }
 
-        function showMonths() { hideAll(); document.getElementById('monthsPage').classList.remove('hidden'); document.getElementById('headerSubtitle').textContent = 'Sélectionnez un mois'; }
-        function showInfractionsMenu() { hideAll(); document.getElementById('infractionsMenuPage').classList.remove('hidden'); updateCounts(); document.getElementById('headerSubtitle').textContent = 'Gestion des Infractions'; }
+        function showMonths() { hideAll(); document.getElementById('monthsPage').classList.remove('hidden'); }
+        function showInfractionsMenu() { hideAll(); document.getElementById('infractionsMenuPage').classList.remove('hidden'); updateCounts(); }
 
         function showInfractionList(type) {
             hideAll(); document.getElementById('infractionsDetailPage').classList.remove('hidden');
@@ -161,9 +162,13 @@
             const list = document.getElementById('detailList');
             list.innerHTML = infractions[type].length ? infractions[type].map(p => `
                 <div class="infraction-item" style="border-left-color: ${type==='bannis'?'#dc3545':'#ffc107'}">
-                    <div><strong>${p.nom} ${p.prenom}</strong><br><small>Signalé le ${p.date}</small></div>
+                    <div>
+                        <strong>${p.nom} ${p.prenom}</strong><br>
+                        <small>Le ${p.date}</small><br>
+                        ${p.motif ? `<button class="btn btn-info" onclick="showAlert('Motif de la sanction :<br><br><i>${p.motif}</i>', 'warning')">ℹ️ Motif</button>` : ''}
+                    </div>
                     <button class="btn btn-delete" style="flex:none; padding: 8px 15px;" onclick="removeInf('${type}', '${p.id}')">Retirer</button>
-                </div>`).join('') : '<p style="text-align:center; color:#999; padding:20px;">Aucun dossier enregistré.</p>';
+                </div>`).join('') : '<p style="text-align:center; color:#999; padding:20px;">Aucun dossier.</p>';
         }
 
         function showDays(m, name) {
@@ -172,8 +177,7 @@
             document.getElementById('daysGrid').innerHTML = (JOURS_OUVERTURE[m] || []).map(j => {
                 const key = `2026-${String(m+1).padStart(2,'0')}-${String(j).padStart(2,'0')}`;
                 const s = calcStats(key);
-                const fm = JOURS_FERMES_MATIN[m] && JOURS_FERMES_MATIN[m].includes(j) ? '<div style="color:#0070C0;font-size:0.75em;font-weight:bold;">⚠️ Fermé matin</div>' : '';
-                return `<div class="day-card" onclick="showPostes(${j}, '${key}')"><div class="day-number">${j}</div><div style="color:#6c757d; font-size:0.9em; margin-bottom:5px;">${JOURS_SEMAINE[new Date(2026,m,j).getDay()]}</div>${fm}<div style="color:#28a745;font-size:0.85em;margin-top:10px;font-weight:bold;">${s.libre} libres</div></div>`;
+                return `<div class="day-card" onclick="showPostes(${j}, '${key}')"><div class="day-number">${j}</div><div style="color:#6c757d; font-size:0.9em; margin-bottom:5px;">${JOURS_SEMAINE[new Date(2026,m,j).getDay()]}</div><div style="color:#28a745;font-size:0.85em;margin-top:10px;font-weight:bold;">${s.libre} libres</div></div>`;
             }).join('');
         }
 
@@ -187,16 +191,10 @@
             for(let i=1; i<=12; i++) {
                 const data = reservations[curDKey][i] || {nom:'', prenom:'', controlled:false};
                 const hasN = data.nom && data.nom.trim() !== '';
-                if(i !== 4) {
-                    if(hasN) r++;
-                    if(data.controlled) c++;
-                    if(!hasN) l++;
-                }
+                if(i !== 4) { if(hasN) r++; if(data.controlled) c++; if(!hasN) l++; }
                 grid.appendChild(createBox(i, data));
             }
-            document.getElementById('statLibre').textContent = l; 
-            document.getElementById('statReserve').textContent = r; 
-            document.getElementById('statControle').textContent = c;
+            document.getElementById('statLibre').textContent = l; document.getElementById('statReserve').textContent = r; document.getElementById('statControle').textContent = c;
         }
 
         function createBox(n, data) {
@@ -207,7 +205,6 @@
             div.innerHTML = `${!isC ? `<input type="checkbox" class="poste-checkbox" ${data.controlled?'checked':''} onclick="event.stopPropagation(); toggleControle(${n})">` : ''}
                 <div style="font-size:2.2em; margin-bottom:10px;">${isC?'👮':(data.controlled?'✅':(hasN?'🟡':'🟢'))}</div>
                 <div style="font-weight:bold; color:#667eea; font-size:1.4em;">Poste ${n}</div>
-                <div style="font-size:0.9em; margin-bottom:5px;">${isC?'Contrôleur':(data.controlled?'Contrôlé':(hasN?'Réservé':'Libre'))}</div>
                 ${hasN ? `<div style="font-weight:bold; color:#333; font-size:0.9em; margin-top:8px;">${data.nom} ${data.prenom}</div>` : ''}`;
             return div;
         }
@@ -227,48 +224,51 @@
         function saveModal() {
             const nom = document.getElementById('modalNom').value.trim();
             const prenom = document.getElementById('modalPrenom').value.trim();
+            if(!nom || !prenom) { closeModal(); return; }
             const full = (nom + ' ' + prenom).toLowerCase();
             
-            if(nom && prenom) {
-                // 1. Vérif si déjà Banni manuellement
-                if(infractions.bannis.some(b => (b.nom + ' ' + b.prenom).toLowerCase() === full)) {
-                    showAlert(`<strong>${nom} ${prenom}</strong> est BANNI !<br>Réservation interdite.`, 'error');
-                    return;
+            // Verif Bannis
+            if(infractions.bannis.some(b => (b.nom + ' ' + b.prenom).toLowerCase() === full)) {
+                showAlert(`<strong>${nom} ${prenom}</strong> est sur liste noire (BANNI).`, 'error');
+                return;
+            }
+            // Verif 3 Strikes
+            const nbAv = infractions.avertissements.filter(a => (a.nom + ' ' + a.prenom).toLowerCase() === full).length;
+            if(nbAv >= 3) {
+                if(!infractions.bannis.some(b => (b.nom + ' ' + b.prenom).toLowerCase() === full)) {
+                    infractions.bannis.push({ id: Date.now().toString(), nom, prenom, date: new Date().toLocaleDateString('fr-FR'), motif: "Automatique : 3 avertissements atteints." });
+                    save();
                 }
-
-                // 2. Compter les avertissements
-                const nbAv = infractions.avertissements.filter(a => (a.nom + ' ' + a.prenom).toLowerCase() === full).length;
-                
-                if(nbAv >= 3) {
-                    // Si pas encore dans la liste des bannis, on l'y ajoute AUTOMATIQUEMENT
-                    if(!infractions.bannis.some(b => (b.nom + ' ' + b.prenom).toLowerCase() === full)) {
-                        infractions.bannis.push({ id: Date.now().toString(), nom, prenom, date: new Date().toLocaleDateString('fr-FR') + " (Auto 3 Strikes)" });
-                        save();
-                    }
-                    showAlert(`<strong>BLOCAGE AUTOMATIQUE</strong><br>${nom} ${prenom} a <strong>${nbAv} avertissements</strong>.<br>Il vient d'être ajouté à la liste des BANNIS.`, 'error');
-                    return;
-                } else if (nbAv > 0) {
-                    showAlert(`Info : ${nom} ${prenom} a déjà ${nbAv} avertissement(s).`, 'warning');
-                }
+                showAlert(`<strong>BLOQUÉ</strong> : ${nom} a 3 avertissements. Il est passé en Banni.`, 'error');
+                return;
             }
 
             reservations[curDKey][curP] = { nom, prenom, controlled: curP===4?false:document.getElementById('modalControle').checked };
             save(); renderPostes(); closeModal();
         }
 
-        function addInfDirect(t) {
+        function addInfWithMotif(t) {
             const nom = document.getElementById('modalNom').value.trim();
             const prenom = document.getElementById('modalPrenom').value.trim();
-            if(!nom || !prenom) return;
-            infractions[t].push({ id: Date.now().toString(), nom, prenom, date: new Date().toLocaleDateString('fr-FR') });
-            save(); 
-            // Si on vient d'ajouter le 3ème avertissement manuellement, on prévient
-            const full = (nom + ' ' + prenom).toLowerCase();
-            const nbAv = infractions.avertissements.filter(a => (a.nom + ' ' + a.prenom).toLowerCase() === full).length;
+            const motif = prompt("Saisissez le motif de la sanction :");
+            
+            if(motif === null) return; // Annuler
+            if(motif.trim() === "") { alert("Le motif est obligatoire pour la traçabilité !"); return; }
+
+            infractions[t].push({ 
+                id: Date.now().toString(), 
+                nom, 
+                prenom, 
+                date: new Date().toLocaleDateString('fr-FR'),
+                motif: motif.trim()
+            });
+            
+            save();
+            const nbAv = infractions.avertissements.filter(a => (a.nom + ' ' + a.prenom).toLowerCase() === (nom+' '+prenom).toLowerCase()).length;
             if(t==='avertissements' && nbAv >= 3) {
-                showAlert(`3ème avertissement atteint ! ${nom} sera désormais banni.`, 'error');
+                showAlert(`3ème avertissement enregistré. ${nom} est désormais banni automatiquement.`, 'error');
             } else {
-                showAlert(t==='bannis'?'Banni avec succès':'Avertissement ajouté', t==='bannis'?'error':'warning');
+                showAlert("Sanction enregistrée avec motif.", "warning");
             }
             closeModal();
         }
@@ -287,7 +287,7 @@
         function deleteModal() { delete reservations[curDKey][curP]; save(); renderPostes(); closeModal(); }
         function backToDays() { showDays(curM, curMName); }
         function updateCounts() { document.getElementById('countAvertissement').textContent = infractions.avertissements.length + ' dossier(s)'; document.getElementById('countBanni').textContent = infractions.bannis.length + ' dossier(s)'; }
-        function showAlert(msg, type) { const h = document.getElementById('alertHeader'); h.className = 'alert-header ' + type; h.textContent = type==='error'?'🚫 BLOCAGE':'⚠️ ATTENTION'; document.getElementById('alertBody').innerHTML = msg; document.getElementById('alertModal').style.display = 'block'; }
+        function showAlert(msg, type) { const h = document.getElementById('alertHeader'); h.className = 'alert-header ' + type; h.textContent = type==='error'?'🚫 BLOCAGE':'⚠️ INFORMATION'; document.getElementById('alertBody').innerHTML = msg; document.getElementById('alertModal').style.display = 'block'; }
         function closeAlert() { document.getElementById('alertModal').style.display = 'none'; }
     </script>
 </body>
