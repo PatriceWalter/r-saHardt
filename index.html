@@ -408,6 +408,24 @@
 
     <script>
         // =============================================
+        // GOOGLE SHEETS BACKUP
+        // =============================================
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwDbuJDOKo7XoycUeOF59V9aW3IDztg6Gx-nlrUnmrHpaPOD3v9x9ek481EL6egzuE/exec";
+        
+        function sendToGoogleSheets(data) {
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(() => console.log("✅ Données envoyées vers Google Sheets"))
+            .catch(err => console.error("❌ Erreur envoi Google Sheets:", err));
+        }
+
+        // =============================================
         // FIREBASE CONFIGURATION
         // =============================================
         const firebaseConfig = {
@@ -941,6 +959,17 @@
                 heure: document.getElementById('modalHeure').value
             };
             
+            // Envoi vers Google Sheets
+            sendToGoogleSheets({
+                type: "reservation",
+                dateJour: curDKey,
+                poste: curP,
+                nom: nom,
+                prenom: prenom,
+                controle: document.getElementById('modalControle').checked ? "Oui" : "Non",
+                heure: document.getElementById('modalHeure').value || ""
+            });
+            
             saveReservations();
             renderPostes();
             closeModal();
@@ -1164,6 +1193,15 @@
                     date: dateNow
                 });
                 
+                // Envoi vers Google Sheets
+                sendToGoogleSheets({
+                    type: "avertissement",
+                    nom: nom,
+                    prenom: prenomFormatted,
+                    motif: motif,
+                    archive: "Non"
+                });
+                
                 // Vérifier si 3 avertissements -> bannissement automatique
                 const fullName = (nom + ' ' + prenomFormatted).toLowerCase();
                 const userAvertissements = infractions.avertissements.filter(a => 
@@ -1183,6 +1221,14 @@
                         prenom: prenomFormatted,
                         motifs: motifs,
                         date: dateNow
+                    });
+                    
+                    // Envoi vers Google Sheets
+                    sendToGoogleSheets({
+                        type: "bannissement",
+                        nom: nom,
+                        prenom: prenomFormatted,
+                        motifs: motifs.map((m, i) => `#${i+1}: ${m.motif} (${m.date})`).join(" | ")
                     });
                     
                     // Supprimer les avertissements de la liste
@@ -1210,6 +1256,14 @@
                     prenom: prenomFormatted,
                     motif: motif,
                     date: dateNow
+                });
+                
+                // Envoi vers Google Sheets
+                sendToGoogleSheets({
+                    type: "bannissement",
+                    nom: nom,
+                    prenom: prenomFormatted,
+                    motifs: motif
                 });
                 
                 saveInfractions();
@@ -1333,6 +1387,14 @@
             if (nom && prenom) {
                 prenom = prenom.charAt(0).toUpperCase() + prenom.slice(1).toLowerCase();
                 validUsers.push({ nom: nom, prenom: prenom });
+                
+                // Envoi vers Google Sheets
+                sendToGoogleSheets({
+                    type: "pecheur_valide",
+                    nom: nom,
+                    prenom: prenom
+                });
+                
                 saveValidUsers();
                 renderAdminList();
                 document.getElementById('adminAddNom').value = "";
