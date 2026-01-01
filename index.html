@@ -101,12 +101,25 @@
         .btn:hover { opacity: 0.9; }
         .btn-save { background: #28a745; color: white; }
         .btn-delete { background: #dc3545; color: white; }
+        .btn-unban { background: #17a2b8; color: white; }
         .btn-back { background: #6c757d; color: white; margin-bottom: 15px; display: inline-block; padding: 10px 20px; text-decoration: none; border-radius: 8px; cursor: pointer; border: none; font-weight: bold; font-size: 0.95em; }
         
         /* INFRACTIONS */
-        .infraction-item { padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .infraction-item { padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid; }
         .infraction-item.avertissement { border-left-color: #ffc107; }
         .infraction-item.banni { border-left-color: #dc3545; }
+        .infraction-item.archive { border-left-color: #6c757d; background: #e9ecef; }
+        .infraction-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; }
+        .infraction-info { flex: 1; }
+        .infraction-actions { display: flex; gap: 5px; flex-wrap: wrap; }
+        .infraction-actions .btn { padding: 8px 12px; font-size: 0.85em; flex: 0; }
+        .archive-badge { background: #6c757d; color: white; font-size: 0.75em; padding: 3px 8px; border-radius: 4px; display: inline-block; margin-top: 5px; }
+        
+        /* MOTIFS LIST IN BANNI */
+        .motifs-list { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 10px; margin-top: 10px; }
+        .motifs-list h4 { margin-bottom: 8px; color: #856404; font-size: 0.9em; }
+        .motif-item { padding: 5px 0; border-bottom: 1px solid #ffeeba; font-size: 0.85em; }
+        .motif-item:last-child { border-bottom: none; }
         
         /* INFO MODAL - MOTIFS */
         .info-motifs { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 10px; margin-top: 10px; text-align: left; }
@@ -216,6 +229,7 @@
             .btn { padding: 10px 15px; font-size: 0.9em; }
             
             .infraction-item { padding: 12px; font-size: 0.9em; }
+            .infraction-actions { width: 100%; justify-content: flex-end; }
         }
         
         /* TRÈS PETIT ÉCRAN (360px et moins) */
@@ -565,6 +579,14 @@
         }
 
         // =============================================
+        // VÉRIFICATION MOT DE PASSE ADMIN
+        // =============================================
+        function checkAdminPassword() {
+            const pwd = prompt("🔐 Mot de passe administrateur :");
+            return pwd === "admin";
+        }
+
+        // =============================================
         // NAVIGATION
         // =============================================
         function hideAll() {
@@ -706,7 +728,7 @@
             
             // Zone de contrôle en bas (sauf pour poste 4)
             if (!isControleur) {
-                const labelText = data.controlled ? `Contrôlé à ${data.heure || ''}` : 'Cliquer pour valider';
+                const labelText = data.controlled ? `Contrôlé à ${data.heure || ''}` : 'Cliquer pour valider le contrôle';
                 const labelClass = data.controlled ? 'control-label checked' : 'control-label';
                 html += `<div class="control-zone">
                     <input type="checkbox" id="check_${n}" ${data.controlled ? 'checked' : ''} 
@@ -886,24 +908,113 @@
                 return;
             }
             
-            container.innerHTML = list.map((item, index) => `
-                <div class="infraction-item ${type === 'avertissements' ? 'avertissement' : 'banni'}">
-                    <div style="flex: 1;">
-                        <strong>${item.nom ? item.nom.toUpperCase() : 'N/A'} ${item.prenom || ''}</strong><br>
-                        <small>📅 ${item.date || 'Date inconnue'}</small><br>
-                        <small>📝 <strong>Motif:</strong> ${item.motif || 'Aucun motif'}</small>
+            if (type === 'avertissements') {
+                // Affichage des avertissements
+                container.innerHTML = list.map((item, index) => `
+                    <div class="infraction-item ${item.archived ? 'archive' : 'avertissement'}">
+                        <div class="infraction-header">
+                            <div class="infraction-info">
+                                <strong>${item.nom ? item.nom.toUpperCase() : 'N/A'} ${item.prenom || ''}</strong>
+                                ${item.archived ? '<span class="archive-badge">📁 Infraction archivée</span>' : ''}<br>
+                                <small>📅 ${item.date || 'Date inconnue'}</small><br>
+                                <small>📝 <strong>Motif :</strong> ${item.motif || 'Aucun motif'}</small>
+                            </div>
+                            <div class="infraction-actions">
+                                <button class="btn btn-delete" onclick="removeAvertissement(${index})">🗑️</button>
+                            </div>
+                        </div>
                     </div>
-                    <button class="btn btn-delete" onclick="removeInfraction('${type}', ${index})" style="flex:0; padding: 8px 12px;">🗑️</button>
-                </div>
-            `).join('');
+                `).join('');
+            } else {
+                // Affichage des bannis avec tous les motifs
+                container.innerHTML = list.map((item, index) => {
+                    let motifsHtml = '';
+                    if (item.motifs && item.motifs.length > 0) {
+                        motifsHtml = `<div class="motifs-list">
+                            <h4>📋 Motifs des avertissements :</h4>
+                            ${item.motifs.map((m, i) => `<div class="motif-item"><strong>#${i+1}</strong> - ${m.date || ''} : ${m.motif || 'Non spécifié'}</div>`).join('')}
+                        </div>`;
+                    } else if (item.motif) {
+                        motifsHtml = `<div class="motifs-list">
+                            <h4>📋 Motif du bannissement :</h4>
+                            <div class="motif-item">${item.motif}</div>
+                        </div>`;
+                    }
+                    
+                    return `
+                        <div class="infraction-item banni">
+                            <div class="infraction-header">
+                                <div class="infraction-info">
+                                    <strong>${item.nom ? item.nom.toUpperCase() : 'N/A'} ${item.prenom || ''}</strong><br>
+                                    <small>📅 Banni le : ${item.date || 'Date inconnue'}</small>
+                                    ${motifsHtml}
+                                </div>
+                                <div class="infraction-actions">
+                                    <button class="btn btn-unban" onclick="debannir(${index})">🔓 Débannir</button>
+                                    <button class="btn btn-delete" onclick="removeBanni(${index})">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
         }
 
-        function removeInfraction(type, index) {
-            if (confirm('Supprimer cette infraction ?')) {
-                infractions[type].splice(index, 1);
-                saveInfractions();
-                showInfractionList(type);
+        // Supprimer un avertissement (avec mot de passe)
+        function removeAvertissement(index) {
+            if (!checkAdminPassword()) {
+                showAlert("❌ Mot de passe incorrect !");
+                return;
             }
+            
+            infractions.avertissements.splice(index, 1);
+            saveInfractions();
+            showInfractionList('avertissements');
+            showAlert("✅ Avertissement supprimé.");
+        }
+
+        // Supprimer un banni (avec mot de passe)
+        function removeBanni(index) {
+            if (!checkAdminPassword()) {
+                showAlert("❌ Mot de passe incorrect !");
+                return;
+            }
+            
+            infractions.bannis.splice(index, 1);
+            saveInfractions();
+            showInfractionList('bannis');
+            showAlert("✅ Bannissement supprimé.");
+        }
+
+        // Débannir quelqu'un (avec mot de passe)
+        function debannir(index) {
+            if (!checkAdminPassword()) {
+                showAlert("❌ Mot de passe incorrect !");
+                return;
+            }
+            
+            const banni = infractions.bannis[index];
+            
+            // Si le banni avait des motifs d'avertissements, les remettre dans les avertissements
+            if (banni.motifs && banni.motifs.length > 0) {
+                banni.motifs.forEach(m => {
+                    infractions.avertissements.push({
+                        id: Date.now().toString() + Math.random(),
+                        nom: banni.nom,
+                        prenom: banni.prenom,
+                        motif: m.motif,
+                        date: m.date,
+                        archived: true // Marquer comme archivé
+                    });
+                });
+            }
+            
+            // Supprimer de la liste des bannis
+            infractions.bannis.splice(index, 1);
+            
+            saveInfractions();
+            showInfractionList('bannis');
+            showAlert(`✅ <strong>${banni.nom} ${banni.prenom}</strong> a été débanni.<br>Les avertissements ont été archivés.`);
         }
 
         function askMotif(type) {
@@ -920,24 +1031,76 @@
         function confirmSanction() {
             const nom = document.getElementById('modalNom').value.trim().toUpperCase();
             const prenom = document.getElementById('modalPrenom').value.trim();
+            const prenomFormatted = prenom.charAt(0).toUpperCase() + prenom.slice(1).toLowerCase();
             const motif = document.getElementById('motifInput').value || "Non spécifié";
+            const dateNow = new Date().toLocaleString('fr-FR');
             
-            if (!infractions[pendingSanctionType]) {
-                infractions[pendingSanctionType] = [];
+            if (!infractions.avertissements) infractions.avertissements = [];
+            if (!infractions.bannis) infractions.bannis = [];
+            
+            if (pendingSanctionType === 'avertissements') {
+                // Ajouter l'avertissement
+                infractions.avertissements.push({
+                    id: Date.now().toString(),
+                    nom: nom,
+                    prenom: prenomFormatted,
+                    motif: motif,
+                    date: dateNow
+                });
+                
+                // Vérifier si 3 avertissements -> bannissement automatique
+                const fullName = (nom + ' ' + prenomFormatted).toLowerCase();
+                const userAvertissements = infractions.avertissements.filter(a => 
+                    (a.nom + ' ' + a.prenom).toLowerCase() === fullName && !a.archived
+                );
+                
+                if (userAvertissements.length >= 3) {
+                    // Créer le bannissement avec les 3 motifs
+                    const motifs = userAvertissements.map(a => ({
+                        motif: a.motif,
+                        date: a.date
+                    }));
+                    
+                    infractions.bannis.push({
+                        id: Date.now().toString(),
+                        nom: nom,
+                        prenom: prenomFormatted,
+                        motifs: motifs,
+                        date: dateNow
+                    });
+                    
+                    // Supprimer les avertissements de la liste
+                    infractions.avertissements = infractions.avertissements.filter(a => 
+                        (a.nom + ' ' + a.prenom).toLowerCase() !== fullName || a.archived
+                    );
+                    
+                    saveInfractions();
+                    document.getElementById('motifModal').style.display = 'none';
+                    closeModal();
+                    showAlert(`🚫 <strong>${nom} ${prenomFormatted}</strong> a reçu 3 avertissements.<br><br>➡️ <strong>BANNISSEMENT AUTOMATIQUE</strong>`);
+                    return;
+                }
+                
+                saveInfractions();
+                document.getElementById('motifModal').style.display = 'none';
+                closeModal();
+                showAlert(`✅ Avertissement enregistré pour <strong>${nom} ${prenomFormatted}</strong><br>(${userAvertissements.length}/3)`);
+                
+            } else {
+                // Bannissement direct
+                infractions.bannis.push({
+                    id: Date.now().toString(),
+                    nom: nom,
+                    prenom: prenomFormatted,
+                    motif: motif,
+                    date: dateNow
+                });
+                
+                saveInfractions();
+                document.getElementById('motifModal').style.display = 'none';
+                closeModal();
+                showAlert(`🚫 <strong>${nom} ${prenomFormatted}</strong> a été banni.`);
             }
-            
-            infractions[pendingSanctionType].push({
-                id: Date.now().toString(),
-                nom: nom,
-                prenom: prenom.charAt(0).toUpperCase() + prenom.slice(1).toLowerCase(),
-                motif: motif,
-                date: new Date().toLocaleString('fr-FR')
-            });
-            
-            saveInfractions();
-            document.getElementById('motifModal').style.display = 'none';
-            closeModal();
-            showAlert(`✅ Sanction enregistrée pour <strong>${nom} ${prenom}</strong>`);
         }
 
         // =============================================
@@ -946,9 +1109,13 @@
         function checkInfo(nom, prenom) {
             const fullName = (nom + ' ' + prenom).toLowerCase();
             
-            // Récupérer tous les avertissements de cette personne
+            // Récupérer tous les avertissements de cette personne (non archivés)
             const avertissements = infractions.avertissements ? 
-                infractions.avertissements.filter(a => (a.nom + ' ' + a.prenom).toLowerCase() === fullName) : [];
+                infractions.avertissements.filter(a => (a.nom + ' ' + a.prenom).toLowerCase() === fullName && !a.archived) : [];
+            
+            // Récupérer les avertissements archivés
+            const avertissementsArchives = infractions.avertissements ? 
+                infractions.avertissements.filter(a => (a.nom + ' ' + a.prenom).toLowerCase() === fullName && a.archived) : [];
             
             // Récupérer le bannissement s'il existe
             const bannissement = infractions.bannis ? 
@@ -965,23 +1132,35 @@
             // Statut bannissement
             if (bannissement) {
                 html += `<p style="margin: 8px 0; color: #dc3545; font-weight: bold;">🚫 BANNI</p>`;
-                html += `<div class="info-motifs" style="background: #f8d7da; border-color: #dc3545;">
-                    <h4 style="color: #721c24;">Motif du bannissement:</h4>
-                    <div class="info-motif-item" style="border-color: #f5c6cb;">
-                        📅 ${bannissement.date || 'Date inconnue'}<br>
-                        📝 ${bannissement.motif || 'Non spécifié'}
-                    </div>
-                </div>`;
+                if (bannissement.motifs && bannissement.motifs.length > 0) {
+                    html += `<div class="info-motifs" style="background: #f8d7da; border-color: #dc3545;">
+                        <h4 style="color: #721c24;">Motifs du bannissement :</h4>`;
+                    bannissement.motifs.forEach((m, i) => {
+                        html += `<div class="info-motif-item" style="border-color: #f5c6cb;">
+                            <strong>#${i+1}</strong> - 📅 ${m.date || 'Date inconnue'}<br>
+                            📝 ${m.motif || 'Non spécifié'}
+                        </div>`;
+                    });
+                    html += `</div>`;
+                } else if (bannissement.motif) {
+                    html += `<div class="info-motifs" style="background: #f8d7da; border-color: #dc3545;">
+                        <h4 style="color: #721c24;">Motif du bannissement :</h4>
+                        <div class="info-motif-item" style="border-color: #f5c6cb;">
+                            📅 ${bannissement.date || 'Date inconnue'}<br>
+                            📝 ${bannissement.motif || 'Non spécifié'}
+                        </div>
+                    </div>`;
+                }
             } else {
                 html += `<p style="margin: 8px 0; color: #28a745;">✅ Non banni</p>`;
             }
             
-            // Avertissements
-            html += `<p style="margin: 15px 0 8px 0; font-weight: bold;">⚠️ Avertissements : ${avertissements.length}/3</p>`;
+            // Avertissements actifs
+            html += `<p style="margin: 15px 0 8px 0; font-weight: bold;">⚠️ Avertissements actifs : ${avertissements.length}/3</p>`;
             
             if (avertissements.length > 0) {
                 html += `<div class="info-motifs">
-                    <h4>Détails des avertissements:</h4>`;
+                    <h4>Détails des avertissements :</h4>`;
                 avertissements.forEach((a, i) => {
                     html += `<div class="info-motif-item">
                         <strong>#${i + 1}</strong> - 📅 ${a.date || 'Date inconnue'}<br>
@@ -991,9 +1170,22 @@
                 html += `</div>`;
             }
             
+            // Avertissements archivés
+            if (avertissementsArchives.length > 0) {
+                html += `<p style="margin: 15px 0 8px 0; font-weight: bold; color: #6c757d;">📁 Infractions archivées : ${avertissementsArchives.length}</p>`;
+                html += `<div class="info-motifs" style="background: #e9ecef; border-color: #6c757d;">`;
+                avertissementsArchives.forEach((a, i) => {
+                    html += `<div class="info-motif-item" style="border-color: #dee2e6;">
+                        📅 ${a.date || 'Date inconnue'}<br>
+                        📝 ${a.motif || 'Non spécifié'}
+                    </div>`;
+                });
+                html += `</div>`;
+            }
+            
             // Alerte si 3 avertissements
             if (avertissements.length >= 3 && !bannissement) {
-                html += `<p style="color:#dc3545; font-weight:bold; text-align: center; margin-top: 15px; padding: 10px; background: #f8d7da; border-radius: 5px;">⚠️ 3 avertissements atteints !<br>Bannissement recommandé</p>`;
+                html += `<p style="color:#dc3545; font-weight:bold; text-align: center; margin-top: 15px; padding: 10px; background: #f8d7da; border-radius: 5px;">⚠️ 3 avertissements atteints !<br>Bannissement automatique appliqué</p>`;
             }
             
             html += `</div>`;
@@ -1005,7 +1197,7 @@
         // ADMIN - PÊCHEURS VALIDES
         // =============================================
         function openAdmin() {
-            const code = prompt("Code Admin:");
+            const code = prompt("Code Admin :");
             if (code === "admin") {
                 renderAdminList();
                 document.getElementById('adminModal').style.display = 'block';
