@@ -626,7 +626,26 @@
                 const key = `2026-${String(m + 1).padStart(2, '0')}-${String(j).padStart(2, '0')}`;
                 const isFermeMatin = FERME_MATIN[m] && FERME_MATIN[m].includes(j);
                 
+                // Calculer le nombre de postes libres
+                const dayReservations = reservations[key] || {};
+                let postesReserves = 0;
+                for (let i = 1; i <= 12; i++) {
+                    if (i !== 4 && dayReservations[i] && dayReservations[i].nom && dayReservations[i].nom.trim() !== '') {
+                        postesReserves++;
+                    }
+                }
+                const postesLibres = 11 - postesReserves;
+                
+                // Affichage selon le nombre de postes libres
+                let postesLibresHtml = '';
+                if (postesLibres === 0) {
+                    postesLibresHtml = '<div style="color: #dc3545; font-weight: bold; font-size: 1em; margin-bottom: 5px;">COMPLET</div>';
+                } else {
+                    postesLibresHtml = `<div style="color: #28a745; font-size: 0.85em; margin-bottom: 5px;">${postesLibres} poste${postesLibres > 1 ? 's' : ''} libre${postesLibres > 1 ? 's' : ''}</div>`;
+                }
+                
                 return `<div class="day-card" onclick="showPostes(${j}, '${key}', '${dateFull}')">
+                    ${postesLibresHtml}
                     <div class="day-number">${dateFull}</div>
                     ${isFermeMatin ? '<div class="closed-morning">⚠️ FERMÉ LE MATIN</div>' : ''}
                 </div>`;
