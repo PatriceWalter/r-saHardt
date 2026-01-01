@@ -371,8 +371,9 @@
                 <!-- Section Synchronisation -->
                 <div style="background: #e7f3ff; border: 2px solid #3182ce; border-radius: 10px; padding: 15px; margin-bottom: 20px;">
                     <h3 style="color: #3182ce; margin-bottom: 10px;">🔄 Synchronisation Google Sheet</h3>
-                    <p style="font-size: 0.85em; color: #666; margin-bottom: 10px;">Si l'application a eu un problème et que vous avez saisi des données directement dans Google Sheet, cliquez ici pour tout récupérer.</p>
-                    <button class="btn" onclick="syncFromGoogleSheets()" style="width:100%; background: #3182ce; color: white;">🔄 Synchroniser depuis Google Sheet</button>
+                    <p style="font-size: 0.85em; color: #666; margin-bottom: 10px;">Récupérer les données depuis Google Sheet ou exporter les données actuelles.</p>
+                    <button class="btn" onclick="syncFromGoogleSheets()" style="width:100%; background: #3182ce; color: white; margin-bottom: 10px;">🔄 Synchroniser depuis Google Sheet</button>
+                    <button class="btn" onclick="exportToGoogleSheets()" style="width:100%; background: #28a745; color: white;">📤 Exporter vers Google Sheet</button>
                 </div>
                 
                 <!-- Section Pêcheurs Valides -->
@@ -613,6 +614,101 @@
             // Rafraîchir l'affichage
             renderAdminList();
             updateCounts();
+        }
+        
+        // Exporter toutes les données Firebase vers Google Sheet
+        function exportToGoogleSheets() {
+            if (!checkAdminPassword()) {
+                showAlert("❌ Mot de passe incorrect !");
+                return;
+            }
+            
+            showAlert(`<div style="text-align: center;">
+                <div class="spinner" style="margin: 0 auto 15px auto;"></div>
+                <p>Export en cours...</p>
+            </div>`);
+            
+            let countResa = 0, countAvert = 0, countBan = 0, countValid = 0;
+            
+            // Exporter les réservations
+            for (const dateJour in reservations) {
+                for (const poste in reservations[dateJour]) {
+                    const r = reservations[dateJour][poste];
+                    if (r.nom && r.nom.trim() !== '') {
+                        sendToGoogleSheets({
+                            type: "reservation",
+                            dateJour: dateJour,
+                            poste: poste,
+                            nom: r.nom,
+                            prenom: r.prenom || "",
+                            controle: r.controlled ? "Oui" : "Non",
+                            heure: r.heure || ""
+                        });
+                        countResa++;
+                    }
+                }
+            }
+            
+            // Exporter les avertissements
+            if (infractions.avertissements && infractions.avertissements.length > 0) {
+                infractions.avertissements.forEach(a => {
+                    sendToGoogleSheets({
+                        type: "avertissement",
+                        nom: a.nom,
+                        prenom: a.prenom || "",
+                        motif: a.motif || "",
+                        archive: a.archived ? "Oui" : "Non"
+                    });
+                    countAvert++;
+                });
+            }
+            
+            // Exporter les bannissements
+            if (infractions.bannis && infractions.bannis.length > 0) {
+                infractions.bannis.forEach(b => {
+                    let motifsStr = "";
+                    if (b.motifs && b.motifs.length > 0) {
+                        motifsStr = b.motifs.map((m, i) => `#${i+1}: ${m.motif} (${m.date})`).join(" | ");
+                    } else if (b.motif) {
+                        motifsStr = b.motif;
+                    }
+                    sendToGoogleSheets({
+                        type: "bannissement",
+                        nom: b.nom,
+                        prenom: b.prenom || "",
+                        motifs: motifsStr
+                    });
+                    countBan++;
+                });
+            }
+            
+            // Exporter les pêcheurs valides
+            if (validUsers && validUsers.length > 0) {
+                validUsers.forEach(v => {
+                    sendToGoogleSheets({
+                        type: "pecheur_valide",
+                        nom: v.nom,
+                        prenom: v.prenom || ""
+                    });
+                    countValid++;
+                });
+            }
+            
+            // Attendre un peu pour que les requêtes partent
+            setTimeout(() => {
+                closeAlert();
+                showAlert(`<div style="text-align: center;">
+                    <div style="font-size: 2em; margin-bottom: 10px;">✅</div>
+                    <h3 style="color: #28a745;">Export terminé !</h3>
+                    <div style="margin-top: 15px; text-align: left; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                        <p><strong>📋 Réservations exportées :</strong> ${countResa}</p>
+                        <p><strong>⚠️ Avertissements exportés :</strong> ${countAvert}</p>
+                        <p><strong>🚫 Bannissements exportés :</strong> ${countBan}</p>
+                        <p><strong>🪪 Pêcheurs valides exportés :</strong> ${countValid}</p>
+                    </div>
+                    <p style="margin-top: 15px; font-size: 0.85em; color: #666;">Vérifiez votre Google Sheet pour confirmer.</p>
+                </div>`);
+            }, 2000);
         }
 
         // =============================================
