@@ -365,14 +365,27 @@
     <!-- Admin Modal -->
     <div id="adminModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header"><h2>🪪 Liste Pêcheurs Valides</h2></div>
+            <div class="modal-header"><h2>⚙️ Administration</h2></div>
             <div class="modal-body">
-                <label>NOM</label>
-                <input type="text" id="adminAddNom" placeholder="NOM">
-                <label>Prénom</label>
-                <input type="text" id="adminAddPrenom" placeholder="Prénom">
-                <button class="btn btn-save" style="width:100%; margin: 15px 0;" onclick="addValidUser()">➕ Ajouter à la liste</button>
-                <div id="adminValidList" style="max-height:200px; overflow-y:auto; border-top:1px solid #eee; padding-top:10px;"></div>
+                
+                <!-- Section Synchronisation -->
+                <div style="background: #e7f3ff; border: 2px solid #3182ce; border-radius: 10px; padding: 15px; margin-bottom: 20px;">
+                    <h3 style="color: #3182ce; margin-bottom: 10px;">🔄 Synchronisation Google Sheet</h3>
+                    <p style="font-size: 0.85em; color: #666; margin-bottom: 10px;">Si l'application a eu un problème et que vous avez saisi des données directement dans Google Sheet, cliquez ici pour tout récupérer.</p>
+                    <button class="btn" onclick="syncFromGoogleSheets()" style="width:100%; background: #3182ce; color: white;">🔄 Synchroniser depuis Google Sheet</button>
+                </div>
+                
+                <!-- Section Pêcheurs Valides -->
+                <div style="border-top: 2px solid #eee; padding-top: 15px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">🪪 Liste Pêcheurs Valides</h3>
+                    <label>NOM</label>
+                    <input type="text" id="adminAddNom" placeholder="NOM">
+                    <label>Prénom</label>
+                    <input type="text" id="adminAddPrenom" placeholder="Prénom">
+                    <button class="btn btn-save" style="width:100%; margin: 15px 0;" onclick="addValidUser()">➕ Ajouter à la liste</button>
+                    <div id="adminValidList" style="max-height:200px; overflow-y:auto; border-top:1px solid #eee; padding-top:10px;"></div>
+                </div>
+                
                 <button class="btn" style="width:100%; background:#eee; color:#333; margin-top:15px;" onclick="closeAdmin()">Fermer</button>
             </div>
         </div>
@@ -423,6 +436,183 @@
             })
             .then(() => console.log("✅ Données envoyées vers Google Sheets"))
             .catch(err => console.error("❌ Erreur envoi Google Sheets:", err));
+        }
+        
+        // Synchroniser depuis Google Sheets vers Firebase
+        function syncFromGoogleSheets() {
+            if (!checkAdminPassword()) {
+                showAlert("❌ Mot de passe incorrect !");
+                return;
+            }
+            
+            showAlert(`<div style="text-align: center;">
+                <div class="spinner" style="margin: 0 auto 15px auto;"></div>
+                <p>Synchronisation en cours...</p>
+            </div>`);
+            
+            // Créer un iframe caché pour contourner CORS
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.name = 'syncFrame';
+            document.body.appendChild(iframe);
+            
+            // Utiliser JSONP via un script tag pour contourner CORS
+            const script = document.createElement('script');
+            const callbackName = 'syncCallback_' + Date.now();
+            
+            window[callbackName] = function(data) {
+                try {
+                    processSyncData(data);
+                } catch(e) {
+                    console.error("Erreur sync:", e);
+                    closeAlert();
+                    showAlert("❌ Erreur lors de la synchronisation : " + e.message);
+                }
+                // Nettoyage
+                delete window[callbackName];
+                document.body.removeChild(script);
+            };
+            
+            // Méthode alternative : fetch avec proxy ou direct
+            fetch(GOOGLE_SCRIPT_URL)
+                .then(response => response.json())
+                .then(data => {
+                    processSyncData(data);
+                })
+                .catch(err => {
+                    console.error("Erreur fetch:", err);
+                    closeAlert();
+                    showAlert(`<div style="text-align: center;">
+                        <div style="font-size: 2em; margin-bottom: 10px;">⚠️</div>
+                        <h3 style="color: #ffc107;">Synchronisation manuelle requise</h3>
+                        <p style="margin-top: 10px; font-size: 0.9em;">En raison des restrictions de sécurité du navigateur, la synchronisation automatique n'est pas possible.</p>
+                        <p style="margin-top: 10px; font-size: 0.85em; color: #666;"><strong>Solution :</strong> Exportez les données depuis Google Sheet et importez-les manuellement, ou saisissez-les directement dans l'application.</p>
+                    </div>`);
+                });
+        }
+        
+        function processSyncData(data) {
+            if (data.status === "error") {
+                closeAlert();
+                showAlert("❌ Erreur : " + data.message);
+                return;
+            }
+            
+            let countResa = 0, countAvert = 0, countBan = 0, countValid = 0;
+            
+            // Traiter les réservations
+            if (data.reservations && data.reservations.length > 0) {
+                data.reservations.forEach(r => {
+                    if (r.dateJour && r.poste && r.nom) {
+                        if (!reservations[r.dateJour]) {
+                            reservations[r.dateJour] = {};
+                        }
+                        // Ne pas écraser si déjà existant
+                        if (!reservations[r.dateJour][r.poste]) {
+                            reservations[r.dateJour][r.poste] = {
+                                nom: r.nom,
+                                prenom: r.prenom || "",
+                                controlled: r.controle === "Oui",
+                                heure: r.heure || ""
+                            };
+                            countResa++;
+                        }
+                    }
+                });
+                saveReservations();
+            }
+            
+            // Traiter les avertissements
+            if (data.avertissements && data.avertissements.length > 0) {
+                data.avertissements.forEach(a => {
+                    if (a.nom) {
+                        // Vérifier si n'existe pas déjà
+                        const exists = infractions.avertissements.some(existing => 
+                            existing.nom === a.nom && 
+                            existing.prenom === a.prenom && 
+                            existing.motif === a.motif
+                        );
+                        if (!exists) {
+                            infractions.avertissements.push({
+                                id: Date.now().toString() + Math.random(),
+                                nom: a.nom,
+                                prenom: a.prenom || "",
+                                motif: a.motif || "",
+                                date: a.date ? new Date(a.date).toLocaleString('fr-FR') : new Date().toLocaleString('fr-FR'),
+                                archived: a.archive === "Oui"
+                            });
+                            countAvert++;
+                        }
+                    }
+                });
+            }
+            
+            // Traiter les bannissements
+            if (data.bannis && data.bannis.length > 0) {
+                data.bannis.forEach(b => {
+                    if (b.nom) {
+                        // Vérifier si n'existe pas déjà
+                        const exists = infractions.bannis.some(existing => 
+                            existing.nom === b.nom && 
+                            existing.prenom === b.prenom
+                        );
+                        if (!exists) {
+                            infractions.bannis.push({
+                                id: Date.now().toString() + Math.random(),
+                                nom: b.nom,
+                                prenom: b.prenom || "",
+                                motif: b.motifs || "",
+                                date: b.date ? new Date(b.date).toLocaleString('fr-FR') : new Date().toLocaleString('fr-FR')
+                            });
+                            countBan++;
+                        }
+                    }
+                });
+            }
+            
+            if (countAvert > 0 || countBan > 0) {
+                saveInfractions();
+            }
+            
+            // Traiter les pêcheurs valides
+            if (data.validUsers && data.validUsers.length > 0) {
+                data.validUsers.forEach(v => {
+                    if (v.nom) {
+                        // Vérifier si n'existe pas déjà
+                        const exists = validUsers.some(existing => 
+                            existing.nom === v.nom && 
+                            existing.prenom === v.prenom
+                        );
+                        if (!exists) {
+                            validUsers.push({
+                                nom: v.nom,
+                                prenom: v.prenom || ""
+                            });
+                            countValid++;
+                        }
+                    }
+                });
+                if (countValid > 0) {
+                    saveValidUsers();
+                }
+            }
+            
+            closeAlert();
+            showAlert(`<div style="text-align: center;">
+                <div style="font-size: 2em; margin-bottom: 10px;">✅</div>
+                <h3 style="color: #28a745;">Synchronisation terminée !</h3>
+                <div style="margin-top: 15px; text-align: left; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                    <p><strong>📋 Réservations importées :</strong> ${countResa}</p>
+                    <p><strong>⚠️ Avertissements importés :</strong> ${countAvert}</p>
+                    <p><strong>🚫 Bannissements importés :</strong> ${countBan}</p>
+                    <p><strong>🪪 Pêcheurs valides importés :</strong> ${countValid}</p>
+                </div>
+                <p style="margin-top: 15px; font-size: 0.85em; color: #666;">Les données existantes n'ont pas été écrasées.</p>
+            </div>`);
+            
+            // Rafraîchir l'affichage
+            renderAdminList();
+            updateCounts();
         }
 
         // =============================================
