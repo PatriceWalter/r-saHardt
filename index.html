@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion Postes Hardt 2026</title>
     <style>
-        /* TON STYLE ORIGINAL */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; margin: 0; }
         body.login-mode { display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -137,3 +136,39 @@
                     <span id="controlStatusText" style="margin-left: 10px;">Non contrôlé</span>
                     <input type="hidden" id="modalHeure">
                 </div>
+                <div id="infractionsButtons" style="display:none; border-top: 1px solid #ddd; padding-top: 15px;">
+                    <p style="font-weight:bold; margin-bottom:10px;">⚠️ Actions Sanctions :</p>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn" onclick="askMotif('avertissements')" style="background: #ffc107;">⚠️ Avertir</button>
+                        <button class="btn" onclick="askMotif('bannis')" style="background: #dc3545; color: white;">🚫 Bannir</button>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button class="btn btn-save" onclick="saveModal()">💾 Sauvegarder</button>
+                    <button class="btn btn-delete" onclick="deleteModal()">🗑️ Effacer</button>
+                    <button class="btn" onclick="closeModal()" style="background:#eee;">Annuler</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAs7K-9-m7K8f5r6G2D3H1j4K5L6M7N8",
+            authDomain: "resahardt.firebaseapp.com",
+            databaseURL: "https://resahardt-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "resahardt",
+            storageBucket: "resahardt.appspot.com",
+            messagingSenderId: "748596123041",
+            appId: "1:748596123041:web:d8f7e6a5b4c3d2e1"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let reservations = {}, infractions = { avertissements: [], bannis: [] }, validUsers = [];
+        let curM, curMName, curDKey, curP, curFullDate, pendingSanctionType;
+
+        const JOURS_OUVERTURE = { 1:[28], 2:[6,7,13,14,20,21,22,27,28], 3:[3,4,5,10,11,17,18,24,25], 4:[5,6,7,8,9,10,11,12,13,14,15,16,17,18,1
