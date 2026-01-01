@@ -37,6 +37,8 @@
         .nav-left a:hover { background: #667eea; color: white; }
         .nav-left .btn-infractions { background: #e53e3e; color: white; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; border: none; font-size: 0.9em; transition: 0.3s; }
         .nav-left .btn-infractions:hover { background: #c53030; }
+        .nav-left .btn-controleur { background: #3182ce; color: white; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; border: none; font-size: 0.9em; transition: 0.3s; }
+        .nav-left .btn-controleur:hover { background: #2c5282; }
         .nav-right a { color: #dc3545; text-decoration: none; font-weight: bold; cursor: pointer; padding: 8px 12px; border-radius: 5px; transition: 0.3s; }
         .nav-right a:hover { background: #dc3545; color: white; }
         
@@ -261,11 +263,12 @@
             <h1>📋 Réservation Postes Hardt 2026</h1>
         </div>
         
-        <!-- Navigation Bar avec bouton Infractions -->
+        <!-- Navigation Bar avec bouton Infractions et Contrôleur -->
         <div class="breadcrumb">
             <div class="nav-left">
                 <a onclick="showMonths()">🏠 Accueil</a>
                 <button class="btn-infractions" onclick="showInfractionsMenu()">⚠️ Infractions</button>
+                <button class="btn-controleur" onclick="accesControleur()">👮 Contrôleur</button>
             </div>
             <div class="nav-right">
                 <a onclick="logout()">Déconnexion 🔒</a>
@@ -576,6 +579,71 @@
 
         function logout() {
             location.reload();
+        }
+
+        // =============================================
+        // ACCÈS CONTRÔLEUR - JOUR ACTUEL
+        // =============================================
+        function accesControleur() {
+            const today = new Date();
+            const jour = today.getDate();
+            const mois = today.getMonth(); // 0-11
+            const annee = today.getFullYear();
+            
+            // Vérifier si on est en 2026
+            if (annee !== 2026) {
+                showAlert(`<div style="text-align: center;">
+                    <div style="font-size: 3em; margin-bottom: 15px;">📅</div>
+                    <h3 style="color: #667eea; margin-bottom: 15px;">Application configurée pour 2026</h3>
+                    <p>Nous sommes actuellement en ${annee}.</p>
+                    <p style="margin-top: 10px; color: #666;">L'accès contrôleur sera disponible en 2026.</p>
+                </div>`);
+                return;
+            }
+            
+            // Vérifier si l'étang est ouvert ce jour
+            const joursOuverts = JOURS_OUVERTURE[mois] || [];
+            const isOpen = joursOuverts.includes(jour);
+            
+            if (!isOpen) {
+                showAlert(`<div style="text-align: center;">
+                    <div style="font-size: 3em; margin-bottom: 15px;">🚫</div>
+                    <h3 style="color: #dc3545; margin-bottom: 15px;">Étang fermé</h3>
+                    <p>L'étang est fermé aujourd'hui.</p>
+                    <p style="margin-top: 10px; color: #666;">${today.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                </div>`);
+                return;
+            }
+            
+            // L'étang est ouvert - construire la clé du jour
+            const key = `2026-${String(mois + 1).padStart(2, '0')}-${String(jour).padStart(2, '0')}`;
+            const dateFull = today.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+            
+            // Vérifier s'il y a des réservations
+            const dayReservations = reservations[key] || {};
+            let hasReservations = false;
+            
+            for (let i = 1; i <= 12; i++) {
+                if (i !== 4 && dayReservations[i] && dayReservations[i].nom && dayReservations[i].nom.trim() !== '') {
+                    hasReservations = true;
+                    break;
+                }
+            }
+            
+            if (!hasReservations) {
+                showAlert(`<div style="text-align: center;">
+                    <div style="font-size: 3em; margin-bottom: 15px;">📋</div>
+                    <h3 style="color: #ffc107; margin-bottom: 15px;">Pas de réservation aujourd'hui</h3>
+                    <p>L'étang est ouvert mais aucune réservation n'a été enregistrée.</p>
+                    <p style="margin-top: 10px; color: #666;">${today.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                </div>`);
+                return;
+            }
+            
+            // Il y a des réservations - afficher la page des postes
+            curM = mois;
+            curMName = MOIS_NOMS[mois];
+            showPostes(jour, key, dateFull);
         }
 
         // =============================================
