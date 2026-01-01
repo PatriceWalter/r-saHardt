@@ -10,97 +10,224 @@
         body.login-mode { display: flex; align-items: center; justify-content: center; padding: 20px; }
         body.app-mode { display: block; padding: 20px; }
         
+        /* LOGIN PAGE */
         #loginPage { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); width: 100%; max-width: 400px; text-align: center; }
         #loginPage h2 { color: #764ba2; margin-bottom: 25px; font-size: 1.5em; }
         .login-input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #eee; border-radius: 8px; font-size: 16px; outline: none; }
         .login-input:focus { border-color: #667eea; }
         .btn-login { width: 100%; background: #667eea; color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1em; margin-top: 15px; transition: 0.3s; }
         .btn-login:hover { background: #5a6fd6; }
-        .btn-login:disabled { background: #ccc; cursor: not-allowed; }
         
+        /* MAIN APP */
         #mainApp { display: none; max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; text-align: center; position: relative; }
+        
+        /* HEADER */
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px 20px; text-align: center; position: relative; }
+        .header h1 { font-size: 1.5em; }
         .admin-gear { position: absolute; top: 15px; right: 20px; font-size: 1.5em; cursor: pointer; transition: 0.3s; }
         .admin-gear:hover { transform: rotate(90deg); }
-        .sync-status { position: absolute; top: 15px; left: 20px; font-size: 0.85em; padding: 5px 10px; border-radius: 20px; background: rgba(255,255,255,0.2); }
+        .sync-status { position: absolute; top: 15px; left: 20px; font-size: 0.8em; padding: 5px 10px; border-radius: 20px; background: rgba(255,255,255,0.2); }
         .sync-status.online { background: #28a745; }
         .sync-status.offline { background: #dc3545; }
         
-        .breadcrumb { background: #f8f9fa; padding: 15px 30px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .breadcrumb a { color: #667eea; text-decoration: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .breadcrumb a:hover { color: #764ba2; }
+        /* NAVIGATION BAR */
+        .breadcrumb { background: #f8f9fa; padding: 12px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .nav-left { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .nav-left a { color: #667eea; text-decoration: none; font-weight: bold; cursor: pointer; transition: 0.3s; padding: 8px 12px; border-radius: 5px; }
+        .nav-left a:hover { background: #667eea; color: white; }
+        .nav-left .btn-infractions { background: #e53e3e; color: white; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; border: none; font-size: 0.9em; transition: 0.3s; }
+        .nav-left .btn-infractions:hover { background: #c53030; }
+        .nav-right a { color: #dc3545; text-decoration: none; font-weight: bold; cursor: pointer; padding: 8px 12px; border-radius: 5px; transition: 0.3s; }
+        .nav-right a:hover { background: #dc3545; color: white; }
         
-        .content { padding: 30px; }
-        .months-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-        .month-card { background: white; border: 3px solid #e9ecef; border-radius: 10px; padding: 30px; text-align: center; cursor: pointer; transition: 0.3s; }
+        /* CONTENT */
+        .content { padding: 20px; }
+        .hidden { display: none !important; }
+        
+        /* MONTHS GRID */
+        .months-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+        .month-card { background: white; border: 3px solid #e9ecef; border-radius: 10px; padding: 25px 15px; text-align: center; cursor: pointer; transition: 0.3s; }
         .month-card:hover { border-color: #667eea; transform: translateY(-5px); box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
-        .month-name { font-size: 1.5em; font-weight: bold; color: #667eea; }
+        .month-name { font-size: 1.3em; font-weight: bold; color: #667eea; }
         
-        .days-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
-        .day-card { background: white; border: 2px solid #e9ecef; border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s; min-height: 110px; display: flex; flex-direction: column; justify-content: center; }
+        /* DAYS GRID */
+        .days-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+        .day-card { background: white; border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; text-align: center; cursor: pointer; transition: 0.3s; min-height: 90px; display: flex; flex-direction: column; justify-content: center; }
         .day-card:hover { border-color: #667eea; transform: translateY(-3px); }
-        .day-number { font-size: 1.1em; font-weight: bold; color: #667eea; text-transform: capitalize; }
-        .closed-morning { color: #dc3545; font-size: 0.85em; margin-top: 8px; font-weight: bold; }
+        .day-number { font-size: 1em; font-weight: bold; color: #667eea; text-transform: capitalize; }
+        .closed-morning { color: #dc3545; font-size: 0.8em; margin-top: 8px; font-weight: bold; }
         
-        .postes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-        .poste-box { background: #f8f9fa; border: 3px solid #dee2e6; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; position: relative; transition: 0.3s; min-height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        /* POSTES GRID */
+        .postes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+        .poste-box { background: #f8f9fa; border: 3px solid #dee2e6; border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; position: relative; transition: 0.3s; min-height: 180px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
         .poste-box:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .poste-box.libre { border-color: #28a745; background: #e8f5e9; }
         .poste-box.reserve { border-color: #ffc107; background: #fff9e6; }
         .poste-box.controle { border-color: #17a2b8; background: #e7f6f8; }
         .poste-box.controleur { border-color: #ffd700; border-width: 4px; background: #fffbf0; }
         
-        .poste-checkbox { position: absolute; top: 10px; right: 10px; width: 25px; height: 25px; cursor: pointer; z-index: 10; }
-        .status-badge { position: absolute; top: 38px; right: 10px; font-size: 0.7em; font-weight: bold; }
-        .badge-peche { color: #28a745; font-size: 0.75em; font-weight: bold; margin-top: 8px; border: 1.5px solid #28a745; padding: 3px 6px; border-radius: 5px; background: white; }
+        .poste-content { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; }
+        .poste-title { font-weight: bold; font-size: 1.1em; margin-bottom: 5px; }
+        .poste-heure { color: #17a2b8; font-size: 0.85em; font-weight: bold; }
+        .poste-nom { font-weight: bold; margin-top: 8px; }
+        .badge-peche { color: #28a745; font-size: 0.75em; font-weight: bold; margin-top: 5px; border: 1.5px solid #28a745; padding: 3px 6px; border-radius: 5px; background: white; }
+        .btn-info { background: #17a2b8; color: white; padding: 5px 10px; font-size: 0.8em; margin-top: 8px; border-radius: 4px; border: none; cursor: pointer; transition: 0.3s; }
+        .btn-info:hover { background: #138496; }
         
-        .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
-        .stat-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
-        .stat-number { font-size: 2.5em; font-weight: bold; }
+        /* CONTROL ZONE - EN BAS DE LA CASE */
+        .control-zone { width: 100%; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .control-zone input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; }
+        .control-zone .control-label { font-size: 0.85em; color: #666; cursor: pointer; }
+        .control-zone .control-label.checked { color: #17a2b8; font-weight: bold; }
         
-        .modal, .alert-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
-        .modal-content, .alert-content { background: white; margin: 5% auto; border-radius: 15px; width: 90%; max-width: 500px; overflow: hidden; animation: slideDown 0.3s; }
+        /* STATS BAR */
+        .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .stat-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 10px; border-radius: 10px; text-align: center; }
+        .stat-number { font-size: 2em; font-weight: bold; }
+        .stat-label { font-size: 0.9em; }
+        
+        /* MODALS */
+        .modal, .alert-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow-y: auto; padding: 20px; }
+        .modal-content, .alert-content { background: white; margin: 20px auto; border-radius: 15px; width: 100%; max-width: 500px; overflow: hidden; animation: slideDown 0.3s; }
         .modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; }
-        .modal-body { padding: 30px; }
-        .modal-body label { font-weight: bold; color: #333; display: block; margin-top: 15px; margin-bottom: 5px; }
+        .modal-body { padding: 20px; }
+        .modal-body label { font-weight: bold; color: #333; display: block; margin-top: 12px; margin-bottom: 5px; }
         
         input[type="text"], input[type="password"] { width: 100%; padding: 12px; margin: 5px 0 10px 0; border: 2px solid #dee2e6; border-radius: 8px; font-size: 16px; outline: none; transition: 0.3s; }
         input[type="text"]:focus, input[type="password"]:focus { border-color: #667eea; }
         
-        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; flex: 1; }
+        /* BUTTONS */
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; flex: 1; font-size: 1em; }
         .btn:hover { opacity: 0.9; }
         .btn-save { background: #28a745; color: white; }
         .btn-delete { background: #dc3545; color: white; }
-        .btn-info { background: #17a2b8; color: white; padding: 4px 8px; font-size: 0.8em; margin-top: 8px; border-radius: 4px; border: none; cursor: pointer; }
-        .btn-back { background: #6c757d; color: white; margin-bottom: 20px; display: inline-block; padding: 10px 20px; text-decoration: none; border-radius: 8px; cursor: pointer; border: none; font-weight: bold; }
+        .btn-back { background: #6c757d; color: white; margin-bottom: 15px; display: inline-block; padding: 10px 20px; text-decoration: none; border-radius: 8px; cursor: pointer; border: none; font-weight: bold; font-size: 0.95em; }
         
-        .hidden { display: none !important; }
-        
+        /* INFRACTIONS */
         .infraction-item { padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .infraction-item.avertissement { border-left-color: #ffc107; }
         .infraction-item.banni { border-left-color: #dc3545; }
         
-        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
-        .spinner { width: 50px; height: 50px; border: 5px solid #eee; border-top-color: #667eea; border-radius: 50%; animation: spin 1s linear infinite; }
+        /* INFO MODAL - MOTIFS */
+        .info-motifs { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 10px; margin-top: 10px; text-align: left; }
+        .info-motifs h4 { margin-bottom: 8px; color: #856404; }
+        .info-motif-item { padding: 5px 0; border-bottom: 1px solid #ffeeba; font-size: 0.9em; }
+        .info-motif-item:last-child { border-bottom: none; }
         
+        /* ANIMATIONS */
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes spin { to { transform: rotate(360deg); } }
         
-        @media (max-width: 600px) {
-            .stats-bar { grid-template-columns: 1fr; }
-            .stat-number { font-size: 2em; }
+        /* =============================================
+           RESPONSIVE DESIGN
+           ============================================= */
+        
+        /* TABLETTE (768px et moins) */
+        @media (max-width: 768px) {
+            body.app-mode { padding: 10px; }
+            
             .header { padding: 20px 15px; }
+            .header h1 { font-size: 1.2em; }
+            .sync-status { font-size: 0.7em; padding: 4px 8px; top: 10px; left: 10px; }
+            .admin-gear { font-size: 1.3em; top: 10px; right: 15px; }
+            
+            .breadcrumb { padding: 10px 15px; }
+            .nav-left { gap: 8px; }
+            .nav-left a { padding: 6px 10px; font-size: 0.9em; }
+            .nav-left .btn-infractions { padding: 6px 12px; font-size: 0.85em; }
+            
             .content { padding: 15px; }
+            
+            .months-grid { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+            .month-card { padding: 20px 10px; }
+            .month-name { font-size: 1.1em; }
+            
+            .days-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+            .day-card { padding: 12px; min-height: 80px; }
+            .day-number { font-size: 0.9em; }
+            
+            .stats-bar { gap: 8px; }
+            .stat-box { padding: 12px 8px; }
+            .stat-number { font-size: 1.6em; }
+            .stat-label { font-size: 0.8em; }
+            
+            .postes-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+            .poste-box { min-height: 160px; padding: 12px; }
+            .poste-title { font-size: 1em; }
+            
+            .modal-content, .alert-content { margin: 10px auto; }
+            .modal-body { padding: 15px; }
+        }
+        
+        /* TÉLÉPHONE (480px et moins) */
+        @media (max-width: 480px) {
+            body.app-mode { padding: 5px; }
+            
+            #loginPage { padding: 25px 20px; margin: 10px; }
+            #loginPage h2 { font-size: 1.2em; }
+            .login-input { padding: 10px; font-size: 14px; }
+            .btn-login { padding: 10px; font-size: 1em; }
+            
+            .header { padding: 15px 10px; }
+            .header h1 { font-size: 1em; padding: 0 30px; }
+            .sync-status { font-size: 0.65em; padding: 3px 6px; top: 8px; left: 8px; }
+            .admin-gear { font-size: 1.2em; top: 8px; right: 10px; }
+            
+            .breadcrumb { padding: 8px 10px; flex-direction: column; align-items: stretch; gap: 8px; }
+            .nav-left { justify-content: center; gap: 5px; }
+            .nav-left a { padding: 8px 10px; font-size: 0.85em; }
+            .nav-left .btn-infractions { padding: 8px 12px; font-size: 0.85em; width: auto; }
+            .nav-right { text-align: center; }
+            .nav-right a { font-size: 0.85em; }
+            
+            .content { padding: 10px; }
+            
+            .months-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .month-card { padding: 15px 8px; }
+            .month-name { font-size: 1em; }
+            
+            .days-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .day-card { padding: 10px; min-height: 70px; }
+            .day-number { font-size: 0.85em; }
+            .closed-morning { font-size: 0.7em; }
+            
+            .stats-bar { grid-template-columns: repeat(3, 1fr); gap: 5px; }
+            .stat-box { padding: 10px 5px; }
+            .stat-number { font-size: 1.4em; }
+            .stat-label { font-size: 0.7em; }
+            
+            .postes-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .poste-box { min-height: 150px; padding: 10px; }
+            .poste-title { font-size: 0.95em; }
+            .poste-nom { font-size: 0.9em; }
+            .badge-peche { font-size: 0.7em; padding: 2px 5px; }
+            .btn-info { padding: 4px 8px; font-size: 0.75em; }
+            .control-zone { padding-top: 8px; margin-top: 8px; gap: 5px; }
+            .control-zone input[type="checkbox"] { width: 20px; height: 20px; }
+            .control-zone .control-label { font-size: 0.75em; }
+            
+            .btn-back { padding: 8px 15px; font-size: 0.9em; }
+            
+            .modal-content, .alert-content { margin: 5px; border-radius: 10px; }
+            .modal-header { padding: 15px; }
+            .modal-header h2 { font-size: 1.1em; }
+            .modal-body { padding: 15px; }
+            .modal-body label { font-size: 0.9em; margin-top: 10px; }
+            input[type="text"], input[type="password"] { padding: 10px; font-size: 14px; }
+            .btn { padding: 10px 15px; font-size: 0.9em; }
+            
+            .infraction-item { padding: 12px; font-size: 0.9em; }
+        }
+        
+        /* TRÈS PETIT ÉCRAN (360px et moins) */
+        @media (max-width: 360px) {
+            .header h1 { font-size: 0.9em; }
+            .months-grid { grid-template-columns: 1fr 1fr; }
+            .postes-grid { grid-template-columns: 1fr 1fr; }
+            .stat-number { font-size: 1.2em; }
         }
     </style>
 </head>
 <body class="login-mode">
-
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="loading-overlay hidden">
-        <div class="spinner"></div>
-        <p style="margin-top: 20px; color: #667eea; font-weight: bold;">Chargement...</p>
-    </div>
 
     <!-- Login Page -->
     <div id="loginPage">
@@ -119,17 +246,21 @@
             <span class="admin-gear" onclick="openAdmin()">⚙️</span>
             <h1>📋 Réservation Postes Hardt 2026</h1>
         </div>
+        
+        <!-- Navigation Bar avec bouton Infractions -->
         <div class="breadcrumb">
-            <div><a onclick="showMonths()">🏠 Accueil</a></div>
-            <div><a onclick="logout()" style="color:#dc3545;">Déconnexion 🔒</a></div>
+            <div class="nav-left">
+                <a onclick="showMonths()">🏠 Accueil</a>
+                <button class="btn-infractions" onclick="showInfractionsMenu()">⚠️ Infractions</button>
+            </div>
+            <div class="nav-right">
+                <a onclick="logout()">Déconnexion 🔒</a>
+            </div>
         </div>
         
         <!-- Months Page -->
         <div id="monthsPage" class="content">
             <div class="months-grid" id="monthsGrid"></div>
-            <div style="text-align: center; margin-top: 40px;">
-                <button onclick="showInfractionsMenu()" style="background: #e53e3e; color: white; padding: 18px 35px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 1.1em; box-shadow: 0 4px 15px rgba(229, 62, 62, 0.4);">⚠️ LISTING DES INFRACTIONS</button>
-            </div>
         </div>
 
         <!-- Infractions Menu Page -->
@@ -137,12 +268,12 @@
             <button class="btn-back" onclick="showMonths()">← Retour Accueil</button>
             <div class="months-grid">
                 <div class="month-card" onclick="showInfractionList('avertissements')" style="border-color: #ffc107;">
-                    <div style="font-size: 3em;">⚠️</div>
+                    <div style="font-size: 2.5em;">⚠️</div>
                     <div class="month-name">AVERTISSEMENTS</div>
                     <p id="countAvertissement" style="font-weight: bold; margin-top:10px;">0 dossier(s)</p>
                 </div>
                 <div class="month-card" onclick="showInfractionList('bannis')" style="border-color: #dc3545;">
-                    <div style="font-size: 3em;">🚫</div>
+                    <div style="font-size: 2.5em;">🚫</div>
                     <div class="month-name">BANNISSEMENTS</div>
                     <p id="countBanni" style="font-weight: bold; margin-top:10px;">0 dossier(s)</p>
                 </div>
@@ -152,25 +283,25 @@
         <!-- Infractions Detail Page -->
         <div id="infractionsDetailPage" class="content hidden">
             <button class="btn-back" onclick="showInfractionsMenu()">← Retour</button>
-            <h2 id="detailTitle" style="text-align: center; margin-bottom: 25px;"></h2>
+            <h2 id="detailTitle" style="text-align: center; margin-bottom: 20px; color: #667eea;"></h2>
             <div id="detailList"></div>
         </div>
 
         <!-- Days Page -->
         <div id="daysPage" class="content hidden">
             <button class="btn-back" onclick="showMonths()">← Retour</button>
-            <h2 id="monthTitle" style="text-align: center; margin-bottom: 25px; color: #667eea;"></h2>
+            <h2 id="monthTitle" style="text-align: center; margin-bottom: 20px; color: #667eea;"></h2>
             <div class="days-grid" id="daysGrid"></div>
         </div>
 
         <!-- Postes Page -->
         <div id="postesPage" class="content hidden">
             <button class="btn-back" onclick="backToDays()">← Retour</button>
-            <h2 id="postePageTitle" style="text-align: center; color: #667eea; margin-bottom: 20px; text-transform: capitalize; font-size: 1.8em;"></h2>
+            <h2 id="postePageTitle" style="text-align: center; color: #667eea; margin-bottom: 15px; text-transform: capitalize; font-size: 1.4em;"></h2>
             <div class="stats-bar">
-                <div class="stat-box"><div class="stat-number" id="statLibre">11</div><div>Libres</div></div>
-                <div class="stat-box"><div class="stat-number" id="statReserve">0</div><div>Réservés</div></div>
-                <div class="stat-box"><div class="stat-number" id="statControle">0</div><div>Contrôlés</div></div>
+                <div class="stat-box"><div class="stat-number" id="statLibre">11</div><div class="stat-label">Libres</div></div>
+                <div class="stat-box"><div class="stat-number" id="statReserve">0</div><div class="stat-label">Réservés</div></div>
+                <div class="stat-box"><div class="stat-number" id="statControle">0</div><div class="stat-label">Contrôlés</div></div>
             </div>
             <div id="postesGrid" class="postes-grid"></div>
         </div>
@@ -191,9 +322,11 @@
                 <div id="modalBadgeZone" style="display:none; margin: 10px 0;">
                     <span class="badge-peche">🪪 Carte de pêche valide</span>
                 </div>
-                <div id="checkZone" style="margin: 15px 0;">
-                    <input type="checkbox" id="modalControle" onchange="updateControlText()" style="width:20px; height:20px; vertical-align:middle;"> 
-                    <span id="controlStatusText" style="margin-left: 10px;">Non contrôlé</span>
+                <div id="checkZone" style="margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="modalControle" onchange="updateControlText()" style="width:22px; height:22px; cursor: pointer;"> 
+                        <span id="controlStatusText" style="font-weight: bold;">Cliquer pour valider le contrôle</span>
+                    </div>
                     <input type="hidden" id="modalHeure">
                 </div>
                 <div id="infractionsButtons" style="display:none; border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px;">
@@ -203,7 +336,7 @@
                         <button class="btn" onclick="askMotif('bannis')" style="background: #dc3545; color: white;">🚫 Bannir</button>
                     </div>
                 </div>
-                <div style="display:flex; gap:10px; margin-top:20px;">
+                <div style="display:flex; gap:10px; margin-top:20px; flex-wrap: wrap;">
                     <button class="btn btn-save" onclick="saveModal()">💾 Sauvegarder</button>
                     <button class="btn btn-delete" onclick="deleteModal()">🗑️ Effacer</button>
                     <button class="btn" onclick="closeModal()" style="background:#eee; color:#333;">Annuler</button>
@@ -247,7 +380,7 @@
     <div id="alertModal" class="alert-modal">
         <div class="alert-content">
             <div id="alertHeader" style="background:#667eea; color:white; padding:15px; text-align:center;"><h3>INFO</h3></div>
-            <div id="alertBody" class="alert-body" style="padding:20px; text-align:center;"></div>
+            <div id="alertBody" class="alert-body" style="padding:20px;"></div>
             <div style="text-align:center; padding-bottom:20px;"><button class="btn btn-save" onclick="closeAlert()">OK</button></div>
         </div>
     </div>
@@ -337,7 +470,7 @@
             database.ref('reservations').on('value', (snapshot) => {
                 reservations = snapshot.val() || {};
                 console.log("📥 Réservations mises à jour");
-                if (document.getElementById('postesPage').classList.contains('hidden') === false) {
+                if (!document.getElementById('postesPage').classList.contains('hidden')) {
                     renderPostes();
                 }
             });
@@ -356,7 +489,7 @@
                 const data = snapshot.val();
                 validUsers = data ? Object.values(data) : [];
                 console.log("📥 Utilisateurs valides mis à jour");
-                if (document.getElementById('postesPage').classList.contains('hidden') === false) {
+                if (!document.getElementById('postesPage').classList.contains('hidden')) {
                     renderPostes();
                 }
             });
@@ -443,7 +576,7 @@
         function renderMonths() {
             const grid = document.getElementById('monthsGrid');
             grid.innerHTML = MOIS_NOMS.map((m, i) => {
-                if (i === 0) return ''; // Pas de janvier
+                if (i === 0) return '';
                 return `<div class="month-card" onclick="showDays(${i}, '${m}')">
                     <div class="month-name">${m}</div>
                 </div>`;
@@ -549,33 +682,37 @@
                 }
             };
             
-            let html = '';
+            let html = '<div class="poste-content">';
             
-            // Checkbox de contrôle (sauf pour poste 4)
-            if (!isControleur) {
-                html += `<input type="checkbox" class="poste-checkbox" ${data.controlled ? 'checked' : ''} 
-                    onclick="event.stopPropagation(); toggleControle(${n})">
-                    <span class="status-badge" style="color: ${data.controlled ? '#17a2b8' : '#666'}">
-                        ${data.controlled ? 'Contrôlé' : 'Non contrôlé'}
-                    </span>`;
-            }
-            
-            html += `<div style="font-weight:bold; font-size: 1.1em;">Poste ${n}</div>`;
+            html += `<div class="poste-title">Poste ${n}</div>`;
             
             // Heure de contrôle
             if (data.controlled && data.heure) {
-                html += `<div style="color:#17a2b8; font-size:0.85em; font-weight:bold;">🕒 ${data.heure}</div>`;
+                html += `<div class="poste-heure">🕒 ${data.heure}</div>`;
             }
             
             // Nom du pêcheur
             if (hasName) {
-                html += `<div style="font-weight:bold; margin-top:8px;">${data.nom.toUpperCase()} ${data.prenom}</div>`;
+                html += `<div class="poste-nom">${data.nom.toUpperCase()} ${data.prenom}</div>`;
                 
                 if (isUserValid(data.nom, data.prenom)) {
-                    html += `<div class="badge-peche">🪪 Carte de pêche valide</div>`;
+                    html += `<div class="badge-peche">🪪 Carte valide</div>`;
                 }
                 
                 html += `<button class="btn-info" onclick="event.stopPropagation(); checkInfo('${escapeHtml(data.nom)}', '${escapeHtml(data.prenom)}')">ℹ️ Info</button>`;
+            }
+            
+            html += '</div>';
+            
+            // Zone de contrôle en bas (sauf pour poste 4)
+            if (!isControleur) {
+                const labelText = data.controlled ? `Contrôlé à ${data.heure || ''}` : 'Cliquer pour valider';
+                const labelClass = data.controlled ? 'control-label checked' : 'control-label';
+                html += `<div class="control-zone">
+                    <input type="checkbox" id="check_${n}" ${data.controlled ? 'checked' : ''} 
+                        onclick="event.stopPropagation(); toggleControle(${n})">
+                    <label for="check_${n}" class="${labelClass}" onclick="event.stopPropagation();">${labelText}</label>
+                </div>`;
             }
             
             div.innerHTML = html;
@@ -689,12 +826,14 @@
                     const now = new Date();
                     const newHeure = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
                     document.getElementById('modalHeure').value = newHeure;
-                    document.getElementById('controlStatusText').textContent = "Contrôlé à " + newHeure;
+                    document.getElementById('controlStatusText').textContent = "✅ Contrôlé à " + newHeure;
                 } else {
-                    document.getElementById('controlStatusText').textContent = "Contrôlé à " + heure;
+                    document.getElementById('controlStatusText').textContent = "✅ Contrôlé à " + heure;
                 }
+                document.getElementById('controlStatusText').style.color = "#17a2b8";
             } else {
-                document.getElementById('controlStatusText').textContent = "Non contrôlé";
+                document.getElementById('controlStatusText').textContent = "Cliquer pour valider le contrôle";
+                document.getElementById('controlStatusText').style.color = "#666";
             }
         }
 
@@ -743,18 +882,18 @@
             const container = document.getElementById('detailList');
             
             if (list.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:#666;">Aucun dossier</p>';
+                container.innerHTML = '<p style="text-align:center; color:#666; padding: 20px;">Aucun dossier</p>';
                 return;
             }
             
             container.innerHTML = list.map((item, index) => `
                 <div class="infraction-item ${type === 'avertissements' ? 'avertissement' : 'banni'}">
-                    <div>
+                    <div style="flex: 1;">
                         <strong>${item.nom ? item.nom.toUpperCase() : 'N/A'} ${item.prenom || ''}</strong><br>
                         <small>📅 ${item.date || 'Date inconnue'}</small><br>
-                        <small>📝 ${item.motif || 'Aucun motif'}</small>
+                        <small>📝 <strong>Motif:</strong> ${item.motif || 'Aucun motif'}</small>
                     </div>
-                    <button class="btn btn-delete" onclick="removeInfraction('${type}', ${index})" style="flex:0;">🗑️</button>
+                    <button class="btn btn-delete" onclick="removeInfraction('${type}', ${index})" style="flex:0; padding: 8px 12px;">🗑️</button>
                 </div>
             `).join('');
         }
@@ -801,25 +940,63 @@
             showAlert(`✅ Sanction enregistrée pour <strong>${nom} ${prenom}</strong>`);
         }
 
+        // =============================================
+        // CHECK INFO - AVEC MOTIFS
+        // =============================================
         function checkInfo(nom, prenom) {
             const fullName = (nom + ' ' + prenom).toLowerCase();
             
+            // Récupérer tous les avertissements de cette personne
             const avertissements = infractions.avertissements ? 
                 infractions.avertissements.filter(a => (a.nom + ' ' + a.prenom).toLowerCase() === fullName) : [];
             
-            const isBanned = infractions.bannis ? 
-                infractions.bannis.some(b => (b.nom + ' ' + b.prenom).toLowerCase() === fullName) : false;
+            // Récupérer le bannissement s'il existe
+            const bannissement = infractions.bannis ? 
+                infractions.bannis.find(b => (b.nom + ' ' + b.prenom).toLowerCase() === fullName) : null;
             
             const isValid = isUserValid(nom, prenom);
             
-            let html = `<strong style="font-size:1.2em;">${nom.toUpperCase()} ${prenom}</strong><br><br>`;
-            html += `${isValid ? '🪪 Carte de pêche valide' : '❌ Pas de carte enregistrée'}<br>`;
-            html += `${isBanned ? '🚫 BANNI' : '✅ Non banni'}<br>`;
-            html += `⚠️ Avertissements : ${avertissements.length}/3`;
+            let html = `<div style="text-align: left;">`;
+            html += `<h3 style="text-align: center; margin-bottom: 15px;">${nom.toUpperCase()} ${prenom}</h3>`;
             
-            if (avertissements.length >= 3 && !isBanned) {
-                html += '<br><br><span style="color:#dc3545; font-weight:bold;">⚠️ 3 avertissements atteints !</span>';
+            // Statut carte de pêche
+            html += `<p style="margin: 8px 0;">${isValid ? '🪪 Carte de pêche valide' : '❌ Pas de carte enregistrée'}</p>`;
+            
+            // Statut bannissement
+            if (bannissement) {
+                html += `<p style="margin: 8px 0; color: #dc3545; font-weight: bold;">🚫 BANNI</p>`;
+                html += `<div class="info-motifs" style="background: #f8d7da; border-color: #dc3545;">
+                    <h4 style="color: #721c24;">Motif du bannissement:</h4>
+                    <div class="info-motif-item" style="border-color: #f5c6cb;">
+                        📅 ${bannissement.date || 'Date inconnue'}<br>
+                        📝 ${bannissement.motif || 'Non spécifié'}
+                    </div>
+                </div>`;
+            } else {
+                html += `<p style="margin: 8px 0; color: #28a745;">✅ Non banni</p>`;
             }
+            
+            // Avertissements
+            html += `<p style="margin: 15px 0 8px 0; font-weight: bold;">⚠️ Avertissements : ${avertissements.length}/3</p>`;
+            
+            if (avertissements.length > 0) {
+                html += `<div class="info-motifs">
+                    <h4>Détails des avertissements:</h4>`;
+                avertissements.forEach((a, i) => {
+                    html += `<div class="info-motif-item">
+                        <strong>#${i + 1}</strong> - 📅 ${a.date || 'Date inconnue'}<br>
+                        📝 ${a.motif || 'Non spécifié'}
+                    </div>`;
+                });
+                html += `</div>`;
+            }
+            
+            // Alerte si 3 avertissements
+            if (avertissements.length >= 3 && !bannissement) {
+                html += `<p style="color:#dc3545; font-weight:bold; text-align: center; margin-top: 15px; padding: 10px; background: #f8d7da; border-radius: 5px;">⚠️ 3 avertissements atteints !<br>Bannissement recommandé</p>`;
+            }
+            
+            html += `</div>`;
             
             showAlert(html);
         }
