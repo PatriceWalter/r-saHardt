@@ -805,14 +805,43 @@
             // Formater le prénom
             prenom = prenom.charAt(0).toUpperCase() + prenom.slice(1).toLowerCase();
             
-            // Vérifier si banni
-            const isBanned = infractions.bannis && infractions.bannis.some(b => 
+            // Vérifier si banni et récupérer les détails
+            const bannissement = infractions.bannis ? infractions.bannis.find(b => 
                 b.nom && b.nom.toUpperCase() === nom && 
                 b.prenom && b.prenom.toLowerCase() === prenom.toLowerCase()
-            );
+            ) : null;
             
-            if (isBanned) {
-                showAlert(`🚫 <strong>${nom} ${prenom}</strong> est banni !<br>Réservation impossible.`);
+            if (bannissement) {
+                // Construire le message avec les motifs
+                let message = `<div style="text-align: left;">
+                    <h3 style="text-align: center; color: #dc3545; margin-bottom: 15px;">🚫 INSCRIPTION IMPOSSIBLE</h3>
+                    <p style="text-align: center; margin-bottom: 15px;"><strong>${nom} ${prenom}</strong> est banni.</p>`;
+                
+                // Afficher les motifs
+                if (bannissement.motifs && bannissement.motifs.length > 0) {
+                    message += `<div class="info-motifs" style="background: #f8d7da; border-color: #dc3545;">
+                        <h4 style="color: #721c24;">Motifs du bannissement :</h4>`;
+                    bannissement.motifs.forEach((m, i) => {
+                        message += `<div class="info-motif-item" style="border-color: #f5c6cb;">
+                            <strong>#${i+1}</strong> - 📅 ${m.date || 'Date inconnue'}<br>
+                            📝 ${m.motif || 'Non spécifié'}
+                        </div>`;
+                    });
+                    message += `</div>`;
+                } else if (bannissement.motif) {
+                    message += `<div class="info-motifs" style="background: #f8d7da; border-color: #dc3545;">
+                        <h4 style="color: #721c24;">Motif du bannissement :</h4>
+                        <div class="info-motif-item" style="border-color: #f5c6cb;">
+                            📅 ${bannissement.date || 'Date inconnue'}<br>
+                            📝 ${bannissement.motif || 'Non spécifié'}
+                        </div>
+                    </div>`;
+                }
+                
+                message += `<p style="text-align: center; margin-top: 15px; color: #666; font-size: 0.9em;">Contactez un administrateur pour débannir cette personne.</p>
+                </div>`;
+                
+                showAlert(message);
                 return;
             }
             
@@ -1131,7 +1160,7 @@
             
             // Statut bannissement
             if (bannissement) {
-                html += `<p style="margin: 8px 0; color: #dc3545; font-weight: bold;">🚫 BANNI</p>`;
+                html += `<p style="margin: 8px 0; color: #dc3545; font-weight: bold; font-size: 1.2em;">🚫 BANNI</p>`;
                 if (bannissement.motifs && bannissement.motifs.length > 0) {
                     html += `<div class="info-motifs" style="background: #f8d7da; border-color: #dc3545;">
                         <h4 style="color: #721c24;">Motifs du bannissement :</h4>`;
@@ -1151,7 +1180,9 @@
                         </div>
                     </div>`;
                 }
-            } else {
+            }
+            
+            if (!bannissement) {
                 html += `<p style="margin: 8px 0; color: #28a745;">✅ Non banni</p>`;
             }
             
