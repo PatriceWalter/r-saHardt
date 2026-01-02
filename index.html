@@ -451,50 +451,68 @@
                 <p>Synchronisation en cours...</p>
             </div>`);
             
-            // Utiliser JSONP pour contourner CORS
+            // Générer un nom de callback unique
             const callbackName = 'googleSheetsCallback_' + Date.now();
             
+            // Définir la fonction callback globale
             window[callbackName] = function(data) {
-                // Nettoyer
+                console.log("✅ Données reçues de Google Sheets:", data);
+                
+                // Nettoyer le script et le callback
+                const scriptEl = document.getElementById('jsonpScript_' + callbackName);
+                if (scriptEl) {
+                    scriptEl.parentNode.removeChild(scriptEl);
+                }
                 delete window[callbackName];
-                const script = document.getElementById('jsonpScript');
-                if (script) script.remove();
                 
                 // Traiter les données
-                processSyncData(data);
+                try {
+                    processSyncData(data);
+                } catch(e) {
+                    console.error("Erreur traitement:", e);
+                    closeAlert();
+                    showAlert("❌ Erreur lors du traitement : " + e.message);
+                }
             };
             
-            // Créer le script JSONP
+            // Créer et ajouter le script JSONP
             const script = document.createElement('script');
-            script.id = 'jsonpScript';
-            script.src = GOOGLE_SCRIPT_URL + '?callback=' + callbackName;
+            script.id = 'jsonpScript_' + callbackName;
+            script.type = 'text/javascript';
+            script.src = GOOGLE_SCRIPT_URL + '?callback=' + callbackName + '&t=' + Date.now();
             
             script.onerror = function() {
+                console.error("❌ Erreur chargement script JSONP");
                 delete window[callbackName];
-                script.remove();
+                if (script.parentNode) {
+                    script.parentNode.removeChild(script);
+                }
                 closeAlert();
                 showAlert(`<div style="text-align: center;">
                     <div style="font-size: 2em; margin-bottom: 10px;">❌</div>
                     <h3 style="color: #dc3545;">Erreur de connexion</h3>
                     <p style="margin-top: 10px;">Impossible de se connecter à Google Sheet.</p>
-                    <p style="margin-top: 10px; font-size: 0.85em; color: #666;">Vérifiez votre connexion internet et réessayez.</p>
                 </div>`);
             };
             
-            document.body.appendChild(script);
+            // Ajouter le script au document
+            document.head.appendChild(script);
+            console.log("📤 Script JSONP ajouté, attente de la réponse...");
             
             // Timeout après 30 secondes
             setTimeout(function() {
                 if (window[callbackName]) {
+                    console.warn("⏱️ Timeout - pas de réponse");
                     delete window[callbackName];
-                    const script = document.getElementById('jsonpScript');
-                    if (script) script.remove();
+                    const scriptEl = document.getElementById('jsonpScript_' + callbackName);
+                    if (scriptEl && scriptEl.parentNode) {
+                        scriptEl.parentNode.removeChild(scriptEl);
+                    }
                     closeAlert();
                     showAlert(`<div style="text-align: center;">
                         <div style="font-size: 2em; margin-bottom: 10px;">⏱️</div>
                         <h3 style="color: #ffc107;">Délai dépassé</h3>
                         <p style="margin-top: 10px;">La synchronisation prend trop de temps.</p>
-                        <p style="margin-top: 10px; font-size: 0.85em; color: #666;">Réessayez plus tard.</p>
                     </div>`);
                 }
             }, 30000);
