@@ -451,45 +451,53 @@
                 <p>Synchronisation en cours...</p>
             </div>`);
             
-            // Créer un iframe caché pour contourner CORS
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.name = 'syncFrame';
-            document.body.appendChild(iframe);
-            
-            // Utiliser JSONP via un script tag pour contourner CORS
-            const script = document.createElement('script');
-            const callbackName = 'syncCallback_' + Date.now();
+            // Utiliser JSONP pour contourner CORS
+            const callbackName = 'googleSheetsCallback_' + Date.now();
             
             window[callbackName] = function(data) {
-                try {
-                    processSyncData(data);
-                } catch(e) {
-                    console.error("Erreur sync:", e);
-                    closeAlert();
-                    showAlert("❌ Erreur lors de la synchronisation : " + e.message);
-                }
-                // Nettoyage
+                // Nettoyer
                 delete window[callbackName];
-                document.body.removeChild(script);
+                const script = document.getElementById('jsonpScript');
+                if (script) script.remove();
+                
+                // Traiter les données
+                processSyncData(data);
             };
             
-            // Méthode alternative : fetch avec proxy ou direct
-            fetch(GOOGLE_SCRIPT_URL)
-                .then(response => response.json())
-                .then(data => {
-                    processSyncData(data);
-                })
-                .catch(err => {
-                    console.error("Erreur fetch:", err);
+            // Créer le script JSONP
+            const script = document.createElement('script');
+            script.id = 'jsonpScript';
+            script.src = GOOGLE_SCRIPT_URL + '?callback=' + callbackName;
+            
+            script.onerror = function() {
+                delete window[callbackName];
+                script.remove();
+                closeAlert();
+                showAlert(`<div style="text-align: center;">
+                    <div style="font-size: 2em; margin-bottom: 10px;">❌</div>
+                    <h3 style="color: #dc3545;">Erreur de connexion</h3>
+                    <p style="margin-top: 10px;">Impossible de se connecter à Google Sheet.</p>
+                    <p style="margin-top: 10px; font-size: 0.85em; color: #666;">Vérifiez votre connexion internet et réessayez.</p>
+                </div>`);
+            };
+            
+            document.body.appendChild(script);
+            
+            // Timeout après 30 secondes
+            setTimeout(function() {
+                if (window[callbackName]) {
+                    delete window[callbackName];
+                    const script = document.getElementById('jsonpScript');
+                    if (script) script.remove();
                     closeAlert();
                     showAlert(`<div style="text-align: center;">
-                        <div style="font-size: 2em; margin-bottom: 10px;">⚠️</div>
-                        <h3 style="color: #ffc107;">Synchronisation manuelle requise</h3>
-                        <p style="margin-top: 10px; font-size: 0.9em;">En raison des restrictions de sécurité du navigateur, la synchronisation automatique n'est pas possible.</p>
-                        <p style="margin-top: 10px; font-size: 0.85em; color: #666;"><strong>Solution :</strong> Exportez les données depuis Google Sheet et importez-les manuellement, ou saisissez-les directement dans l'application.</p>
+                        <div style="font-size: 2em; margin-bottom: 10px;">⏱️</div>
+                        <h3 style="color: #ffc107;">Délai dépassé</h3>
+                        <p style="margin-top: 10px;">La synchronisation prend trop de temps.</p>
+                        <p style="margin-top: 10px; font-size: 0.85em; color: #666;">Réessayez plus tard.</p>
                     </div>`);
-                });
+                }
+            }, 30000);
         }
         
         function processSyncData(data) {
