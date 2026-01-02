@@ -527,26 +527,77 @@
             
             let countResa = 0, countAvert = 0, countBan = 0, countValid = 0;
             
+            // Fonction pour convertir une date ISO en clé Firebase valide (YYYY-MM-DD)
+            function formatDateKey(dateValue) {
+                if (!dateValue) return null;
+                
+                try {
+                    // Si c'est déjà au bon format YYYY-MM-DD
+                    if (typeof dateValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+                        return dateValue;
+                    }
+                    
+                    // Si c'est une date ISO ou autre format
+                    const date = new Date(dateValue);
+                    if (isNaN(date.getTime())) return null;
+                    
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    
+                    return `${year}-${month}-${day}`;
+                } catch(e) {
+                    console.error("Erreur conversion date:", e);
+                    return null;
+                }
+            }
+            
+            // Fonction pour convertir une heure ISO en format HH:MM
+            function formatHeure(heureValue) {
+                if (!heureValue) return "";
+                
+                try {
+                    // Si c'est déjà au bon format HH:MM
+                    if (typeof heureValue === 'string' && /^\d{2}:\d{2}$/.test(heureValue)) {
+                        return heureValue;
+                    }
+                    
+                    // Si c'est une date ISO
+                    const date = new Date(heureValue);
+                    if (isNaN(date.getTime())) return "";
+                    
+                    const hours = String(date.getHours()).padStart(2, '0');
+                    const minutes = String(date.getMinutes()).padStart(2, '0');
+                    
+                    return `${hours}:${minutes}`;
+                } catch(e) {
+                    return "";
+                }
+            }
+            
             // Traiter les réservations
             if (data.reservations && data.reservations.length > 0) {
                 data.reservations.forEach(r => {
-                    if (r.dateJour && r.poste && r.nom) {
-                        if (!reservations[r.dateJour]) {
-                            reservations[r.dateJour] = {};
+                    const dateKey = formatDateKey(r.dateJour);
+                    if (dateKey && r.poste && r.nom) {
+                        if (!reservations[dateKey]) {
+                            reservations[dateKey] = {};
                         }
                         // Ne pas écraser si déjà existant
-                        if (!reservations[r.dateJour][r.poste]) {
-                            reservations[r.dateJour][r.poste] = {
+                        if (!reservations[dateKey][r.poste]) {
+                            reservations[dateKey][r.poste] = {
                                 nom: r.nom,
                                 prenom: r.prenom || "",
                                 controlled: r.controle === "Oui",
-                                heure: r.heure || ""
+                                heure: formatHeure(r.heure)
                             };
                             countResa++;
                         }
                     }
                 });
-                saveReservations();
+                if (countResa > 0) {
+                    saveReservations();
+                }
             }
             
             // Traiter les avertissements
@@ -554,12 +605,23 @@
                 data.avertissements.forEach(a => {
                     if (a.nom) {
                         // Vérifier si n'existe pas déjà
-                        const exists = infractions.avertissements.some(existing => 
+                        let avertList = [];
+                        if (infractions.avertissements) {
+                            avertList = Array.isArray(infractions.avertissements) ? infractions.avertissements : Object.values(infractions.avertissements);
+                        }
+                        
+                        const exists = avertList.some(existing => 
                             existing.nom === a.nom && 
                             existing.prenom === a.prenom && 
                             existing.motif === a.motif
                         );
                         if (!exists) {
+                            if (!infractions.avertissements) {
+                                infractions.avertissements = [];
+                            }
+                            if (!Array.isArray(infractions.avertissements)) {
+                                infractions.avertissements = Object.values(infractions.avertissements);
+                            }
                             infractions.avertissements.push({
                                 id: Date.now().toString() + Math.random(),
                                 nom: a.nom,
@@ -579,11 +641,22 @@
                 data.bannis.forEach(b => {
                     if (b.nom) {
                         // Vérifier si n'existe pas déjà
-                        const exists = infractions.bannis.some(existing => 
+                        let banList = [];
+                        if (infractions.bannis) {
+                            banList = Array.isArray(infractions.bannis) ? infractions.bannis : Object.values(infractions.bannis);
+                        }
+                        
+                        const exists = banList.some(existing => 
                             existing.nom === b.nom && 
                             existing.prenom === b.prenom
                         );
                         if (!exists) {
+                            if (!infractions.bannis) {
+                                infractions.bannis = [];
+                            }
+                            if (!Array.isArray(infractions.bannis)) {
+                                infractions.bannis = Object.values(infractions.bannis);
+                            }
                             infractions.bannis.push({
                                 id: Date.now().toString() + Math.random(),
                                 nom: b.nom,
@@ -606,11 +679,19 @@
                 data.validUsers.forEach(v => {
                     if (v.nom) {
                         // Vérifier si n'existe pas déjà
-                        const exists = validUsers.some(existing => 
+                        let validList = [];
+                        if (validUsers) {
+                            validList = Array.isArray(validUsers) ? validUsers : Object.values(validUsers);
+                        }
+                        
+                        const exists = validList.some(existing => 
                             existing.nom === v.nom && 
                             existing.prenom === v.prenom
                         );
                         if (!exists) {
+                            if (!Array.isArray(validUsers)) {
+                                validUsers = Object.values(validUsers);
+                            }
                             validUsers.push({
                                 nom: v.nom,
                                 prenom: v.prenom || ""
@@ -1810,3 +1891,4 @@
     </script>
 </body>
 </html>
+
