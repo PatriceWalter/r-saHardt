@@ -369,9 +369,67 @@
         function showInfractionsMenu() { hideAll(); document.getElementById('infractionsMenuPage').classList.remove('hidden'); updateCounts(); }
         function updateCounts() { const avertCount = infractions.avertissements ? infractions.avertissements.length : 0; const banniCount = infractions.bannis ? infractions.bannis.length : 0; document.getElementById('countAvertissement').textContent = avertCount + ' dossier(s)'; document.getElementById('countBanni').textContent = banniCount + ' dossier(s)'; }
         function showInfractionList(type) { hideAll(); document.getElementById('infractionsDetailPage').classList.remove('hidden'); const title = type === 'avertissements' ? '⚠️ AVERTISSEMENTS' : '🚫 BANNISSEMENTS'; document.getElementById('detailTitle').textContent = title; const list = infractions[type] || []; const container = document.getElementById('detailList'); if (list.length === 0) { container.innerHTML = '<p style="text-align:center; color:#666; padding: 20px;">Aucun dossier</p>'; return; } if (type === 'avertissements') { container.innerHTML = list.map((item, index) => `<div class="infraction-item ${item.archived ? 'archive' : 'avertissement'}"><div class="infraction-header"><div class="infraction-info"><strong>${item.nom ? item.nom.toUpperCase() : 'N/A'} ${item.prenom || ''}</strong>${item.archived ? '<span class="archive-badge">📁 Archivé</span>' : ''}<br><small>📅 ${item.date || ''}</small><br><small>📝 ${item.motif || ''}</small></div><div class="infraction-actions"><button class="btn btn-delete" onclick="removeAvertissement(${index})">🗑️</button></div></div></div>`).join(''); } else { container.innerHTML = list.map((item, index) => { let motifsHtml = ''; if (item.motifs && item.motifs.length > 0) { motifsHtml = `<div class="motifs-list"><h4>📋 Motifs :</h4>${item.motifs.map((m, i) => `<div class="motif-item"><strong>#${i+1}</strong> - ${m.date || ''}: ${m.motif || ''}</div>`).join('')}</div>`; } else if (item.motif) { motifsHtml = `<div class="motifs-list"><h4>📋 Motif :</h4><div class="motif-item">${item.motif}</div></div>`; } return `<div class="infraction-item banni"><div class="infraction-header"><div class="infraction-info"><strong>${item.nom ? item.nom.toUpperCase() : 'N/A'} ${item.prenom || ''}</strong><br><small>📅 Banni le : ${item.date || ''}</small>${motifsHtml}</div><div class="infraction-actions"><button class="btn btn-unban" onclick="debannir(${index})">🔓 Débannir</button><button class="btn btn-delete" onclick="removeBanni(${index})">🗑️</button></div></div></div>`; }).join(''); } }
-        function removeAvertissement(index) { if (!checkAdminPassword()) { showAlert("❌ Mot de passe incorrect !"); return; } infractions.avertissements.splice(index, 1); saveInfractions(); showInfractionList('avertissements'); showAlert("✅ Avertissement supprimé."); }
-        function removeBanni(index) { if (!checkAdminPassword()) { showAlert("❌ Mot de passe incorrect !"); return; } infractions.bannis.splice(index, 1); saveInfractions(); showInfractionList('bannis'); showAlert("✅ Bannissement supprimé."); }
-        function debannir(index) { if (!checkAdminPassword()) { showAlert("❌ Mot de passe incorrect !"); return; } const banni = infractions.bannis[index]; if (banni.motifs && banni.motifs.length > 0) { banni.motifs.forEach(m => { infractions.avertissements.push({ id: Date.now().toString() + Math.random(), nom: banni.nom, prenom: banni.prenom, motif: m.motif, date: m.date, archived: true }); }); } infractions.bannis.splice(index, 1); saveInfractions(); showInfractionList('bannis'); showAlert(`✅ <strong>${banni.nom} ${banni.prenom}</strong> a été débanni.`); }
+        function removeAvertissement(index) { 
+            if (!checkAdminPassword()) { showAlert("❌ Mot de passe incorrect !"); return; } 
+            const avert = infractions.avertissements[index];
+            // Archiver au lieu de supprimer
+            if (!infractions.archives) infractions.archives = [];
+            infractions.archives.push({
+                ...avert,
+                type: 'avertissement',
+                dateArchive: new Date().toLocaleDateString('fr-FR')
+            });
+            infractions.avertissements.splice(index, 1); 
+            saveInfractions(); 
+            showInfractionList('avertissements'); 
+            showAlert("✅ Avertissement archivé."); 
+        }
+        function removeBanni(index) { 
+            if (!checkAdminPassword()) { showAlert("❌ Mot de passe incorrect !"); return; }
+            if (!confirm('⚠️ Êtes-vous sûr de vouloir archiver ce bannissement ?')) return;
+            if (!confirm('🚨 DERNIÈRE CONFIRMATION : Cette action va archiver le bannissement. Confirmer ?')) return;
+            const banni = infractions.bannis[index];
+            // Archiver au lieu de supprimer
+            if (!infractions.archives) infractions.archives = [];
+            infractions.archives.push({
+                ...banni,
+                type: 'bannissement',
+                dateArchive: new Date().toLocaleDateString('fr-FR')
+            });
+            infractions.bannis.splice(index, 1); 
+            saveInfractions(); 
+            showInfractionList('bannis'); 
+            showAlert("✅ Bannissement archivé."); 
+        }
+        function debannir(index) { 
+            if (!checkAdminPassword()) { showAlert("❌ Mot de passe incorrect !"); return; } 
+            const banni = infractions.bannis[index]; 
+            // Archiver le bannissement
+            if (!infractions.archives) infractions.archives = [];
+            infractions.archives.push({
+                ...banni,
+                type: 'bannissement',
+                dateArchive: new Date().toLocaleDateString('fr-FR'),
+                raison: 'Débannissement'
+            });
+            // Archiver aussi les avertissements associés
+            if (banni.motifs && banni.motifs.length > 0) { 
+                banni.motifs.forEach(m => { 
+                    infractions.avertissements.push({ 
+                        id: Date.now().toString() + Math.random(), 
+                        nom: banni.nom, 
+                        prenom: banni.prenom, 
+                        motif: m.motif, 
+                        date: m.date, 
+                        archived: true 
+                    }); 
+                }); 
+            } 
+            infractions.bannis.splice(index, 1); 
+            saveInfractions(); 
+            showInfractionList('bannis'); 
+            showAlert(`✅ <strong>${banni.nom} ${banni.prenom}</strong> a été débanni.`); 
+        }
         function askMotif(type) { pendingSanctionType = type; document.getElementById('motifHeader').style.background = type === 'bannis' ? '#dc3545' : '#ffc107'; document.getElementById('motifInput').value = ''; document.getElementById('motifModal').style.display = 'block'; }
         function closeMotif() { document.getElementById('motifModal').style.display = 'none'; }
         function confirmSanction() { const nom = document.getElementById('modalNom').value.trim().toUpperCase(); const prenom = document.getElementById('modalPrenom').value.trim(); const prenomFormatted = prenom.charAt(0).toUpperCase() + prenom.slice(1).toLowerCase(); const motif = document.getElementById('motifInput').value || "Non spécifié"; const dateNow = new Date().toLocaleString('fr-FR'); if (!infractions.avertissements) infractions.avertissements = []; if (!infractions.bannis) infractions.bannis = []; if (pendingSanctionType === 'avertissements') { infractions.avertissements.push({ id: Date.now().toString(), nom: nom, prenom: prenomFormatted, motif: motif, date: dateNow }); sendToGoogleSheets({ type: "avertissement", nom: nom, prenom: prenomFormatted, motif: motif, archive: "Non" }); const fullName = (nom + ' ' + prenomFormatted).toLowerCase(); const userAvertissements = infractions.avertissements.filter(a => (a.nom + ' ' + a.prenom).toLowerCase() === fullName && !a.archived); if (userAvertissements.length >= 3) { const motifs = userAvertissements.map(a => ({ motif: a.motif, date: a.date })); infractions.bannis.push({ id: Date.now().toString(), nom: nom, prenom: prenomFormatted, motifs: motifs, date: dateNow }); sendToGoogleSheets({ type: "bannissement", nom: nom, prenom: prenomFormatted, motifs: motifs.map((m, i) => `#${i+1}: ${m.motif} (${m.date})`).join(" | ") }); infractions.avertissements = infractions.avertissements.filter(a => (a.nom + ' ' + a.prenom).toLowerCase() !== fullName || a.archived); saveInfractions(); document.getElementById('motifModal').style.display = 'none'; closeModal(); showAlert(`🚫 <strong>${nom} ${prenomFormatted}</strong> a reçu 3 avertissements.<br><br>➡️ <strong>BANNISSEMENT AUTOMATIQUE</strong>`); return; } saveInfractions(); document.getElementById('motifModal').style.display = 'none'; closeModal(); showAlert(`✅ Avertissement enregistré pour <strong>${nom} ${prenomFormatted}</strong><br>(${userAvertissements.length}/3)`); } else { infractions.bannis.push({ id: Date.now().toString(), nom: nom, prenom: prenomFormatted, motif: motif, date: dateNow }); sendToGoogleSheets({ type: "bannissement", nom: nom, prenom: prenomFormatted, motifs: motif }); saveInfractions(); document.getElementById('motifModal').style.display = 'none'; closeModal(); showAlert(`🚫 <strong>${nom} ${prenomFormatted}</strong> a été banni.`); } }
