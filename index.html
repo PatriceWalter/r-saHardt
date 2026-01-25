@@ -488,7 +488,7 @@
                     console.log('📬 Notification reçue:', payload);
                     const title = payload.notification?.title || '📋 Contrôle AAPPMA';
                     const body = payload.notification?.body || 'Un contrôle a été effectué';
-                    new Notification(title, { body: body, icon: './icon-192.png' });
+                    swRegistration.showNotification(title, { body: body, vibrate: [200, 100, 200] });
                 });
                 
                 if (Notification.permission === 'default') {
