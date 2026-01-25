@@ -1030,7 +1030,8 @@
             const prenom = document.getElementById('modalPrenom').value.trim(); 
             const prenomF = prenom.charAt(0).toUpperCase() + prenom.slice(1).toLowerCase(); 
             const motif = document.getElementById('motifInput').value || "Non spécifié"; 
-            const controleurSanction = document.getElementById('motifControleur').value || "Non spécifié"; 
+            // Utiliser getCurrentUser() directement car le select peut être disabled
+            const controleurSanction = getCurrentUser() || document.getElementById('motifControleur').value || "Non spécifié"; 
             const dateNow = new Date().toLocaleString('fr-FR'); 
             if (!infractions.avertissements) infractions.avertissements = []; 
             if (!infractions.bannis) infractions.bannis = []; 
@@ -1090,13 +1091,18 @@
             const prenom = document.getElementById('modalPrenom').value.trim(); 
             const prenomF = prenom.charAt(0).toUpperCase() + prenom.slice(1).toLowerCase(); 
             
+            // Initialisation de sécurité
+            if (!infractions.bannis) infractions.bannis = [];
+            if (!infractions.avertissements) infractions.avertissements = [];
+            
             let motif, controleurSanction;
             if (pendingExclusionData) {
                 motif = pendingExclusionData.motif;
                 controleurSanction = pendingExclusionData.controleurSanction;
             } else {
                 motif = document.getElementById('exclusionMotif').value || "Non spécifié"; 
-                controleurSanction = document.getElementById('exclusionControleur').value || "Non spécifié";
+                // Utiliser getCurrentUser() directement car le select peut être disabled
+                controleurSanction = getCurrentUser() || document.getElementById('exclusionControleur').value || "Non spécifié";
             }
             
             const typeExclusion = document.querySelector('input[name="typeExclusion"]:checked')?.value; 
