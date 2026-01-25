@@ -932,19 +932,31 @@
         async function removeAvertissement(index) { 
             if (!checkAdminPassword()) return; 
             if (!confirm('Archiver cet avertissement ?')) return;
-            const avert = infractions.avertissements[index];
+            
             try {
+                // Récupérer les données ACTUELLES depuis Firebase
+                const snap = await dbCentral.ref('infractions/avertissements').once('value');
+                let currentAvert = snap.val() || [];
+                if (!Array.isArray(currentAvert)) currentAvert = Object.values(currentAvert);
+                
+                const avert = currentAvert[index];
+                if (!avert) {
+                    showAlert("❌ Avertissement non trouvé");
+                    return;
+                }
+                
                 await dbCentral.ref('infractions/archives').push({
                     ...avert,
                     type: 'avertissement',
                     dateArchive: new Date().toLocaleDateString('fr-FR'),
                     raisonArchive: 'Archivé manuellement'
                 });
-                infractions.avertissements.splice(index, 1); 
-                await dbCentral.ref('infractions/avertissements').set(infractions.avertissements);
+                currentAvert.splice(index, 1); 
+                await dbCentral.ref('infractions/avertissements').set(currentAvert);
                 showInfractionList('avertissements'); 
                 showAlert("✅ Avertissement archivé."); 
             } catch(e) {
+                console.error('Erreur removeAvertissement:', e);
                 showAlert("❌ Erreur: " + e.message);
             }
         }
@@ -952,12 +964,19 @@
         async function removeBanni(index) { 
             if (!checkAdminPassword()) return; 
             if (!confirm('Supprimer définitivement cette exclusion ? (Préférez "Lever" ou "Valider" pour archiver)')) return; 
+            
             try {
-                infractions.bannis.splice(index, 1); 
-                await dbCentral.ref('infractions/bannis').set(infractions.bannis);
+                // Récupérer les données ACTUELLES depuis Firebase
+                const snap = await dbCentral.ref('infractions/bannis').once('value');
+                let currentBannis = snap.val() || [];
+                if (!Array.isArray(currentBannis)) currentBannis = Object.values(currentBannis);
+                
+                currentBannis.splice(index, 1); 
+                await dbCentral.ref('infractions/bannis').set(currentBannis);
                 showInfractionList('bannis'); 
                 showAlert("✅ Exclusion supprimée."); 
             } catch(e) {
+                console.error('Erreur removeBanni:', e);
                 showAlert("❌ Erreur: " + e.message);
             }
         }
@@ -965,48 +984,67 @@
         async function leverExclusion(index) { 
             if (!checkAdminPassword()) return; 
             if (!confirm('Lever cette exclusion et l\'archiver ?')) return;
-            const b = infractions.bannis[index]; 
+            
             try {
+                // Récupérer les données ACTUELLES depuis Firebase
+                const snap = await dbCentral.ref('infractions/bannis').once('value');
+                let currentBannis = snap.val() || [];
+                if (!Array.isArray(currentBannis)) currentBannis = Object.values(currentBannis);
+                
+                const b = currentBannis[index]; 
+                if (!b) {
+                    showAlert("❌ Exclusion non trouvée");
+                    return;
+                }
+                
                 await dbCentral.ref('infractions/archives').push({
                     ...b,
                     type: 'bannissement',
                     dateArchive: new Date().toLocaleDateString('fr-FR'),
                     raisonArchive: 'Exclusion levée'
                 });
-                infractions.bannis.splice(index, 1); 
-                await dbCentral.ref('infractions/bannis').set(infractions.bannis);
+                currentBannis.splice(index, 1); 
+                await dbCentral.ref('infractions/bannis').set(currentBannis);
                 showInfractionList('bannis'); 
                 showAlert(`✅ Exclusion levée et archivée pour ${b.nom} ${b.prenom}`); 
             } catch(e) {
+                console.error('Erreur leverExclusion:', e);
                 showAlert("❌ Erreur: " + e.message);
             }
         }
         
         async function validerExclusionExpiree(index) { 
-            const b = infractions.bannis[index]; 
-            if (!b || b.typeExclusion !== 'temporaire') {
-                showAlert("❌ Cette exclusion n'est pas temporaire");
-                return;
-            }
-            const now = new Date();
-            const fin = new Date(b.dateFin);
-            if (now <= fin) {
-                showAlert("❌ Cette exclusion n'est pas encore expirée");
-                return;
-            }
-            if (!confirm(`Valider la fin d'exclusion de ${b.nom} ${b.prenom} et archiver ?`)) return;
             try {
+                // Récupérer les données ACTUELLES depuis Firebase
+                const snap = await dbCentral.ref('infractions/bannis').once('value');
+                let currentBannis = snap.val() || [];
+                if (!Array.isArray(currentBannis)) currentBannis = Object.values(currentBannis);
+                
+                const b = currentBannis[index]; 
+                if (!b || b.typeExclusion !== 'temporaire') {
+                    showAlert("❌ Cette exclusion n'est pas temporaire");
+                    return;
+                }
+                const now = new Date();
+                const fin = new Date(b.dateFin);
+                if (now <= fin) {
+                    showAlert("❌ Cette exclusion n'est pas encore expirée");
+                    return;
+                }
+                if (!confirm(`Valider la fin d'exclusion de ${b.nom} ${b.prenom} et archiver ?`)) return;
+                
                 await dbCentral.ref('infractions/archives').push({
                     ...b,
                     type: 'bannissement',
                     dateArchive: new Date().toLocaleDateString('fr-FR'),
                     raisonArchive: 'Exclusion temporaire terminée (1 mois écoulé)'
                 });
-                infractions.bannis.splice(index, 1); 
-                await dbCentral.ref('infractions/bannis').set(infractions.bannis);
+                currentBannis.splice(index, 1); 
+                await dbCentral.ref('infractions/bannis').set(currentBannis);
                 showInfractionList('bannis'); 
                 showAlert(`✅ Exclusion de ${b.nom} ${b.prenom} validée et archivée.<br><br>Le pêcheur peut à nouveau réserver.`); 
             } catch(e) {
+                console.error('Erreur validerExclusionExpiree:', e);
                 showAlert("❌ Erreur: " + e.message);
             }
         }
@@ -1030,26 +1068,34 @@
             const prenom = document.getElementById('modalPrenom').value.trim(); 
             const prenomF = prenom.charAt(0).toUpperCase() + prenom.slice(1).toLowerCase(); 
             const motif = document.getElementById('motifInput').value || "Non spécifié"; 
-            // Utiliser getCurrentUser() directement car le select peut être disabled
             const controleurSanction = getCurrentUser() || document.getElementById('motifControleur').value || "Non spécifié"; 
             const dateNow = new Date().toLocaleString('fr-FR'); 
-            if (!infractions.avertissements) infractions.avertissements = []; 
-            if (!infractions.bannis) infractions.bannis = []; 
             const fn = (nom + ' ' + prenomF).toLowerCase(); 
-            const avertExistants = infractions.avertissements.filter(a => (a.nom + ' ' + a.prenom).toLowerCase() === fn && !a.archived); 
-            if (avertExistants.length >= 1) { 
-                pendingExclusionData = { motif, controleurSanction };
-                closeMotif(); 
-                ouvrirChoixExclusion(avertExistants[0]); 
-                return; 
-            } 
+            
             try {
-                infractions.avertissements.push({ id: Date.now().toString(), nom, prenom: prenomF, motif, controleurSanction, date: dateNow }); 
-                await dbCentral.ref('infractions/avertissements').set(infractions.avertissements);
+                // Récupérer les données ACTUELLES depuis Firebase
+                const snap = await dbCentral.ref('infractions/avertissements').once('value');
+                let currentAvert = snap.val() || [];
+                if (!Array.isArray(currentAvert)) currentAvert = Object.values(currentAvert);
+                
+                const avertExistants = currentAvert.filter(a => a && (a.nom + ' ' + a.prenom).toLowerCase() === fn && !a.archived); 
+                
+                if (avertExistants.length >= 1) { 
+                    pendingExclusionData = { motif, controleurSanction };
+                    closeMotif(); 
+                    ouvrirChoixExclusion(avertExistants[0]); 
+                    return; 
+                } 
+                
+                currentAvert.push({ id: Date.now().toString(), nom, prenom: prenomF, motif, controleurSanction, date: dateNow }); 
+                await dbCentral.ref('infractions/avertissements').set(currentAvert);
+                
+                console.log('✅ Avertissement sauvegardé');
                 closeMotif(); 
                 closeModal(); 
                 showAlert(`⚠️ <strong>1er AVERTISSEMENT</strong> pour ${nom} ${prenomF}<br><br>📜 Selon le règlement :<br>• Prochain écart = <strong>EXCLUSION</strong><br><br>👮 Par: ${controleurSanction}`);
             } catch(e) {
+                console.error('Erreur confirmerAvertissement:', e);
                 showAlert('❌ Erreur: ' + e.message);
             }
         }
@@ -1091,17 +1137,12 @@
             const prenom = document.getElementById('modalPrenom').value.trim(); 
             const prenomF = prenom.charAt(0).toUpperCase() + prenom.slice(1).toLowerCase(); 
             
-            // Initialisation de sécurité
-            if (!infractions.bannis) infractions.bannis = [];
-            if (!infractions.avertissements) infractions.avertissements = [];
-            
             let motif, controleurSanction;
             if (pendingExclusionData) {
                 motif = pendingExclusionData.motif;
                 controleurSanction = pendingExclusionData.controleurSanction;
             } else {
                 motif = document.getElementById('exclusionMotif').value || "Non spécifié"; 
-                // Utiliser getCurrentUser() directement car le select peut être disabled
                 controleurSanction = getCurrentUser() || document.getElementById('exclusionControleur').value || "Non spécifié";
             }
             
@@ -1110,19 +1151,34 @@
             
             const dateNow = new Date().toLocaleString('fr-FR'); 
             const fn = (nom + ' ' + prenomF).toLowerCase(); 
-            const avertExistants = (infractions.avertissements || []).filter(a => (a.nom + ' ' + a.prenom).toLowerCase() === fn && !a.archived); 
-            let motifs = avertExistants.map(a => ({ motif: a.motif, date: a.date, controleurSanction: a.controleurSanction })); 
-            motifs.push({ motif, date: dateNow, controleurSanction }); 
-            
-            let dateFin = null; 
-            if (typeExclusion === 'temporaire') { 
-                dateFin = new Date(); 
-                dateFin.setMonth(dateFin.getMonth() + 1); 
-                dateFin = dateFin.toISOString(); 
-            } 
             
             try {
-                // Archiver les avertissements existants avec push()
+                // 1. Récupérer les données ACTUELLES depuis Firebase
+                const avertSnap = await dbCentral.ref('infractions/avertissements').once('value');
+                const bannisSnap = await dbCentral.ref('infractions/bannis').once('value');
+                
+                let currentAvert = avertSnap.val() || [];
+                if (!Array.isArray(currentAvert)) currentAvert = Object.values(currentAvert);
+                
+                let currentBannis = bannisSnap.val() || [];
+                if (!Array.isArray(currentBannis)) currentBannis = Object.values(currentBannis);
+                
+                // 2. Trouver les avertissements existants pour cette personne
+                const avertExistants = currentAvert.filter(a => a && (a.nom + ' ' + a.prenom).toLowerCase() === fn && !a.archived);
+                
+                // 3. Créer l'historique des motifs
+                let motifs = avertExistants.map(a => ({ motif: a.motif, date: a.date, controleurSanction: a.controleurSanction })); 
+                motifs.push({ motif, date: dateNow, controleurSanction }); 
+                
+                // 4. Calculer la date de fin si temporaire
+                let dateFin = null; 
+                if (typeExclusion === 'temporaire') { 
+                    dateFin = new Date(); 
+                    dateFin.setMonth(dateFin.getMonth() + 1); 
+                    dateFin = dateFin.toISOString(); 
+                } 
+                
+                // 5. Archiver les avertissements existants
                 for (const a of avertExistants) {
                     await dbCentral.ref('infractions/archives').push({
                         ...a,
@@ -1132,16 +1188,28 @@
                     });
                 }
                 
-                // Ajouter le bannissement
-                const newBanni = { id: Date.now().toString(), nom, prenom: prenomF, motifs, motif, controleurSanction, date: dateNow, typeExclusion, dateFin };
-                infractions.bannis.push(newBanni); 
+                // 6. Créer le nouveau banni
+                const newBanni = { 
+                    id: Date.now().toString(), 
+                    nom, 
+                    prenom: prenomF, 
+                    motifs, 
+                    motif, 
+                    controleurSanction, 
+                    date: dateNow, 
+                    typeExclusion, 
+                    dateFin 
+                };
+                currentBannis.push(newBanni);
                 
-                // Supprimer les avertissements de la liste
-                infractions.avertissements = (infractions.avertissements || []).filter(a => (a.nom + ' ' + a.prenom).toLowerCase() !== fn || a.archived); 
+                // 7. Supprimer les avertissements de cette personne
+                const newAvert = currentAvert.filter(a => !a || (a.nom + ' ' + a.prenom).toLowerCase() !== fn || a.archived);
                 
-                // Sauvegarder les listes mises à jour
-                await dbCentral.ref('infractions/avertissements').set(infractions.avertissements);
-                await dbCentral.ref('infractions/bannis').set(infractions.bannis);
+                // 8. Sauvegarder dans Firebase
+                await dbCentral.ref('infractions/avertissements').set(newAvert);
+                await dbCentral.ref('infractions/bannis').set(currentBannis);
+                
+                console.log('✅ Exclusion sauvegardée:', newBanni);
                 
                 pendingExclusionData = null;
                 closeExclusion(); 
