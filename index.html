@@ -138,17 +138,40 @@
 <body class="login-mode">
     <div id="loginPage">
         <h2>👮 Connexion<br>Réservations / Contrôles Hardt</h2>
-        <input type="text" id="loginID" class="login-input" value="HARDT" readonly tabindex="-1">
+        <label style="display:block; text-align:left; margin-bottom:5px; font-weight:600; color:#333;">👤 Identifiant :</label>
+        <select id="loginUser" class="login-input" style="cursor:pointer;">
+            <option value="">-- Choisir votre nom --</option>
+        </select>
+        <input type="text" id="loginID" class="login-input" value="HARDT" readonly tabindex="-1" style="display:none;">
         <input type="password" id="loginPass" class="login-input" placeholder="Mot de passe" autofocus>
         <button class="btn-login" onclick="checkLogin()">Se connecter</button>
-        <p id="errorLogin" style="color:red; margin-top:15px; font-weight:bold; display:none;">Mot de passe incorrect !</p>
+        <p id="errorLogin" style="color:red; margin-top:15px; font-weight:bold; display:none;"></p>
         <p id="firebaseStatus" style="margin-top:15px; font-size:0.85em; color:#666;"></p>
+    </div>
+    
+    <!-- Modal changement utilisateur -->
+    <div id="changeUserModal" class="modal">
+        <div class="modal-content" style="max-width:400px;">
+            <div class="modal-header" style="background:#ff9800;"><h2>👤 Changement d'utilisateur</h2></div>
+            <div class="modal-body" style="text-align:center;">
+                <p style="margin-bottom:20px;">Voulez-vous vraiment changer d'utilisateur ?</p>
+                <p style="background:#fff3cd; padding:15px; border-radius:8px; margin-bottom:20px;">
+                    <strong id="changeUserFrom"></strong> → <strong id="changeUserTo"></strong>
+                </p>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-save" onclick="confirmChangeUser()">✅ Confirmer</button>
+                    <button class="btn" onclick="cancelChangeUser()" style="background:#eee; color:#333;">Annuler</button>
+                </div>
+            </div>
+        </div>
     </div>
     <div id="mainApp">
         <div class="header">
             <span class="sync-status" id="syncStatus">🔄 Connexion...</span>
             <span class="admin-gear" onclick="openAdmin()">⚙️</span>
             <h1 id="mainTitle">📋 Réservation Postes Hardt 2026</h1>
+            <p id="currentUserDisplay" style="margin-top:10px; font-size:0.85em; opacity:0.9; cursor:pointer;" onclick="promptChangeUser()"></p>
+            <div id="onlineUsers" style="margin-top:8px; font-size:0.8em; opacity:0.85; background:rgba(255,255,255,0.15); padding:8px 12px; border-radius:8px; display:none;"></div>
         </div>
         <div class="breadcrumb">
             <div class="nav-left">
@@ -378,7 +401,39 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script>
-        (function() { const urlParams = new URLSearchParams(window.location.search); const autoconnect = urlParams.get('autoconnect'); const fromControleur = urlParams.get('from') === 'controleur'; if (autoconnect === '911') { document.addEventListener('DOMContentLoaded', function() { document.getElementById('loginPass').value = '911'; setTimeout(function() { checkLogin(); }, 500); if (fromControleur) { const btn = document.createElement('button'); btn.innerHTML = '← Retour Contrôleur'; btn.style.cssText = 'position:fixed;top:15px;left:15px;z-index:9999;background:linear-gradient(135deg,#1a472a,#2d5a3d);color:#fff;border:none;padding:12px 20px;border-radius:25px;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,0.3);'; btn.onclick = function() { window.close(); }; document.body.appendChild(btn); } }); } })();
+        (function() { 
+            const urlParams = new URLSearchParams(window.location.search); 
+            const autoconnect = urlParams.get('autoconnect'); 
+            const fromControleur = urlParams.get('from') === 'controleur'; 
+            const userParam = urlParams.get('user');
+            if (autoconnect === '911') { 
+                document.addEventListener('DOMContentLoaded', function() { 
+                    // Utiliser le user passé en paramètre ou celui sauvegardé
+                    const userToUse = userParam || localStorage.getItem('hardtUser') || localStorage.getItem('controleurUser');
+                    if (userToUse) {
+                        localStorage.setItem('hardtUser', userToUse);
+                        // Attendre que le select soit rempli puis sélectionner
+                        setTimeout(function() {
+                            const select = document.getElementById('loginUser');
+                            if (select) {
+                                for (let opt of select.options) {
+                                    if (opt.value === userToUse) { opt.selected = true; break; }
+                                }
+                            }
+                        }, 300);
+                    }
+                    document.getElementById('loginPass').value = '911'; 
+                    setTimeout(function() { checkLogin(); }, 600); 
+                    if (fromControleur) { 
+                        const btn = document.createElement('button'); 
+                        btn.innerHTML = '← Retour Contrôleur'; 
+                        btn.style.cssText = 'position:fixed;top:15px;left:15px;z-index:9999;background:linear-gradient(135deg,#1a472a,#2d5a3d);color:#fff;border:none;padding:12px 20px;border-radius:25px;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,0.3);'; 
+                        btn.onclick = function() { window.close(); }; 
+                        document.body.appendChild(btn); 
+                    } 
+                }); 
+            } 
+        })();
         
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwDbuJDOKo7XoycUeOF59V9aW3IDztg6Gx-nlrUnmrHpaPOD3v9x9ek481EL6egzuE/exec";
         function sendToGoogleSheets(data) { fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).then(() => console.log("✅ Envoyé GSheets")).catch(err => console.error("❌ Erreur:", err)); }
@@ -650,9 +705,128 @@
         }
         
         // ===== AUTHENTIFICATION =====
-        function checkLogin() { if (document.getElementById('loginPass').value === "911") { if (!firebaseReady) { showAlert("⚠️ Connexion Firebase..."); return; } document.getElementById('loginPage').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; document.body.className = 'app-mode'; sessionStorage.setItem('logged', 'true'); setupFirebaseListeners(); renderMonths(); updateCounts(); } else { document.getElementById('errorLogin').style.display = 'block'; setTimeout(() => { document.getElementById('errorLogin').style.display = 'none'; }, 3000); } }
+        function checkLogin() { 
+            const selectedUser = document.getElementById('loginUser').value;
+            if (!selectedUser) { 
+                document.getElementById('errorLogin').textContent = '⚠️ Veuillez choisir votre nom'; 
+                document.getElementById('errorLogin').style.display = 'block'; 
+                setTimeout(() => { document.getElementById('errorLogin').style.display = 'none'; }, 3000); 
+                return; 
+            }
+            if (document.getElementById('loginPass').value === "911") { 
+                if (!firebaseReady) { showAlert("⚠️ Connexion Firebase..."); return; } 
+                localStorage.setItem('hardtUser', selectedUser);
+                document.getElementById('loginPage').style.display = 'none'; 
+                document.getElementById('mainApp').style.display = 'block'; 
+                document.body.className = 'app-mode'; 
+                sessionStorage.setItem('logged', 'true'); 
+                document.getElementById('currentUserDisplay').textContent = '👤 ' + selectedUser;
+                setUserPresence(selectedUser);
+                listenOnlineUsers();
+                setupFirebaseListeners(); 
+                renderMonths(); 
+                updateCounts(); 
+            } else { 
+                document.getElementById('errorLogin').textContent = '❌ Mot de passe incorrect';
+                document.getElementById('errorLogin').style.display = 'block'; 
+                setTimeout(() => { document.getElementById('errorLogin').style.display = 'none'; }, 3000); 
+            } 
+        }
         document.getElementById("loginPass").addEventListener("keyup", function(e) { if (e.key === "Enter") checkLogin(); });
-        function logout() { sessionStorage.removeItem('logged'); location.reload(); }
+        function logout() { removeUserPresence(); sessionStorage.removeItem('logged'); location.reload(); }
+        
+        // ===== SYSTÈME DE PRÉSENCE =====
+        let pendingUserChange = null;
+        
+        function initLoginUserSelect() {
+            const select = document.getElementById('loginUser');
+            const savedUser = localStorage.getItem('hardtUser');
+            dbCentral.ref('controleurs').once('value').then(snapshot => {
+                const data = snapshot.val();
+                const liste = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+                select.innerHTML = '<option value="">-- Choisir votre nom --</option>';
+                liste.forEach(c => { if (c) select.innerHTML += '<option value="' + c + '"' + (savedUser === c ? ' selected' : '') + '>' + c + '</option>'; });
+            });
+            select.addEventListener('change', function() {
+                const savedUser = localStorage.getItem('hardtUser');
+                if (savedUser && this.value && this.value !== savedUser) {
+                    pendingUserChange = this.value;
+                    document.getElementById('changeUserFrom').textContent = savedUser;
+                    document.getElementById('changeUserTo').textContent = this.value;
+                    document.getElementById('changeUserModal').style.display = 'block';
+                    this.value = savedUser;
+                }
+            });
+        }
+        
+        function confirmChangeUser() {
+            if (pendingUserChange) {
+                removeUserPresence();
+                localStorage.setItem('hardtUser', pendingUserChange);
+                document.getElementById('loginUser').value = pendingUserChange;
+                if (sessionStorage.getItem('logged') === 'true') {
+                    setUserPresence(pendingUserChange);
+                    document.getElementById('currentUserDisplay').textContent = '👤 ' + pendingUserChange;
+                }
+                pendingUserChange = null;
+            }
+            document.getElementById('changeUserModal').style.display = 'none';
+        }
+        
+        function cancelChangeUser() { pendingUserChange = null; document.getElementById('changeUserModal').style.display = 'none'; }
+        
+        function promptChangeUser() {
+            const current = localStorage.getItem('hardtUser');
+            if (!current || !controleurs.length) return;
+            const newUser = prompt('Changer d\'utilisateur ?\nActuel: ' + current + '\n\nEntrez le nouveau nom:');
+            if (newUser && newUser !== current && controleurs.includes(newUser)) {
+                if (confirm('Changer de ' + current + ' à ' + newUser + ' ?')) {
+                    removeUserPresence();
+                    localStorage.setItem('hardtUser', newUser);
+                    setUserPresence(newUser);
+                    document.getElementById('currentUserDisplay').textContent = '👤 ' + newUser;
+                    showAlert('✅ Utilisateur changé: ' + newUser);
+                }
+            } else if (newUser && !controleurs.includes(newUser)) {
+                showAlert('❌ Utilisateur non trouvé');
+            }
+        }
+        
+        function setUserPresence(userName) {
+            if (!userName) return;
+            const presenceRef = dbCentral.ref('presence/hardt/' + userName);
+            const connectedRef = dbCentral.ref('.info/connected');
+            connectedRef.on('value', (snapshot) => {
+                if (snapshot.val() === true) {
+                    presenceRef.set({ online: true, lastSeen: firebase.database.ServerValue.TIMESTAMP, user: userName });
+                    presenceRef.onDisconnect().remove();
+                }
+            });
+        }
+        
+        function removeUserPresence() {
+            const userName = localStorage.getItem('hardtUser');
+            if (userName) dbCentral.ref('presence/hardt/' + userName).remove();
+        }
+        
+        function listenOnlineUsers() {
+            dbCentral.ref('presence/hardt').on('value', (snapshot) => {
+                const data = snapshot.val();
+                const container = document.getElementById('onlineUsers');
+                const currentUser = localStorage.getItem('hardtUser');
+                if (!data) { container.style.display = 'none'; return; }
+                const users = Object.keys(data).filter(u => data[u] && data[u].online);
+                const otherUsers = users.filter(u => u !== currentUser);
+                if (otherUsers.length > 0) {
+                    container.innerHTML = '👥 Également connecté(s): ' + otherUsers.map(u => '<strong>' + u + '</strong>').join(', ');
+                    container.style.display = 'block';
+                } else {
+                    container.style.display = 'none';
+                }
+            });
+        }
+        
+        function getCurrentUser() { return localStorage.getItem('hardtUser') || ''; }
         
         function accesControleur() { 
             const today = new Date(); 
@@ -837,7 +1011,15 @@
             }
         }
         
-        function donnerAvertissement() { document.getElementById('motifInput').value = ''; document.getElementById('motifControleur').value = ''; updateMotifControleurSelect(); document.getElementById('motifModal').style.display = 'block'; }
+        function donnerAvertissement() { 
+            document.getElementById('motifInput').value = ''; 
+            const currentUser = getCurrentUser();
+            const select = document.getElementById('motifControleur');
+            select.innerHTML = '<option value="' + currentUser + '">' + currentUser + '</option>';
+            select.value = currentUser;
+            select.disabled = true;
+            document.getElementById('motifModal').style.display = 'block'; 
+        }
         function closeMotif() { document.getElementById('motifModal').style.display = 'none'; }
         
         // Variable pour stocker les données de la 2ème infraction
@@ -887,13 +1069,17 @@
                 document.getElementById('exclusionMotifGroup').style.display = 'block';
                 document.getElementById('exclusionControleurGroup').style.display = 'block';
                 document.getElementById('exclusionMotif').value = '';
-                document.getElementById('exclusionControleur').value = '';
+                // Pré-remplir et verrouiller le contrôleur
+                const currentUser = getCurrentUser();
+                const selectExcl = document.getElementById('exclusionControleur');
+                selectExcl.innerHTML = '<option value="' + currentUser + '">' + currentUser + '</option>';
+                selectExcl.value = currentUser;
+                selectExcl.disabled = true;
             } 
             
             document.getElementById('exclusionInfo').innerHTML = infoText; 
             document.querySelectorAll('input[name="typeExclusion"]').forEach(r => r.checked = false); 
             document.querySelectorAll('#exclusionModal label[style*=flex]').forEach(l => l.style.borderColor = '#ddd'); 
-            updateExclusionControleurSelect(); 
             document.getElementById('exclusionModal').style.display = 'block'; 
         }
         function closeExclusion() { document.getElementById('exclusionModal').style.display = 'none'; }
@@ -1017,7 +1203,33 @@
         function showAlert(msg) { document.getElementById('alertBody').innerHTML = msg; document.getElementById('alertModal').style.display = 'block'; }
         function closeAlert() { document.getElementById('alertModal').style.display = 'none'; }
         
-        document.addEventListener('DOMContentLoaded', function() { if (firebaseReady) { document.getElementById('firebaseStatus').innerHTML = '✅ Firebase connecté'; document.getElementById('firebaseStatus').style.color = 'green'; } if (sessionStorage.getItem('logged') === 'true') { const checkFb = setInterval(() => { if (firebaseReady) { clearInterval(checkFb); document.getElementById('loginPage').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; document.body.className = 'app-mode'; setupFirebaseListeners(); renderMonths(); updateCounts(); } }, 100); } });
+        document.addEventListener('DOMContentLoaded', function() { 
+            initLoginUserSelect();
+            if (firebaseReady) { 
+                document.getElementById('firebaseStatus').innerHTML = '✅ Firebase connecté'; 
+                document.getElementById('firebaseStatus').style.color = 'green'; 
+            } 
+            if (sessionStorage.getItem('logged') === 'true') { 
+                const checkFb = setInterval(() => { 
+                    if (firebaseReady) { 
+                        clearInterval(checkFb); 
+                        document.getElementById('loginPage').style.display = 'none'; 
+                        document.getElementById('mainApp').style.display = 'block'; 
+                        document.body.className = 'app-mode'; 
+                        const savedUser = localStorage.getItem('hardtUser');
+                        if (savedUser) {
+                            document.getElementById('currentUserDisplay').textContent = '👤 ' + savedUser;
+                            setUserPresence(savedUser);
+                        }
+                        listenOnlineUsers();
+                        setupFirebaseListeners(); 
+                        renderMonths(); 
+                        updateCounts(); 
+                    } 
+                }, 100); 
+            }
+            window.addEventListener('beforeunload', function() { removeUserPresence(); });
+        });
     </script>
 </body>
 </html>
