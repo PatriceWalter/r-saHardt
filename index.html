@@ -908,11 +908,39 @@
         function createBox(n, data) { const div = document.createElement('div'); const isControleur = n === 4; const hasName = data.nom && data.nom.trim() !== ''; let className = 'poste-box '; if (isControleur) className += 'controleur'; else if (data.controlled) className += 'controle'; else if (hasName) className += 'reserve'; else className += 'libre'; div.className = className; div.onclick = (e) => { if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') openModal(n, data); }; let html = '<div class="poste-content">'; html += `<div class="poste-title">Poste ${n}</div>`; if (data.controlled && data.heure) html += `<div class="poste-heure">🕒 ${data.heure}</div>`; if (hasName) { html += `<div class="poste-nom">${data.nom.toUpperCase()} ${data.prenom}</div>`; if (isUserValid(data.nom, data.prenom)) html += '<div class="badge-peche">🪪 Carte valide</div>'; html += `<button class="btn-info" onclick="event.stopPropagation(); checkInfo('${escapeHtml(data.nom)}', '${escapeHtml(data.prenom)}')">ℹ️ Info</button>`; } html += '</div>'; if (!isControleur) { if (data.controlled) { html += `<div class="control-zone" onclick="event.stopPropagation(); toggleControle(${n})" style="cursor:pointer;"><span class="control-label checked">✅ Contrôlé par ${data.controleur || 'inconnu'}</span></div>`; } else { html += `<div class="control-zone"><input type="checkbox" id="check_${n}" onclick="event.stopPropagation(); toggleControle(${n})"><label class="control-label">Cliquer pour contrôler</label></div>`; } } div.innerHTML = html; return div; }
         
         function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML.replace(/'/g, "\\'"); }
-        function toggleControle(n) { if (!reservations[curDKey]) reservations[curDKey] = {}; if (!reservations[curDKey][n]) return; pendingControlePoste = n; document.getElementById('selectControleur').value = reservations[curDKey][n].controleur || ''; document.getElementById('controleurModal').style.display = 'block'; }
+        function toggleControle(n) { 
+            if (!reservations[curDKey]) reservations[curDKey] = {}; 
+            if (!reservations[curDKey][n]) return; 
+            pendingControlePoste = n; 
+            const currentUser = getCurrentUser();
+            const select = document.getElementById('selectControleur');
+            if (currentUser) {
+                select.innerHTML = '<option value="' + currentUser + '">' + currentUser + '</option>';
+                select.value = currentUser;
+                select.disabled = true;
+            } else {
+                updateControleurSelect();
+                select.value = reservations[curDKey][n].controleur || '';
+                select.disabled = false;
+            }
+            document.getElementById('controleurModal').style.display = 'block'; 
+        }
         function updateControleurSelect() { const select = document.getElementById('selectControleur'); if (!select) return; select.innerHTML = '<option value="">-- Choisir --</option>' + controleurs.map(c => `<option value="${c}">${c}</option>`).join(''); }
         function updateMotifControleurSelect() { const select = document.getElementById('motifControleur'); if (!select) return; select.innerHTML = '<option value="">-- Choisir le contrôleur --</option>' + controleurs.map(c => `<option value="${c}">${c}</option>`).join(''); }
         function closeControleurModal() { document.getElementById('controleurModal').style.display = 'none'; pendingControlePoste = null; renderPostes(); }
-        function confirmControleur() { const controleur = document.getElementById('selectControleur').value; if (!controleur) { alert('Choisir un contrôleur'); return; } const poste = reservations[curDKey][pendingControlePoste]; if (poste) { poste.controlled = true; poste.controleur = controleur; const now = new Date(); poste.heure = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0'); saveReservations(); } closeControleurModal(); }
+        function confirmControleur() { 
+            const controleur = getCurrentUser() || document.getElementById('selectControleur').value; 
+            if (!controleur) { alert('Choisir un contrôleur'); return; } 
+            const poste = reservations[curDKey][pendingControlePoste]; 
+            if (poste) { 
+                poste.controlled = true; 
+                poste.controleur = controleur; 
+                const now = new Date(); 
+                poste.heure = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0'); 
+                saveReservations(); 
+            } 
+            closeControleurModal(); 
+        }
         function annulerControle() { const poste = reservations[curDKey][pendingControlePoste]; if (poste) { poste.controlled = false; poste.controleur = ''; poste.heure = ''; saveReservations(); } closeControleurModal(); }
         
         function openModal(n, data) { curP = n; document.getElementById('modalTitle').textContent = 'Poste ' + n; document.getElementById('modalDate').textContent = curFullDate + " " + getAnnee(); document.getElementById('modalNom').value = data.nom || ''; document.getElementById('modalPrenom').value = data.prenom || ''; document.getElementById('modalHeure').value = data.heure || ''; updateControlText(); checkCardBadge(); document.getElementById('checkZone').style.display = n === 4 ? 'none' : 'block'; document.getElementById('infractionsButtons').style.display = (data.nom && n !== 4) ? 'block' : 'none'; document.getElementById('posteModal').style.display = 'block'; }
