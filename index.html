@@ -753,7 +753,7 @@
         function showInfractionsMenu() { hideAll(); document.getElementById('infractionsMenuPage').classList.remove('hidden'); updateCounts(); }
         function updateCounts() { document.getElementById('countAvertissement').textContent = (infractions.avertissements ? infractions.avertissements.length : 0) + ' dossier(s)'; document.getElementById('countBanni').textContent = (infractions.bannis ? infractions.bannis.length : 0) + ' dossier(s)'; }
         
-        function showInfractionList(type) { hideAll(); document.getElementById('infractionsDetailPage').classList.remove('hidden'); document.getElementById('detailTitle').textContent = type === 'avertissements' ? '⚠️ AVERTISSEMENTS' : '🚫 EXCLUSIONS'; const list = infractions[type] || []; const container = document.getElementById('detailList'); if (list.length === 0) { container.innerHTML = '<p style="text-align:center; color:#666;">Aucun dossier</p>'; return; } if (type === 'avertissements') { container.innerHTML = list.map((item, index) => `<div class="infraction-item ${item.archived ? 'archive' : 'avertissement'}"><div class="infraction-header"><div class="infraction-info"><strong>${(item.nom || 'N/A').toUpperCase()} ${item.prenom || ''}</strong>${item.archived ? '<span class="archive-badge">📁 Archivé</span>' : ''}${item.controleurSanction ? '<span class="controleur-badge">👮 ' + item.controleurSanction + '</span>' : ''}<br><small>📅 ${item.date || ''}</small><br><small>📝 ${item.motif || ''}</small></div><div class="infraction-actions"><button class="btn btn-delete" onclick="removeAvertissement(${index})">🗑️</button></div></div></div>`).join(''); } else { container.innerHTML = list.map((item, index) => { let typeLabel = item.typeExclusion === 'temporaire' ? `<span style="background:#ff9800;color:white;padding:2px 8px;border-radius:4px;font-size:0.8em;">⏱️ Temporaire</span>` : `<span style="background:#dc3545;color:white;padding:2px 8px;border-radius:4px;font-size:0.8em;">🚫 Définitive</span>`; let finExclusion = ''; if (item.typeExclusion === 'temporaire' && item.dateFin) { const now = new Date(); const fin = new Date(item.dateFin); if (now > fin) { typeLabel = `<span style="background:#28a745;color:white;padding:2px 8px;border-radius:4px;font-size:0.8em;">✅ Expirée</span>`; finExclusion = `<br><small style="color:#28a745;">Exclusion terminée le ${new Date(item.dateFin).toLocaleDateString('fr-FR')}</small>`; } else { finExclusion = `<br><small style="color:#ff9800;">Fin de l'exclusion : ${new Date(item.dateFin).toLocaleDateString('fr-FR')}</small>`; } } let motifsHtml = ''; if (item.motifs && item.motifs.length > 0) { motifsHtml = `<div class="motifs-list"><h4>📋 Historique des infractions :</h4>${item.motifs.map((m, i) => `<div class="motif-item"><strong>#${i+1}</strong> - ${m.date || ''}: ${m.motif || ''}${m.controleurSanction ? ' <em>(👮 ' + m.controleurSanction + ')</em>' : ''}</div>`).join('')}</div>`; } else if (item.motif) { motifsHtml = `<div class="motifs-list"><h4>📋 Motif :</h4><div class="motif-item">${item.motif}</div></div>`; } return `<div class="infraction-item banni"><div class="infraction-header"><div class="infraction-info"><strong>${(item.nom || 'N/A').toUpperCase()} ${item.prenom || ''}</strong> ${typeLabel}${item.controleurSanction ? '<span class="controleur-badge">👮 ' + item.controleurSanction + '</span>' : ''}<br><small>📅 Exclu le : ${item.date || ''}</small>${finExclusion}${motifsHtml}</div><div class="infraction-actions"><button class="btn btn-unban" onclick="leverExclusion(${index})">🔓 Lever</button><button class="btn btn-delete" onclick="removeBanni(${index})">🗑️</button></div></div></div>`; }).join(''); } }
+        function showInfractionList(type) { hideAll(); document.getElementById('infractionsDetailPage').classList.remove('hidden'); document.getElementById('detailTitle').textContent = type === 'avertissements' ? '⚠️ AVERTISSEMENTS' : '🚫 EXCLUSIONS'; const list = infractions[type] || []; const container = document.getElementById('detailList'); if (list.length === 0) { container.innerHTML = '<p style="text-align:center; color:#666;">Aucun dossier</p>'; return; } if (type === 'avertissements') { container.innerHTML = list.map((item, index) => `<div class="infraction-item ${item.archived ? 'archive' : 'avertissement'}"><div class="infraction-header"><div class="infraction-info"><strong>${(item.nom || 'N/A').toUpperCase()} ${item.prenom || ''}</strong>${item.archived ? '<span class="archive-badge">📁 Archivé</span>' : ''}${item.controleurSanction ? '<span class="controleur-badge">👮 ' + item.controleurSanction + '</span>' : ''}<br><small>📅 ${item.date || ''}</small><br><small>📝 ${item.motif || ''}</small></div><div class="infraction-actions"><button class="btn btn-delete" onclick="removeAvertissement(${index})">🗑️</button></div></div></div>`).join(''); } else { container.innerHTML = list.map((item, index) => { let typeLabel = item.typeExclusion === 'temporaire' ? `<span style="background:#ff9800;color:white;padding:2px 8px;border-radius:4px;font-size:0.8em;">⏱️ Temporaire</span>` : `<span style="background:#dc3545;color:white;padding:2px 8px;border-radius:4px;font-size:0.8em;">🚫 Définitive</span>`; let finExclusion = ''; let isExpired = false; if (item.typeExclusion === 'temporaire' && item.dateFin) { const now = new Date(); const fin = new Date(item.dateFin); isExpired = now > fin; if (isExpired) { typeLabel = `<span style="background:#28a745;color:white;padding:2px 8px;border-radius:4px;font-size:0.8em;">✅ Expirée</span>`; finExclusion = `<br><small style="color:#28a745;">Exclusion terminée le ${new Date(item.dateFin).toLocaleDateString('fr-FR')}</small>`; } else { finExclusion = `<br><small style="color:#ff9800;">Fin de l'exclusion : ${new Date(item.dateFin).toLocaleDateString('fr-FR')}</small>`; } } let motifsHtml = ''; if (item.motifs && item.motifs.length > 0) { motifsHtml = `<div class="motifs-list"><h4>📋 Historique des infractions :</h4>${item.motifs.map((m, i) => `<div class="motif-item"><strong>#${i+1}</strong> - ${m.date || ''}: ${m.motif || ''}${m.controleurSanction ? ' <em>(👮 ' + m.controleurSanction + ')</em>' : ''}</div>`).join('')}</div>`; } else if (item.motif) { motifsHtml = `<div class="motifs-list"><h4>📋 Motif :</h4><div class="motif-item">${item.motif}</div></div>`; } let actionButtons = isExpired ? `<button class="btn btn-save" onclick="validerExclusionExpiree(${index})" style="background:#28a745;">✅ Valider</button>` : `<button class="btn btn-unban" onclick="leverExclusion(${index})">🔓 Lever</button>`; actionButtons += `<button class="btn btn-delete" onclick="removeBanni(${index})">🗑️</button>`; return `<div class="infraction-item banni"><div class="infraction-header"><div class="infraction-info"><strong>${(item.nom || 'N/A').toUpperCase()} ${item.prenom || ''}</strong> ${typeLabel}${item.controleurSanction ? '<span class="controleur-badge">👮 ' + item.controleurSanction + '</span>' : ''}<br><small>📅 Exclu le : ${item.date || ''}</small>${finExclusion}${motifsHtml}</div><div class="infraction-actions">${actionButtons}</div></div></div>`; }).join(''); } }
         
         async function removeAvertissement(index) { 
             if (!checkAdminPassword()) return; 
@@ -775,13 +775,17 @@
             }
         }
         
-        function removeBanni(index) { 
+        async function removeBanni(index) { 
             if (!checkAdminPassword()) return; 
-            if (!confirm('Supprimer définitivement cette exclusion ? (Préférez "Lever" pour archiver)')) return; 
-            infractions.bannis.splice(index, 1); 
-            saveInfractions(); 
-            showInfractionList('bannis'); 
-            showAlert("✅ Exclusion supprimée."); 
+            if (!confirm('Supprimer définitivement cette exclusion ? (Préférez "Lever" ou "Valider" pour archiver)')) return; 
+            try {
+                infractions.bannis.splice(index, 1); 
+                await dbCentral.ref('infractions/bannis').set(infractions.bannis);
+                showInfractionList('bannis'); 
+                showAlert("✅ Exclusion supprimée."); 
+            } catch(e) {
+                showAlert("❌ Erreur: " + e.message);
+            }
         }
         
         async function leverExclusion(index) { 
@@ -804,13 +808,42 @@
             }
         }
         
+        async function validerExclusionExpiree(index) { 
+            const b = infractions.bannis[index]; 
+            if (!b || b.typeExclusion !== 'temporaire') {
+                showAlert("❌ Cette exclusion n'est pas temporaire");
+                return;
+            }
+            const now = new Date();
+            const fin = new Date(b.dateFin);
+            if (now <= fin) {
+                showAlert("❌ Cette exclusion n'est pas encore expirée");
+                return;
+            }
+            if (!confirm(`Valider la fin d'exclusion de ${b.nom} ${b.prenom} et archiver ?`)) return;
+            try {
+                await dbCentral.ref('infractions/archives').push({
+                    ...b,
+                    type: 'bannissement',
+                    dateArchive: new Date().toLocaleDateString('fr-FR'),
+                    raisonArchive: 'Exclusion temporaire terminée (1 mois écoulé)'
+                });
+                infractions.bannis.splice(index, 1); 
+                await dbCentral.ref('infractions/bannis').set(infractions.bannis);
+                showInfractionList('bannis'); 
+                showAlert(`✅ Exclusion de ${b.nom} ${b.prenom} validée et archivée.<br><br>Le pêcheur peut à nouveau réserver.`); 
+            } catch(e) {
+                showAlert("❌ Erreur: " + e.message);
+            }
+        }
+        
         function donnerAvertissement() { document.getElementById('motifInput').value = ''; document.getElementById('motifControleur').value = ''; updateMotifControleurSelect(); document.getElementById('motifModal').style.display = 'block'; }
         function closeMotif() { document.getElementById('motifModal').style.display = 'none'; }
         
         // Variable pour stocker les données de la 2ème infraction
         let pendingExclusionData = null;
         
-        function confirmerAvertissement() { 
+        async function confirmerAvertissement() { 
             const nom = document.getElementById('modalNom').value.trim().toUpperCase(); 
             const prenom = document.getElementById('modalPrenom').value.trim(); 
             const prenomF = prenom.charAt(0).toUpperCase() + prenom.slice(1).toLowerCase(); 
@@ -827,11 +860,15 @@
                 ouvrirChoixExclusion(avertExistants[0]); 
                 return; 
             } 
-            infractions.avertissements.push({ id: Date.now().toString(), nom, prenom: prenomF, motif, controleurSanction, date: dateNow }); 
-            saveInfractions(); 
-            closeMotif(); 
-            closeModal(); 
-            showAlert(`⚠️ <strong>1er AVERTISSEMENT</strong> pour ${nom} ${prenomF}<br><br>📜 Selon le règlement :<br>• Prochain écart = <strong>EXCLUSION</strong><br><br>👮 Par: ${controleurSanction}`); 
+            try {
+                infractions.avertissements.push({ id: Date.now().toString(), nom, prenom: prenomF, motif, controleurSanction, date: dateNow }); 
+                await dbCentral.ref('infractions/avertissements').set(infractions.avertissements);
+                closeMotif(); 
+                closeModal(); 
+                showAlert(`⚠️ <strong>1er AVERTISSEMENT</strong> pour ${nom} ${prenomF}<br><br>📜 Selon le règlement :<br>• Prochain écart = <strong>EXCLUSION</strong><br><br>👮 Par: ${controleurSanction}`);
+            } catch(e) {
+                showAlert('❌ Erreur: ' + e.message);
+            }
         }
         
         function ouvrirChoixExclusion(avertissementExistant = null) { 
@@ -862,7 +899,7 @@
         function closeExclusion() { document.getElementById('exclusionModal').style.display = 'none'; }
         function updateExclusionControleurSelect() { const s = document.getElementById('exclusionControleur'); s.innerHTML = '<option value="">-- Choisir le contrôleur --</option>'; (controleurs || []).forEach(c => { if (c) s.innerHTML += `<option value="${c}">${c}</option>`; }); }
         
-        function confirmerExclusion() { 
+        async function confirmerExclusion() { 
             const nom = document.getElementById('modalNom').value.trim().toUpperCase(); 
             const prenom = document.getElementById('modalPrenom').value.trim(); 
             const prenomF = prenom.charAt(0).toUpperCase() + prenom.slice(1).toLowerCase(); 
@@ -892,27 +929,38 @@
                 dateFin = dateFin.toISOString(); 
             } 
             
-            // Archiver les avertissements
-            avertExistants.forEach(a => {
-                if (!infractions.archives) infractions.archives = [];
-                infractions.archives.push({
-                    ...a,
-                    type: 'avertissement',
-                    dateArchive: new Date().toLocaleDateString('fr-FR'),
-                    raisonArchive: 'Converti en exclusion'
-                });
-            });
-            
-            infractions.bannis.push({ id: Date.now().toString(), nom, prenom: prenomF, motifs, motif, controleurSanction, date: dateNow, typeExclusion, dateFin }); 
-            infractions.avertissements = (infractions.avertissements || []).filter(a => (a.nom + ' ' + a.prenom).toLowerCase() !== fn || a.archived); 
-            saveInfractions(); 
-            
-            pendingExclusionData = null;
-            closeExclusion(); 
-            closeModal(); 
-            const typeText = typeExclusion === 'temporaire' ? 'TEMPORAIRE (1 mois)' : 'DÉFINITIVE'; 
-            const finText = typeExclusion === 'temporaire' ? `<br>📅 Fin de l'exclusion : ${new Date(dateFin).toLocaleDateString('fr-FR')}` : ''; 
-            showAlert(`🚫 <strong>EXCLUSION ${typeText}</strong><br><br>${nom} ${prenomF} est maintenant exclu(e).${finText}<br><br>👮 Par: ${controleurSanction}`); 
+            try {
+                // Archiver les avertissements existants avec push()
+                for (const a of avertExistants) {
+                    await dbCentral.ref('infractions/archives').push({
+                        ...a,
+                        type: 'avertissement',
+                        dateArchive: new Date().toLocaleDateString('fr-FR'),
+                        raisonArchive: 'Converti en exclusion'
+                    });
+                }
+                
+                // Ajouter le bannissement
+                const newBanni = { id: Date.now().toString(), nom, prenom: prenomF, motifs, motif, controleurSanction, date: dateNow, typeExclusion, dateFin };
+                infractions.bannis.push(newBanni); 
+                
+                // Supprimer les avertissements de la liste
+                infractions.avertissements = (infractions.avertissements || []).filter(a => (a.nom + ' ' + a.prenom).toLowerCase() !== fn || a.archived); 
+                
+                // Sauvegarder les listes mises à jour
+                await dbCentral.ref('infractions/avertissements').set(infractions.avertissements);
+                await dbCentral.ref('infractions/bannis').set(infractions.bannis);
+                
+                pendingExclusionData = null;
+                closeExclusion(); 
+                closeModal(); 
+                const typeText = typeExclusion === 'temporaire' ? 'TEMPORAIRE (1 mois)' : 'DÉFINITIVE'; 
+                const finText = typeExclusion === 'temporaire' ? `<br>📅 Fin de l'exclusion : ${new Date(dateFin).toLocaleDateString('fr-FR')}` : ''; 
+                showAlert(`🚫 <strong>EXCLUSION ${typeText}</strong><br><br>${nom} ${prenomF} est maintenant exclu(e).${finText}<br><br>👮 Par: ${controleurSanction}`);
+            } catch(e) {
+                console.error('Erreur confirmerExclusion:', e);
+                showAlert('❌ Erreur: ' + e.message);
+            }
         }
         
         function checkInfo(nom, prenom) { 
