@@ -1156,6 +1156,11 @@
                 currentAvert.push({ id: Date.now().toString(), nom, prenom: prenomF, motif, controleurSanction, date: dateNow }); 
                 await dbCentral.ref('infractions/avertissements').set(currentAvert);
                 
+                // Notification Telegram
+                const heure = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                const msgTelegram = '⚠️ *AVERTISSEMENT*\n👤 ' + nom + ' ' + prenomF + '\n📍 Hardt\n💬 ' + motif + '\n👮 ' + controleurSanction + '\n🕐 ' + heure;
+                await envoyerNotificationTelegram(msgTelegram);
+                
                 console.log('✅ Avertissement sauvegardé');
                 closeMotif(); 
                 closeModal(); 
@@ -1274,6 +1279,13 @@
                 // 8. Sauvegarder dans Firebase
                 await dbCentral.ref('infractions/avertissements').set(newAvert);
                 await dbCentral.ref('infractions/bannis').set(currentBannis);
+                
+                // Notification Telegram
+                const heure = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                const typeExclTelegram = typeExclusion === 'temporaire' ? '⏱️ Temporaire (1 mois)' : '🚫 Définitive';
+                const finTelegram = typeExclusion === 'temporaire' ? '\n📅 Fin: ' + new Date(dateFin).toLocaleDateString('fr-FR') : '';
+                const msgTelegram = '🚫 *EXCLUSION*\n👤 ' + nom + ' ' + prenomF + '\n' + typeExclTelegram + finTelegram + '\n📍 Hardt\n💬 ' + motif + '\n👮 ' + controleurSanction + '\n🕐 ' + heure;
+                await envoyerNotificationTelegram(msgTelegram);
                 
                 console.log('✅ Exclusion sauvegardée:', newBanni);
                 
