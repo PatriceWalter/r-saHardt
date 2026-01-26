@@ -481,10 +481,17 @@
             }
         }
         
-        async function envoyerNotificationControle(poste, controleur) {
+        async function envoyerNotificationControle(poste, controleur, nomPecheur, prenomPecheur) {
             const now = new Date();
+            const date = now.toLocaleDateString('fr-FR');
             const heure = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-            const message = '🎣 *CONTRÔLE HARDT*\n📍 Poste ' + poste + '\n👮 ' + controleur + '\n🕐 ' + heure;
+            let pecheurInfo = '';
+            if (nomPecheur && prenomPecheur) {
+                pecheurInfo = '\n🎣 ' + nomPecheur + ' ' + prenomPecheur;
+            } else if (nomPecheur) {
+                pecheurInfo = '\n🎣 ' + nomPecheur;
+            }
+            const message = '🐟 *CONTRÔLE HARDT*\n📅 ' + date + '\n📍 Poste ' + poste + pecheurInfo + '\n👮 ' + controleur + '\n🕐 ' + heure;
             await envoyerNotificationTelegram(message);
         }
         
@@ -975,7 +982,7 @@
                 poste.heure = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0'); 
                 saveReservations(); 
                 // Envoyer notification aux autres contrôleurs
-                envoyerNotificationControle(pendingControlePoste, controleur);
+                envoyerNotificationControle(pendingControlePoste, controleur, poste.nom, poste.prenom);
             } 
             closeControleurModal(); 
         }
@@ -1158,7 +1165,8 @@
                 
                 // Notification Telegram
                 const heure = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-                const msgTelegram = '⚠️ *AVERTISSEMENT*\n👤 ' + nom + ' ' + prenomF + '\n📍 Hardt\n💬 ' + motif + '\n👮 ' + controleurSanction + '\n🕐 ' + heure;
+                const dateTelegram = new Date().toLocaleDateString('fr-FR');
+                const msgTelegram = '⚠️ *AVERTISSEMENT*\n📅 ' + dateTelegram + '\n👤 ' + nom + ' ' + prenomF + '\n📍 Hardt\n💬 ' + motif + '\n👮 ' + controleurSanction + '\n🕐 ' + heure;
                 await envoyerNotificationTelegram(msgTelegram);
                 
                 console.log('✅ Avertissement sauvegardé');
@@ -1282,9 +1290,10 @@
                 
                 // Notification Telegram
                 const heure = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                const dateTelegram = new Date().toLocaleDateString('fr-FR');
                 const typeExclTelegram = typeExclusion === 'temporaire' ? '⏱️ Temporaire (1 mois)' : '🚫 Définitive';
                 const finTelegram = typeExclusion === 'temporaire' ? '\n📅 Fin: ' + new Date(dateFin).toLocaleDateString('fr-FR') : '';
-                const msgTelegram = '🚫 *EXCLUSION*\n👤 ' + nom + ' ' + prenomF + '\n' + typeExclTelegram + finTelegram + '\n📍 Hardt\n💬 ' + motif + '\n👮 ' + controleurSanction + '\n🕐 ' + heure;
+                const msgTelegram = '🚫 *EXCLUSION*\n📅 ' + dateTelegram + '\n👤 ' + nom + ' ' + prenomF + '\n' + typeExclTelegram + finTelegram + '\n📍 Hardt\n💬 ' + motif + '\n👮 ' + controleurSanction + '\n🕐 ' + heure;
                 await envoyerNotificationTelegram(msgTelegram);
                 
                 console.log('✅ Exclusion sauvegardée:', newBanni);
