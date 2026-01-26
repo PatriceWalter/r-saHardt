@@ -464,106 +464,28 @@
             firebaseReady = true; 
         } catch (error) { console.error("❌ Firebase:", error); }
         
-        // ===== FCM NOTIFICATIONS =====
-        const VAPID_KEY = "BDmyIuYOB9cEqHLA9QyFycYy-gJnP2BVU6c6CI5TjIElo4qFC7t8MS28hSj0lwk_8ve13BQZw8uEVIJx0GE25IE";
-        const FCM_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxn4ymLy30fj78YW67XyiXecKaV-gb3HfLlMqHojcGSbufhiUUFe2APmuX7hwKV7oRk/exec";
-        let messaging = null;
-        let swRegistration = null;
+        // ===== NOTIFICATIONS TELEGRAM =====
+        const TELEGRAM_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxn4ymLy30fj78YW67XyiXecKaV-gb3HfLlMqHojcGSbufhiUUFe2APmuX7hwKV7oRk/exec";
         
-        async function initNotifications() {
+        async function envoyerNotificationTelegram(message) {
             try {
-                if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-                    console.log('❌ Notifications non supportées');
-                    return;
-                }
-                
-                await navigator.serviceWorker.register('./firebase-messaging-sw.js');
-                swRegistration = await navigator.serviceWorker.ready;
-                console.log('✅ Service Worker actif');
-                
-                messaging = firebase.messaging(appCentral);
-                
-                // Notifications au premier plan
-                messaging.onMessage((payload) => {
-                    console.log('📬 Notification reçue:', payload);
-                    const notif = payload.notification || {};
-                    const data = payload.data || {};
-                    const title = notif.title || data.title || '📋 Contrôle AAPPMA';
-                    const body = notif.body || data.body || 'Un contrôle a été effectué';
-                    swRegistration.showNotification(title, { body: body, vibrate: [200, 100, 200], requireInteraction: true });
+                await fetch(TELEGRAM_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
                 });
-                
-                if (Notification.permission === 'granted') {
-                    await enregistrerToken();
-                }
+                console.log('✅ Notification Telegram envoyée');
             } catch (error) {
-                console.error('❌ Erreur init notifications:', error);
-            }
-        }
-        
-        async function demanderPermissionNotification() {
-            try {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    console.log('✅ Permission notifications accordée');
-                    await enregistrerToken();
-                } else {
-                    console.log('❌ Permission notifications refusée');
-                }
-            } catch (error) {
-                console.error('❌ Erreur permission:', error);
-            }
-        }
-        
-        async function enregistrerToken() {
-            try {
-                if (!messaging || !swRegistration) return;
-                
-                const token = await messaging.getToken({ 
-                    vapidKey: VAPID_KEY,
-                    serviceWorkerRegistration: swRegistration
-                });
-                if (token) {
-                    const userName = getCurrentUser();
-                    if (!userName) return;
-                    
-                    const deviceId = navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop';
-                    const tokenKey = userName.replace(/[^a-zA-Z0-9]/g, '_') + '_' + deviceId + '_hardt';
-                    
-                    await dbCentral.ref('fcmTokens/' + tokenKey).set({
-                        token: token,
-                        user: userName,
-                        device: deviceId,
-                        app: 'Hardt',
-                        lastUpdate: new Date().toISOString()
-                    });
-                    console.log('✅ Token FCM enregistré pour', userName, '(' + deviceId + ')');
-                }
-            } catch (error) {
-                console.error('❌ Erreur enregistrement token:', error);
+                console.error('❌ Erreur notification Telegram:', error);
             }
         }
         
         async function envoyerNotificationControle(poste, controleur) {
-            try {
-                const data = {
-                    titre: "📋 Contrôle Hardt",
-                    message: "Poste " + poste + " contrôlé par " + controleur,
-                    poste: poste,
-                    controleur: controleur,
-                    app: "Hardt"
-                };
-                
-                await fetch(FCM_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                console.log('✅ Notification envoyée');
-            } catch (error) {
-                console.error('❌ Erreur envoi notification:', error);
-            }
+            const now = new Date();
+            const heure = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            const message = '🎣 *CONTRÔLE HARDT*\n📍 Poste ' + poste + '\n👮 ' + controleur + '\n🕐 ' + heure;
+            await envoyerNotificationTelegram(message);
         }
         
         // ===== CALENDRIER PAR DÉFAUT (2026) =====
@@ -834,7 +756,6 @@
                 document.getElementById('currentUserDisplay').textContent = '👤 ' + selectedUser;
                 setUserPresence(selectedUser);
                 listenOnlineUsers();
-                initNotifications();
                 setupFirebaseListeners(); 
                 renderMonths(); 
                 updateCounts(); 
