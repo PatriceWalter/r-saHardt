@@ -559,11 +559,15 @@
         
         // ===== FONCTIONS CALENDRIER =====
         function getJoursOuverture() {
-            return calendrierConfig.joursOuverture || DEFAULT_JOURS_OUVERTURE;
+            const j = calendrierConfig.joursOuverture;
+            if (!j || Object.keys(j).length === 0) return DEFAULT_JOURS_OUVERTURE;
+            return j;
         }
         
         function getFermeMatin() {
-            return calendrierConfig.fermeMatin || DEFAULT_FERME_MATIN;
+            const f = calendrierConfig.fermeMatin;
+            if (!f || Object.keys(f).length === 0) return DEFAULT_FERME_MATIN;
+            return f;
         }
         
         function getAnnee() {
