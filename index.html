@@ -196,7 +196,7 @@
             </div>
             <div class="nav-right"><a onclick="logout()">Déconnexion 🔒</a></div>
         </div>
-        <div id="monthsPage" class="content"><div class="months-grid" id="monthsGrid"></div></div>
+        <div id="monthsPage" class="content"><div class="months-grid" id="monthsGrid"><div style="text-align:center;padding:40px;color:#666;grid-column:1/-1;font-size:1.1em;">⏳ Chargement des données...</div></div></div>
         <div id="infractionsMenuPage" class="content hidden">
             <button class="btn-back" onclick="showMonths()">← Retour Accueil</button>
             <div class="months-grid">
@@ -430,17 +430,25 @@
                     if (userToUse) {
                         localStorage.setItem('hardtUser', userToUse);
                         // Attendre que le select soit rempli puis sélectionner
-                        setTimeout(function() {
-                            const select = document.getElementById('loginUser');
-                            if (select) {
-                                for (let opt of select.options) {
-                                    if (opt.value === userToUse) { opt.selected = true; break; }
-                                }
+                        // Attendre que le select soit rempli (Firebase peut être lent sur mobile)
+                    var autoTries = 0;
+                    var autoInterval = setInterval(function() {
+                        autoTries++;
+                        const select = document.getElementById('loginUser');
+                        if (select && select.options.length > 1) {
+                            clearInterval(autoInterval);
+                            for (let opt of select.options) {
+                                if (opt.value === userToUse) { opt.selected = true; break; }
                             }
-                        }, 300);
+                            document.getElementById('loginPass').value = '911';
+                            checkLogin();
+                        } else if (autoTries > 50) { // 5 secondes max
+                            clearInterval(autoInterval);
+                            document.getElementById('loginPass').value = '911';
+                            checkLogin();
+                        }
+                    }, 100);
                     }
-                    document.getElementById('loginPass').value = '911'; 
-                    setTimeout(function() { checkLogin(); }, 600); 
                 }); 
             } 
         })();
@@ -533,12 +541,15 @@
             dbCentral.ref('controleurs').on('value', (snapshot) => { const data = snapshot.val(); controleurs = data ? (Array.isArray(data) ? data : Object.values(data)) : []; updateControleurSelect(); updateMotifControleurSelect(); updateExclusionControleurSelect(); });
             
             // Écouter la config calendrier
+            let pecheursLoaded = false;
             database.ref('calendrierConfig').on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
                     calendrierConfig = data;
+                    if (!calendrierConfig.joursOuverture) calendrierConfig.joursOuverture = DEFAULT_JOURS_OUVERTURE;
+                    if (!calendrierConfig.fermeMatin) calendrierConfig.fermeMatin = DEFAULT_FERME_MATIN;
                 } else {
-                    // Première fois : migrer les données par défaut
+                    // Première fois : initialiser avec les DEFAULT et sauvegarder
                     calendrierConfig = {
                         annee: 2026,
                         joursOuverture: DEFAULT_JOURS_OUVERTURE,
@@ -547,7 +558,9 @@
                     saveCalendrierConfig();
                 }
                 updateMainTitle();
-                renderMonths();
+                renderMonths(); // Toujours re-rendre les mois quand Firebase répond
+                // Charger les pêcheurs une seule fois après que Firebase est opérationnel
+                if (!pecheursLoaded) { pecheursLoaded = true; loadPecheursListe(); }
             });
         }
         
@@ -559,11 +572,13 @@
         
         // ===== FONCTIONS CALENDRIER =====
         function getJoursOuverture() {
-            return calendrierConfig.joursOuverture || DEFAULT_JOURS_OUVERTURE;
+            const j = calendrierConfig.joursOuverture;
+            return (j && Object.keys(j).length > 0) ? j : DEFAULT_JOURS_OUVERTURE;
         }
         
         function getFermeMatin() {
-            return calendrierConfig.fermeMatin || DEFAULT_FERME_MATIN;
+            const f = calendrierConfig.fermeMatin;
+            return (f && Object.keys(f).length > 0) ? f : DEFAULT_FERME_MATIN;
         }
         
         function getAnnee() {
@@ -772,8 +787,7 @@
                 document.getElementById('currentUserDisplay').textContent = '👤 ' + selectedUser;
                 setUserPresence(selectedUser);
                 listenOnlineUsers();
-                setupFirebaseListeners(); setTimeout(loadPecheursListe, 1500);
-                renderMonths(); 
+                setupFirebaseListeners();
                 updateCounts(); 
             } else { 
                 document.getElementById('errorLogin').textContent = '❌ Mot de passe incorrect';
@@ -907,14 +921,8 @@
         
         function renderMonths() { 
             const grid = document.getElementById('monthsGrid'); 
-            const joursOuverture = calendrierConfig.joursOuverture;
-
-            // Firebase pas encore chargé : afficher un loader
-            if (!joursOuverture || Object.keys(joursOuverture).length === 0) {
-                grid.innerHTML = '<div style="text-align:center; padding:40px; color:#666; grid-column:1/-1; font-size:1.1em;">⏳ Chargement du calendrier...</div>';
-                return;
-            }
-
+            const joursOuverture = getJoursOuverture();
+            
             grid.innerHTML = MOIS_NOMS.map((m, i) => { 
                 const moisNum = i + 1;
                 const jours = joursOuverture[moisNum] || [];
@@ -1475,8 +1483,7 @@
                             setUserPresence(savedUser);
                         }
                         listenOnlineUsers();
-                        setupFirebaseListeners(); setTimeout(loadPecheursListe, 1500);
-                        renderMonths(); 
+                        setupFirebaseListeners();
                         updateCounts(); 
                     } 
                 }, 100); 
@@ -1527,7 +1534,7 @@
         document.getElementById('resaNavRetour').addEventListener('click', function() {
             var isHome = !document.getElementById('monthsPage').classList.contains('hidden');
             if (isHome) {
-                window.location.href = document.referrer || 'index.html';
+                showMonths();
                 return;
             }
             var prev = resaPageHistory.pop();
