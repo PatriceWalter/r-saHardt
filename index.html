@@ -2,13 +2,20 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gestion Postes Hardt 2026</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2e9; min-height: 100vh; margin: 0; }
         body.login-mode { display: flex; align-items: center; justify-content: center; padding: 20px; background: #f0f2e9; }
         body.app-mode { display: block; padding: 20px; background: #f0f2e9; }
+        
+        /* OPTIMISATION MOBILE : Rend les clics instantanés (supprime le délai de 300ms) */
+        .month-card, .day-card, .poste-box, .calendar-day, .btn, .resa-nav-btn, .nav-left a, .nav-left button, .nav-right a, .control-zone {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         #loginPage { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 2px 20px rgba(0,0,0,0.1); border: 1px solid #d5d8ce; width: 100%; max-width: 400px; text-align: center; }
         #loginPage h2 { color: #1a472a; margin-bottom: 25px; font-size: 1.5em; }
         .login-input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #d5d8ce; border-radius: 8px; font-size: 16px; outline: none; }
@@ -68,7 +75,7 @@
         .stat-box { background: #fff; color: #333; border-bottom: 3px solid #e8a838; padding: 15px 10px; border-radius: 10px; text-align: center; }
         .stat-number { font-size: 2em; font-weight: bold; color: #1a472a; }
         .stat-label { font-size: 0.9em; }
-        .modal, .alert-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow-y: auto; padding: 20px; }
+        .modal, .alert-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px; }
         .modal-content, .alert-content { background: white; margin: 20px auto; border-radius: 14px; border: 1px solid #d5d8ce; width: 100%; max-width: 500px; overflow: hidden; animation: slideDown 0.3s; }
         .modal-content.large { max-width: 700px; }
         .modal-header { background: linear-gradient(135deg, #1a472a 0%, #1565c0 100%); color: white; padding: 20px; text-align: center; }
@@ -153,7 +160,6 @@
         <p id="firebaseStatus" style="margin-top:15px; font-size:0.85em; color:#666;"></p>
     </div>
     
-    <!-- Modal changement utilisateur -->
     <div id="changeUserModal" class="modal">
         <div class="modal-content" style="max-width:400px;">
             <div class="modal-header" style="background:#ff9800;"><h2>👤 Changement d'utilisateur</h2></div>
@@ -215,7 +221,6 @@
         </div>
     </div>
     
-    <!-- Modal Poste -->
     <div id="posteModal" class="modal">
         <div class="modal-content">
             <div class="modal-header"><h2 id="modalTitle">Poste</h2><p id="modalDate"></p></div>
@@ -246,26 +251,22 @@
         </div>
     </div>
     
-    <!-- Modal Admin -->
     <div id="adminModal" class="modal">
         <div class="modal-content large">
             <div class="modal-header"><h2>⚙️ Administration</h2></div>
             <div class="modal-body">
-                <!-- Section Calendrier -->
                 <div class="admin-section">
                     <h3>📅 Gestion du Calendrier</h3>
                     <p style="color:#666; font-size:0.9em; margin-bottom:15px;">Configurer l'année, les mois actifs et les jours d'ouverture</p>
                     <button class="btn btn-calendar" onclick="openCalendarManager()" style="width:100%;">📅 Ouvrir le Gestionnaire de Calendrier</button>
                 </div>
                 
-                <!-- Section Google Sheet -->
                 <div class="admin-section">
                     <h3>🔄 Synchronisation Google Sheet</h3>
                     <button class="btn" onclick="syncFromGoogleSheets()" style="width:100%; background: #3182ce; color: white; margin-bottom: 10px;">🔄 Synchroniser depuis Google Sheet</button>
                     <button class="btn" onclick="exportToGoogleSheets()" style="width:100%; background: #28a745; color: white;">📤 Exporter vers Google Sheet</button>
                 </div>
                 
-                <!-- Section Pêcheurs Valides -->
                 <div class="admin-section">
                     <h3>🪪 Liste Pêcheurs Valides</h3>
                     <label>NOM</label><input type="text" id="adminAddNom" placeholder="NOM">
@@ -279,29 +280,24 @@
         </div>
     </div>
     
-    <!-- Modal Gestionnaire Calendrier -->
     <div id="calendarModal" class="modal">
         <div class="modal-content large">
             <div class="modal-header" style="background: linear-gradient(135deg, #1a472a 0%, #1565c0 100%);"><h2>📅 Gestionnaire de Calendrier</h2></div>
             <div class="modal-body">
-                <!-- Sélecteur d'année -->
                 <div class="year-selector">
                     <button onclick="changeYear(-1)">◀</button>
                     <span id="calendarYear">2026</span>
                     <button onclick="changeYear(1)">▶</button>
                 </div>
                 
-                <!-- Mois actifs -->
                 <h3 style="margin-bottom:10px; color:#1a472a;">📆 Mois actifs</h3>
                 <div class="months-checkbox-grid" id="monthsCheckboxGrid"></div>
                 
-                <!-- Bouton configurer jours -->
                 <h3 style="margin: 20px 0 10px; color:#1a472a;">📋 Configurer les jours d'ouverture</h3>
                 <select id="selectMonthConfig" style="margin-bottom:15px;" onchange="loadMonthCalendar()">
                     <option value="">-- Sélectionner un mois --</option>
                 </select>
                 
-                <!-- Calendrier du mois -->
                 <div id="monthCalendarZone" style="display:none;">
                     <div class="calendar-legend">
                         <div class="legend-item"><div class="legend-box closed"></div> Fermé</div>
@@ -322,7 +318,6 @@
         </div>
     </div>
     
-    <!-- Modal Avertissement -->
     <div id="motifModal" class="modal">
         <div class="modal-content">
             <div class="modal-header" id="motifHeader" style="background:#ffc107;"><h2>⚠️ Avertissement</h2></div>
@@ -341,7 +336,6 @@
         </div>
     </div>
     
-    <!-- Modal Exclusion -->
     <div id="exclusionModal" class="modal">
         <div class="modal-content">
             <div class="modal-header" style="background:#dc3545;"><h2>🚫 Exclusion</h2></div>
@@ -376,7 +370,6 @@
         </div>
     </div>
     
-    <!-- Modal Alerte -->
     <div id="alertModal" class="alert-modal">
         <div class="alert-content">
             <div id="alertHeader" style="background:linear-gradient(135deg, #1a472a 0%, #1565c0 100%); color:white; padding:15px; text-align:center;"><h3>INFO</h3></div>
@@ -385,7 +378,6 @@
         </div>
     </div>
     
-    <!-- Modal Contrôleur -->
     <div id="controleurModal" class="modal">
         <div class="modal-content" style="max-width:350px;">
             <div class="modal-header" style="background:linear-gradient(135deg, #1a472a 0%, #1565c0 100%);"><h2>👮 Contrôle</h2></div>
@@ -515,8 +507,19 @@
                 statusEl.className = "sync-status " + (snap.val() ? "online" : "offline"); 
             }); 
             database.ref('reservations').on('value', (snapshot) => { reservations = snapshot.val() || {}; if (!document.getElementById('postesPage').classList.contains('hidden')) renderPostes(); }); 
-            // INFRACTIONS: Lecture depuis la base CENTRALE (synchronisée avec appli contrôleurs)
-            dbCentral.ref('infractions').on('value', (snapshot) => { infractions = snapshot.val() || { avertissements: [], bannis: [], archives: [] }; if (!infractions.avertissements) infractions.avertissements = []; if (!infractions.bannis) infractions.bannis = []; if (!infractions.archives) infractions.archives = []; updateCounts(); console.log('📡 Infractions synchronisées depuis base centrale'); }); 
+            
+            // CORRECTION CRITIQUE DU BUG DE SAUVEGARDE : Conversion forcée en Array pour éviter le blocage JS "find is not a function"
+            dbCentral.ref('infractions').on('value', (snapshot) => { 
+                const data = snapshot.val() || {}; 
+                infractions = {
+                    avertissements: Array.isArray(data.avertissements) ? data.avertissements : Object.values(data.avertissements || {}),
+                    bannis: Array.isArray(data.bannis) ? data.bannis : Object.values(data.bannis || {}),
+                    archives: Array.isArray(data.archives) ? data.archives : Object.values(data.archives || {})
+                };
+                updateCounts(); 
+                console.log('📡 Infractions synchronisées et sécurisées'); 
+            }); 
+            
             dbCentral.ref('validUsers').on('value', (snapshot) => { const data = snapshot.val(); validUsers = data ? Object.values(data) : []; if (!document.getElementById('postesPage').classList.contains('hidden')) renderPostes(); console.log('🪪 Cartes valides synchronisées depuis base centrale'); }); 
             // CONTROLEURS: Lecture depuis la base CENTRALE
             dbCentral.ref('controleurs').on('value', (snapshot) => { const data = snapshot.val(); controleurs = data ? (Array.isArray(data) ? data : Object.values(data)) : []; updateControleurSelect(); updateMotifControleurSelect(); updateExclusionControleurSelect(); });
@@ -989,7 +992,44 @@
         function openModal(n, data) { curP = n; document.getElementById('modalTitle').textContent = 'Poste ' + n; document.getElementById('modalDate').textContent = curFullDate + " " + getAnnee(); document.getElementById('modalNom').value = data.nom || ''; document.getElementById('modalPrenom').value = data.prenom || ''; document.getElementById('modalHeure').value = data.heure || ''; updateControlText(); checkCardBadge(); document.getElementById('checkZone').style.display = n === 4 ? 'none' : 'block'; document.getElementById('infractionsButtons').style.display = (data.nom && n !== 4) ? 'block' : 'none'; document.getElementById('posteModal').style.display = 'block'; }
         function closeModal() { document.getElementById('suggestionsBox').style.display = 'none'; document.getElementById('posteModal').style.display = 'none'; }
         
-        function saveModal() { let nom = document.getElementById('modalNom').value.trim().toUpperCase(); let prenom = document.getElementById('modalPrenom').value.trim(); if (!nom || !prenom) { closeModal(); return; } prenom = prenom.charAt(0).toUpperCase() + prenom.slice(1).toLowerCase(); const banni = infractions.bannis ? infractions.bannis.find(b => { if (!b.nom || b.nom.toUpperCase() !== nom || !b.prenom || b.prenom.toLowerCase() !== prenom.toLowerCase()) return false; if (b.typeExclusion === 'temporaire' && b.dateFin) { const now = new Date(); const fin = new Date(b.dateFin); if (now > fin) return false; } return true; }) : null; if (banni) { const typeMsg = banni.typeExclusion === 'temporaire' ? `EXCLU TEMPORAIREMENT jusqu'au ${new Date(banni.dateFin).toLocaleDateString('fr-FR')}` : 'EXCLU DÉFINITIVEMENT'; showAlert(`🚫 ${nom} ${prenom} est ${typeMsg} !`); return; } if (!reservations[curDKey]) reservations[curDKey] = {}; const existing = reservations[curDKey][curP] || {}; reservations[curDKey][curP] = { nom: nom, prenom: prenom, controlled: existing.controlled || false, controleur: existing.controleur || '', heure: existing.heure || '' }; saveReservations(); renderPostes(); closeModal(); }
+        // CORRECTION CRITIQUE DU BUG DE SAUVEGARDE ET GESTION DES ERREURS
+        function saveModal() { 
+            try {
+                let nom = document.getElementById('modalNom').value.trim().toUpperCase(); 
+                let prenom = document.getElementById('modalPrenom').value.trim(); 
+                if (!nom || !prenom) { closeModal(); return; } 
+                
+                prenom = prenom.charAt(0).toUpperCase() + prenom.slice(1).toLowerCase(); 
+                
+                const banni = infractions.bannis ? infractions.bannis.find(b => { 
+                    if (!b || !b.nom || b.nom.toUpperCase() !== nom || !b.prenom || b.prenom.toLowerCase() !== prenom.toLowerCase()) return false; 
+                    if (b.typeExclusion === 'temporaire' && b.dateFin) { 
+                        const now = new Date(); 
+                        const fin = new Date(b.dateFin); 
+                        if (now > fin) return false; 
+                    } 
+                    return true; 
+                }) : null; 
+                
+                if (banni) { 
+                    const typeMsg = banni.typeExclusion === 'temporaire' ? `EXCLU TEMPORAIREMENT jusqu'au ${new Date(banni.dateFin).toLocaleDateString('fr-FR')}` : 'EXCLU DÉFINITIVEMENT'; 
+                    showAlert(`🚫 ${nom} ${prenom} est ${typeMsg} !`); 
+                    return; 
+                } 
+                
+                if (!reservations[curDKey]) reservations[curDKey] = {}; 
+                const existing = reservations[curDKey][curP] || {}; 
+                reservations[curDKey][curP] = { nom: nom, prenom: prenom, controlled: existing.controlled || false, controleur: existing.controleur || '', heure: existing.heure || '' }; 
+                
+                saveReservations(); 
+                renderPostes(); 
+                closeModal();
+            } catch (erreur) {
+                console.error("Erreur critique lors de la sauvegarde:", erreur);
+                showAlert("❌ Impossible d'enregistrer la réservation. Code erreur : " + erreur.message);
+            }
+        }
+        
         function deleteModal() { if (reservations[curDKey] && reservations[curDKey][curP]) { delete reservations[curDKey][curP]; saveReservations(); renderPostes(); } closeModal(); }
         function updateControlText() { const heure = document.getElementById('modalHeure').value; if (heure) { document.getElementById('controlStatusText').textContent = "✅ Contrôlé à " + heure; document.getElementById('controlStatusText').style.color = "#17a2b8"; } else { document.getElementById('controlStatusText').textContent = "Non contrôlé"; document.getElementById('controlStatusText').style.color = "#666"; } }
         function isUserValid(nom, prenom) { return validUsers.some(u => u.nom && u.prenom && u.nom.toLowerCase() === nom.trim().toLowerCase() && u.prenom.toLowerCase() === prenom.trim().toLowerCase()); }
@@ -1528,7 +1568,6 @@
         });
     </script>
 
-    <!-- Bottom Nav Bar -->
     <div class="resa-nav" id="resaNav">
         <button class="resa-nav-btn" id="resaNavAccueil">🏠 Accueil</button>
         <button class="resa-nav-btn" id="resaNavRetour">← Retour</button>
