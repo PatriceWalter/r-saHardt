@@ -559,15 +559,11 @@
         
         // ===== FONCTIONS CALENDRIER =====
         function getJoursOuverture() {
-            const j = calendrierConfig.joursOuverture;
-            if (!j || Object.keys(j).length === 0) return DEFAULT_JOURS_OUVERTURE;
-            return j;
+            return calendrierConfig.joursOuverture || DEFAULT_JOURS_OUVERTURE;
         }
         
         function getFermeMatin() {
-            const f = calendrierConfig.fermeMatin;
-            if (!f || Object.keys(f).length === 0) return DEFAULT_FERME_MATIN;
-            return f;
+            return calendrierConfig.fermeMatin || DEFAULT_FERME_MATIN;
         }
         
         function getAnnee() {
@@ -911,8 +907,14 @@
         
         function renderMonths() { 
             const grid = document.getElementById('monthsGrid'); 
-            const joursOuverture = getJoursOuverture();
-            
+            const joursOuverture = calendrierConfig.joursOuverture;
+
+            // Firebase pas encore chargé : afficher un loader
+            if (!joursOuverture || Object.keys(joursOuverture).length === 0) {
+                grid.innerHTML = '<div style="text-align:center; padding:40px; color:#666; grid-column:1/-1; font-size:1.1em;">⏳ Chargement du calendrier...</div>';
+                return;
+            }
+
             grid.innerHTML = MOIS_NOMS.map((m, i) => { 
                 const moisNum = i + 1;
                 const jours = joursOuverture[moisNum] || [];
