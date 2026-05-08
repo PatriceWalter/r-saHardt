@@ -196,7 +196,7 @@
             </div>
             <div class="nav-right"><a onclick="logout()">Déconnexion 🔒</a></div>
         </div>
-        <div id="monthsPage" class="content"><div class="months-grid" id="monthsGrid"><div style="text-align:center;padding:40px;color:#666;grid-column:1/-1;font-size:1.1em;">⏳ Chargement des données...</div></div></div>
+        <div id="monthsPage" class="content"><div class="months-grid" id="monthsGrid"></div></div>
         <div id="infractionsMenuPage" class="content hidden">
             <button class="btn-back" onclick="showMonths()">← Retour Accueil</button>
             <div class="months-grid">
@@ -527,41 +527,12 @@
         // ===== FIREBASE LISTENERS =====
         function setupFirebaseListeners() { 
             if (!firebaseReady) return; 
-            const connectedRef = database.ref(".info/connected"); 
-            connectedRef.on("value", (snap) => { 
-                const statusEl = document.getElementById('syncStatus'); 
-                statusEl.textContent = snap.val() ? "🟢 En ligne" : "🔴 Hors ligne"; 
-                statusEl.className = "sync-status " + (snap.val() ? "online" : "offline"); 
-            }); 
+            database.ref(".info/connected").on("value", (snap) => { const s = document.getElementById('syncStatus'); s.textContent = snap.val() ? "🟢 En ligne" : "🔴 Hors ligne"; s.className = "sync-status " + (snap.val() ? "online" : "offline"); }); 
             database.ref('reservations').on('value', (snapshot) => { reservations = snapshot.val() || {}; if (!document.getElementById('postesPage').classList.contains('hidden')) renderPostes(); }); 
-            // INFRACTIONS: Lecture depuis la base CENTRALE (synchronisée avec appli contrôleurs)
-            dbCentral.ref('infractions').on('value', (snapshot) => { infractions = snapshot.val() || { avertissements: [], bannis: [], archives: [] }; if (!infractions.avertissements) infractions.avertissements = []; if (!infractions.bannis) infractions.bannis = []; if (!infractions.archives) infractions.archives = []; updateCounts(); console.log('📡 Infractions synchronisées depuis base centrale'); }); 
-            dbCentral.ref('validUsers').on('value', (snapshot) => { const data = snapshot.val(); validUsers = data ? Object.values(data) : []; if (!document.getElementById('postesPage').classList.contains('hidden')) renderPostes(); console.log('🪪 Cartes valides synchronisées depuis base centrale'); }); 
-            // CONTROLEURS: Lecture depuis la base CENTRALE
-            dbCentral.ref('controleurs').on('value', (snapshot) => { const data = snapshot.val(); controleurs = data ? (Array.isArray(data) ? data : Object.values(data)) : []; updateControleurSelect(); updateMotifControleurSelect(); updateExclusionControleurSelect(); });
-            
-            // Écouter la config calendrier
-            let pecheursLoaded = false;
-            database.ref('calendrierConfig').on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    calendrierConfig = data;
-                    if (!calendrierConfig.joursOuverture) calendrierConfig.joursOuverture = DEFAULT_JOURS_OUVERTURE;
-                    if (!calendrierConfig.fermeMatin) calendrierConfig.fermeMatin = DEFAULT_FERME_MATIN;
-                } else {
-                    // Première fois : initialiser avec les DEFAULT et sauvegarder
-                    calendrierConfig = {
-                        annee: 2026,
-                        joursOuverture: DEFAULT_JOURS_OUVERTURE,
-                        fermeMatin: DEFAULT_FERME_MATIN
-                    };
-                    saveCalendrierConfig();
-                }
-                updateMainTitle();
-                renderMonths(); // Toujours re-rendre les mois quand Firebase répond
-                // Charger les pêcheurs une seule fois après que Firebase est opérationnel
-                if (!pecheursLoaded) { pecheursLoaded = true; loadPecheursListe(); }
-            });
+            dbCentral.ref('infractions').on('value', (snapshot) => { infractions = snapshot.val() || { avertissements: [], bannis: [], archives: [] }; if (!infractions.avertissements) infractions.avertissements = []; if (!infractions.bannis) infractions.bannis = []; if (!infractions.archives) infractions.archives = []; updateCounts(); }); 
+            dbCentral.ref('validUsers').on('value', (snapshot) => { const data = snapshot.val(); validUsers = data ? Object.values(data) : []; if (!document.getElementById('postesPage').classList.contains('hidden')) renderPostes(); }); 
+            dbCentral.ref('controleurs').on('value', (snapshot) => { const data = snapshot.val(); controleurs = data ? (Array.isArray(data) ? data : Object.values(data)) : []; updateControleurSelect(); updateMotifControleurSelect(); updateExclusionControleurSelect(); }); 
+            database.ref('calendrierConfig').on('value', (snapshot) => { const data = snapshot.val(); if (data) { calendrierConfig = data; } else { calendrierConfig = { annee: 2026, joursOuverture: DEFAULT_JOURS_OUVERTURE, fermeMatin: DEFAULT_FERME_MATIN }; saveCalendrierConfig(); } updateMainTitle(); renderMonths(); }); 
         }
         
         function saveReservations() { if (!firebaseReady) return; database.ref('reservations').set(reservations); }
@@ -571,15 +542,8 @@
         function saveCalendrierConfig() { if (!firebaseReady) return; database.ref('calendrierConfig').set(calendrierConfig); }
         
         // ===== FONCTIONS CALENDRIER =====
-        function getJoursOuverture() {
-            const j = calendrierConfig.joursOuverture;
-            return (j && Object.keys(j).length > 0) ? j : DEFAULT_JOURS_OUVERTURE;
-        }
-        
-        function getFermeMatin() {
-            const f = calendrierConfig.fermeMatin;
-            return (f && Object.keys(f).length > 0) ? f : DEFAULT_FERME_MATIN;
-        }
+        function getJoursOuverture() { return calendrierConfig.joursOuverture || DEFAULT_JOURS_OUVERTURE; }
+        function getFermeMatin() { return calendrierConfig.fermeMatin || DEFAULT_FERME_MATIN; }
         
         function getAnnee() {
             return calendrierConfig.annee || 2026;
@@ -787,7 +751,9 @@
                 document.getElementById('currentUserDisplay').textContent = '👤 ' + selectedUser;
                 setUserPresence(selectedUser);
                 listenOnlineUsers();
-                setupFirebaseListeners();
+                setupFirebaseListeners(); 
+                setTimeout(loadPecheursListe, 1500);
+                renderMonths(); 
                 updateCounts(); 
             } else { 
                 document.getElementById('errorLogin').textContent = '❌ Mot de passe incorrect';
@@ -1483,7 +1449,9 @@
                             setUserPresence(savedUser);
                         }
                         listenOnlineUsers();
-                        setupFirebaseListeners();
+                        setupFirebaseListeners(); 
+                        setTimeout(loadPecheursListe, 1500);
+                        renderMonths(); 
                         updateCounts(); 
                     } 
                 }, 100); 
