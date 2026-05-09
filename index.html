@@ -8,7 +8,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2e9; min-height: 100vh; margin: 0; }
         body.login-mode { display: flex; align-items: center; justify-content: center; padding: 20px; background: #f0f2e9; }
-        body.app-mode { display: block; padding: 20px; background: #f0f2e9; }
+        body.app-mode { display: block; padding: 10px; background: #f0f2e9; padding-bottom: 90px; }
         
         /* OPTIMISATION MOBILE : Rend les clics instantanés (supprime le délai de 300ms) */
         .month-card, .day-card, .poste-box, .calendar-day, .btn, .resa-nav-btn, .nav-left a, .nav-left button, .nav-right a, .control-zone {
@@ -22,8 +22,8 @@
         .login-input:focus { border-color: #1565c0; }
         .btn-login { width: 100%; background: linear-gradient(135deg, #1a472a 0%, #1565c0 100%); color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1em; margin-top: 15px; transition: 0.3s; }
         .btn-login:hover { background: linear-gradient(135deg, #1a472a 0%, #1565c0 100%); }
-        #mainApp { display: none; max-width: 1200px; margin: 0 auto; background: white; border-radius: 14px; box-shadow: 0 2px 20px rgba(0,0,0,0.1); border: 1px solid #d5d8ce; overflow: hidden; }
-        .header { background: linear-gradient(135deg, #1a472a 0%, #1565c0 100%); color: white; padding: 30px 20px; text-align: center; position: relative; }
+        #mainApp { display: none; max-width: 1200px; margin: 0 auto; background: white; border-radius: 14px; box-shadow: 0 2px 20px rgba(0,0,0,0.1); border: 1px solid #d5d8ce; }
+        .header { background: linear-gradient(135deg, #1a472a 0%, #1565c0 100%); color: white; padding: 30px 20px; text-align: center; position: relative; border-radius: 14px 14px 0 0; }
         .header h1 { font-size: 1.5em; }
         .admin-gear { position: absolute; top: 15px; right: 20px; font-size: 1.5em; cursor: pointer; transition: 0.3s; }
         .admin-gear:hover { transform: rotate(90deg); }
@@ -40,7 +40,7 @@
         .nav-left .btn-controleur:hover { opacity: 0.9; }
         .nav-right a { color: #dc3545; text-decoration: none; font-weight: bold; cursor: pointer; padding: 8px 12px; border-radius: 5px; transition: 0.3s; }
         .nav-right a:hover { background: #dc3545; color: white; }
-        .content { padding: 20px; padding-bottom: 120px; background: #f0f2e9; }
+        .content { padding: 20px; padding-bottom: 60px; background: #f0f2e9; width: 100%; }
         .hidden { display: none !important; }
         .months-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
         .month-card { background: white; border: 2px solid #d5d8ce; border-radius: 10px; padding: 25px 15px; text-align: center; cursor: pointer; transition: 0.3s; }
@@ -138,11 +138,14 @@
         .admin-section h3 { color: #1a472a; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
         
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @media (max-width: 768px) { body.app-mode { padding: 10px; } .header { padding: 20px 15px; } .header h1 { font-size: 1.2em; } .content { padding: 15px; padding-bottom: 120px; } .months-grid { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; } .postes-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; } .calendar-grid { gap: 3px; } .calendar-day { padding: 8px 3px; font-size: 0.9em; min-height: 40px; } .months-checkbox-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 480px) { body.app-mode { padding: 5px; } #loginPage { padding: 25px 20px; margin: 10px; } .header { padding: 15px 10px; } .header h1 { font-size: 1em; padding: 0 30px; } .breadcrumb { padding: 8px 10px; flex-direction: column; } .months-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } .postes-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } .modal-content { margin: 5px; } .calendar-day { padding: 6px 2px; font-size: 0.8em; } }
+        
+        /* ADAPTATION MOBILE */
+        @media (max-width: 768px) { body.app-mode { padding: 5px; padding-bottom: 80px; } .header { padding: 20px 15px; } .header h1 { font-size: 1.2em; } .content { padding: 10px; padding-bottom: 60px; } .months-grid { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; } .postes-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; } .calendar-grid { gap: 3px; } .calendar-day { padding: 8px 3px; font-size: 0.9em; min-height: 40px; } .months-checkbox-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 480px) { body.app-mode { padding: 0px; padding-bottom: 80px; } #loginPage { padding: 25px 20px; margin: 10px; } .header { padding: 15px 10px; border-radius: 0; } .header h1 { font-size: 1em; padding: 0 30px; } .breadcrumb { padding: 8px 10px; flex-direction: column; } .months-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } .days-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } .postes-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } .modal-content { margin: 5px; } .calendar-day { padding: 6px 2px; font-size: 0.8em; } }
     
+        /* BARRE DE NAVIGATION EN BAS */
         .resa-nav { display: flex; justify-content: center; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000; background: linear-gradient(135deg,#1a472a 0%,#1565c0 100%); padding: 10px 16px 20px; gap: 12px; box-shadow: 0 -2px 10px rgba(0,0,0,0.2); }
-                .resa-nav-btn { background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.2); padding: 10px 24px; border-radius: 12px; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; flex: 1; text-align: center; max-width: 200px; font-family: inherit; }
+        .resa-nav-btn { background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.2); padding: 10px 24px; border-radius: 12px; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; flex: 1; text-align: center; max-width: 200px; font-family: inherit; }
         .btn-back { display: none !important; }
     </style>
 </head>
@@ -191,25 +194,26 @@
             </div>
             <div class="nav-right"><a onclick="logout()">Déconnexion 🔒</a></div>
         </div>
-        <div id="monthsPage" class="content"><div class="months-grid" id="monthsGrid"></div></div>
-        <div id="infractionsMenuPage" class="content hidden">
+        
+        <div id="monthsPage" class="content" style="display: none;"><div class="months-grid" id="monthsGrid"></div></div>
+        <div id="infractionsMenuPage" class="content" style="display: none;">
             <button class="btn-back" onclick="showMonths()">← Retour Accueil</button>
             <div class="months-grid">
                 <div class="month-card" onclick="showInfractionList('avertissements')" style="border-color: #ffc107;"><div style="font-size: 2.5em;">⚠️</div><div class="month-name">AVERTISSEMENTS</div><p id="countAvertissement" style="font-weight: bold; margin-top:10px;">0 dossier(s)</p></div>
                 <div class="month-card" onclick="showInfractionList('bannis')" style="border-color: #dc3545;"><div style="font-size: 2.5em;">🚫</div><div class="month-name">EXCLUSIONS</div><p id="countBanni" style="font-weight: bold; margin-top:10px;">0 dossier(s)</p></div>
             </div>
         </div>
-        <div id="infractionsDetailPage" class="content hidden">
+        <div id="infractionsDetailPage" class="content" style="display: none;">
             <button class="btn-back" onclick="showInfractionsMenu()">← Retour</button>
             <h2 id="detailTitle" style="text-align: center; margin-bottom: 20px; color: #1a472a;"></h2>
             <div id="detailList"></div>
         </div>
-        <div id="daysPage" class="content hidden">
+        <div id="daysPage" class="content" style="display: none;">
             <button class="btn-back" onclick="showMonths()">← Retour</button>
             <h2 id="monthTitle" style="text-align: center; margin-bottom: 20px; color: #1a472a;"></h2>
             <div class="days-grid" id="daysGrid"></div>
         </div>
-        <div id="postesPage" class="content hidden">
+        <div id="postesPage" class="content" style="display: none;">
             <button class="btn-back" onclick="backToDays()">← Retour</button>
             <h2 id="postePageTitle" style="text-align: center; color: #1a472a; margin-bottom: 15px; text-transform: capitalize; font-size: 1.4em;"></h2>
             <div class="stats-bar">
@@ -395,6 +399,11 @@
         </div>
     </div>
 
+    <div class="resa-nav" id="resaNav">
+        <button class="resa-nav-btn" id="resaNavAccueil" onclick="showMonths()">🏠 Accueil</button>
+        <button class="resa-nav-btn" id="resaNavRetour" onclick="goBackHistory()">← Retour</button>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
@@ -491,12 +500,123 @@
         
         const MOIS_NOMS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
         
-        // ===== VARIABLES GLOBALES =====
+        // ===== VARIABLES GLOBALES ET NAVIGATION =====
         let reservations = {}, infractions = { avertissements: [], bannis: [] }, validUsers = [], controleurs = [];
         let calendrierConfig = { annee: 2026, joursOuverture: {}, fermeMatin: {} };
         let pendingControlePoste = null, curM, curMName, curDKey, curP, curFullDate, pendingSanctionType;
         let tempCalendarConfig = {}; // Config temporaire pendant l'édition
         
+        // Historique de navigation intégré
+        let resaPageHistory = [];
+
+        function getVisiblePage() {
+            const pages = ['monthsPage', 'daysPage', 'postesPage', 'infractionsMenuPage', 'infractionsDetailPage'];
+            for (let i = 0; i < pages.length; i++) {
+                if (document.getElementById(pages[i]).style.display === 'block') return pages[i];
+            }
+            return 'monthsPage';
+        }
+
+        // ===== FIX D'AFFICHAGE MOBILE (Forçage du style en ligne) =====
+        function hideAll() { 
+            ['monthsPage', 'daysPage', 'postesPage', 'infractionsMenuPage', 'infractionsDetailPage'].forEach(id => { 
+                document.getElementById(id).style.display = 'none'; 
+            }); 
+        }
+
+        function showMonths() { 
+            resaPageHistory = [];
+            hideAll(); 
+            document.getElementById('monthsPage').style.display = 'block'; 
+            updateCounts();
+        }
+        
+        function showDays(m, name) { 
+            resaPageHistory.push('monthsPage');
+            curM = m; 
+            curMName = name; 
+            hideAll(); 
+            document.getElementById('daysPage').style.display = 'block'; 
+            document.getElementById('monthTitle').textContent = name + ' ' + getAnnee(); 
+            
+            const grid = document.getElementById('daysGrid'); 
+            const moisNum = m + 1;
+            const jours = getJoursOuverture()[moisNum] || []; 
+            const fermeMatin = getFermeMatin()[moisNum] || [];
+            const annee = getAnnee();
+            
+            grid.innerHTML = jours.map(j => { 
+                const date = new Date(annee, m, j); 
+                const dateFull = date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }); 
+                const key = `${annee}-${String(moisNum).padStart(2, '0')}-${String(j).padStart(2, '0')}`; 
+                const isFermeMatin = fermeMatin.includes(j); 
+                const dayRes = reservations[key] || {}; 
+                let postesRes = 0; 
+                for (let i = 1; i <= 12; i++) { if (i !== 4 && dayRes[i] && dayRes[i].nom) postesRes++; } 
+                const postesLibres = 11 - postesRes; 
+                return `<div class="day-card" onclick="showPostes(${j}, '${key}', '${dateFull}')"><div style="color: ${postesLibres === 0 ? '#dc3545' : '#28a745'}; font-size: 0.85em;">${postesLibres === 0 ? 'COMPLET' : postesLibres + ' libre(s)'}</div><div class="day-number">${dateFull}</div>${isFermeMatin ? '<div class="closed-morning">⚠️ FERMÉ LE MATIN</div>' : ''}</div>`; 
+            }).join(''); 
+        }
+        
+        function showPostes(j, key, dateFull) { 
+            resaPageHistory.push(getVisiblePage());
+            curDKey = key; 
+            curFullDate = dateFull; 
+            hideAll(); 
+            document.getElementById('postesPage').style.display = 'block'; 
+            document.getElementById('postePageTitle').textContent = dateFull + " " + getAnnee(); 
+            renderPostes(); 
+        }
+        
+        function showInfractionsMenu() { 
+            resaPageHistory.push(getVisiblePage());
+            hideAll(); 
+            document.getElementById('infractionsMenuPage').style.display = 'block'; 
+            updateCounts(); 
+        }
+        
+        function showInfractionList(type) { 
+            resaPageHistory.push('infractionsMenuPage');
+            hideAll(); 
+            document.getElementById('infractionsDetailPage').style.display = 'block'; 
+            document.getElementById('detailTitle').textContent = type === 'avertissements' ? '⚠️ AVERTISSEMENTS' : '🚫 EXCLUSIONS'; 
+            
+            const list = infractions[type] || []; 
+            const container = document.getElementById('detailList'); 
+            
+            if (list.length === 0) { 
+                container.innerHTML = '<p style="text-align:center; color:#666;">Aucun dossier</p>'; 
+                return; 
+            } 
+            
+            if (type === 'avertissements') { 
+                container.innerHTML = list.map((item, index) => `<div class="infraction-item ${item.archived ? 'archive' : 'avertissement'}"><div class="infraction-header"><div class="infraction-info"><strong>${(item.nom || 'N/A').toUpperCase()} ${item.prenom || ''}</strong>${item.archived ? '<span class="archive-badge">📁 Archivé</span>' : ''}${item.controleurSanction ? '<span class="controleur-badge">👮 ' + item.controleurSanction + '</span>' : ''}<br><small>📅 ${item.date || ''}</small><br><small>📝 ${item.motif || ''}</small></div><div class="infraction-actions"><button class="btn btn-delete" onclick="removeAvertissement(${index})">🗑️</button></div></div></div>`).join(''); 
+            } else { 
+                container.innerHTML = list.map((item, index) => { let typeLabel = item.typeExclusion === 'temporaire' ? `<span style="background:#ff9800;color:white;padding:2px 8px;border-radius:4px;font-size:0.8em;">⏱️ Temporaire</span>` : `<span style="background:#dc3545;color:white;padding:2px 8px;border-radius:4px;font-size:0.8em;">🚫 Définitive</span>`; let finExclusion = ''; let isExpired = false; if (item.typeExclusion === 'temporaire' && item.dateFin) { const now = new Date(); const fin = new Date(item.dateFin); isExpired = now > fin; if (isExpired) { typeLabel = `<span style="background:#28a745;color:white;padding:2px 8px;border-radius:4px;font-size:0.8em;">✅ Expirée</span>`; finExclusion = `<br><small style="color:#28a745;">Exclusion terminée le ${new Date(item.dateFin).toLocaleDateString('fr-FR')}</small>`; } else { finExclusion = `<br><small style="color:#ff9800;">Fin de l'exclusion : ${new Date(item.dateFin).toLocaleDateString('fr-FR')}</small>`; } } let motifsHtml = ''; if (item.motifs && item.motifs.length > 0) { motifsHtml = `<div class="motifs-list"><h4>📋 Historique des infractions :</h4>${item.motifs.map((m, i) => `<div class="motif-item"><strong>#${i+1}</strong> - ${m.date || ''}: ${m.motif || ''}${m.controleurSanction ? ' <em>(👮 ' + m.controleurSanction + ')</em>' : ''}</div>`).join('')}</div>`; } else if (item.motif) { motifsHtml = `<div class="motifs-list"><h4>📋 Motif :</h4><div class="motif-item">${item.motif}</div></div>`; } let actionButtons = isExpired ? `<button class="btn btn-save" onclick="validerExclusionExpiree(${index})" style="background:#28a745;">✅ Valider</button>` : `<button class="btn btn-unban" onclick="leverExclusion(${index})">🔓 Lever</button>`; actionButtons += `<button class="btn btn-delete" onclick="removeBanni(${index})">🗑️</button>`; return `<div class="infraction-item banni"><div class="infraction-header"><div class="infraction-info"><strong>${(item.nom || 'N/A').toUpperCase()} ${item.prenom || ''}</strong> ${typeLabel}${item.controleurSanction ? '<span class="controleur-badge">👮 ' + item.controleurSanction + '</span>' : ''}<br><small>📅 Exclu le : ${item.date || ''}</small>${finExclusion}${motifsHtml}</div><div class="infraction-actions">${actionButtons}</div></div></div>`; }).join(''); 
+            } 
+        }
+        
+        function backToDays() { 
+            resaPageHistory.pop();
+            showDays(curM, curMName); 
+            // On nettoie l'historique car showDays va rajouter "monthsPage"
+            resaPageHistory = ['monthsPage'];
+        }
+
+        function goBackHistory() {
+            if (document.getElementById('monthsPage').style.display === 'block') {
+                window.location.href = document.referrer || 'index.html';
+                return;
+            }
+            const prev = resaPageHistory.pop();
+            if (prev) {
+                hideAll();
+                document.getElementById(prev).style.display = 'block';
+            } else {
+                showMonths();
+            }
+        }
+
         // ===== FIREBASE LISTENERS =====
         function setupFirebaseListeners() { 
             if (!firebaseReady) return; 
@@ -506,9 +626,12 @@
                 statusEl.textContent = snap.val() ? "🟢 En ligne" : "🔴 Hors ligne"; 
                 statusEl.className = "sync-status " + (snap.val() ? "online" : "offline"); 
             }); 
-            database.ref('reservations').on('value', (snapshot) => { reservations = snapshot.val() || {}; if (!document.getElementById('postesPage').classList.contains('hidden')) renderPostes(); }); 
+            database.ref('reservations').on('value', (snapshot) => { 
+                reservations = snapshot.val() || {}; 
+                if (document.getElementById('postesPage').style.display === 'block') renderPostes(); 
+            }); 
             
-            // CORRECTION CRITIQUE DU BUG DE SAUVEGARDE : Conversion forcée en Array pour éviter le blocage JS "find is not a function"
+            // CORRECTION CRITIQUE DU BUG DE SAUVEGARDE (Maintien de la structure Array)
             dbCentral.ref('infractions').on('value', (snapshot) => { 
                 const data = snapshot.val() || {}; 
                 infractions = {
@@ -520,22 +643,27 @@
                 console.log('📡 Infractions synchronisées et sécurisées'); 
             }); 
             
-            dbCentral.ref('validUsers').on('value', (snapshot) => { const data = snapshot.val(); validUsers = data ? Object.values(data) : []; if (!document.getElementById('postesPage').classList.contains('hidden')) renderPostes(); console.log('🪪 Cartes valides synchronisées depuis base centrale'); }); 
-            // CONTROLEURS: Lecture depuis la base CENTRALE
-            dbCentral.ref('controleurs').on('value', (snapshot) => { const data = snapshot.val(); controleurs = data ? (Array.isArray(data) ? data : Object.values(data)) : []; updateControleurSelect(); updateMotifControleurSelect(); updateExclusionControleurSelect(); });
+            dbCentral.ref('validUsers').on('value', (snapshot) => { 
+                const data = snapshot.val(); 
+                validUsers = data ? Object.values(data) : []; 
+                if (document.getElementById('postesPage').style.display === 'block') renderPostes(); 
+                console.log('🪪 Cartes valides synchronisées depuis base centrale'); 
+            }); 
             
-            // Écouter la config calendrier
+            dbCentral.ref('controleurs').on('value', (snapshot) => { 
+                const data = snapshot.val(); 
+                controleurs = data ? (Array.isArray(data) ? data : Object.values(data)) : []; 
+                updateControleurSelect(); 
+                updateMotifControleurSelect(); 
+                updateExclusionControleurSelect(); 
+            });
+            
             database.ref('calendrierConfig').on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
                     calendrierConfig = data;
                 } else {
-                    // Première fois : migrer les données par défaut
-                    calendrierConfig = {
-                        annee: 2026,
-                        joursOuverture: DEFAULT_JOURS_OUVERTURE,
-                        fermeMatin: DEFAULT_FERME_MATIN
-                    };
+                    calendrierConfig = { annee: 2026, joursOuverture: DEFAULT_JOURS_OUVERTURE, fermeMatin: DEFAULT_FERME_MATIN };
                     saveCalendrierConfig();
                 }
                 updateMainTitle();
@@ -544,31 +672,18 @@
         }
         
         function saveReservations() { if (!firebaseReady) return; database.ref('reservations').set(reservations); }
-        // INFRACTIONS: Sauvegarde dans la base CENTRALE (synchronisée avec appli contrôleurs)
         function saveInfractions() { if (!firebaseReady) return; dbCentral.ref('infractions').set(infractions); }
         function saveValidUsers() { if (!firebaseReady) return; const usersObj = {}; validUsers.forEach((u, i) => { usersObj['user_' + i] = u; }); dbCentral.ref('validUsers').set(usersObj); }
         function saveCalendrierConfig() { if (!firebaseReady) return; database.ref('calendrierConfig').set(calendrierConfig); }
         
         // ===== FONCTIONS CALENDRIER =====
-        function getJoursOuverture() {
-            return calendrierConfig.joursOuverture || DEFAULT_JOURS_OUVERTURE;
-        }
-        
-        function getFermeMatin() {
-            return calendrierConfig.fermeMatin || DEFAULT_FERME_MATIN;
-        }
-        
-        function getAnnee() {
-            return calendrierConfig.annee || 2026;
-        }
-        
-        function updateMainTitle() {
-            document.getElementById('mainTitle').textContent = `📋 Réservation Postes Hardt ${getAnnee()}`;
-        }
+        function getJoursOuverture() { return calendrierConfig.joursOuverture || DEFAULT_JOURS_OUVERTURE; }
+        function getFermeMatin() { return calendrierConfig.fermeMatin || DEFAULT_FERME_MATIN; }
+        function getAnnee() { return calendrierConfig.annee || 2026; }
+        function updateMainTitle() { document.getElementById('mainTitle').textContent = `📋 Réservation Postes Hardt ${getAnnee()}`; }
         
         function openCalendarManager() {
             closeAdmin();
-            // Copier la config actuelle pour l'édition
             tempCalendarConfig = JSON.parse(JSON.stringify(calendrierConfig));
             document.getElementById('calendarYear').textContent = tempCalendarConfig.annee;
             renderMonthsCheckboxes();
@@ -578,9 +693,7 @@
             document.getElementById('calendarModal').style.display = 'block';
         }
         
-        function closeCalendarManager() {
-            document.getElementById('calendarModal').style.display = 'none';
-        }
+        function closeCalendarManager() { document.getElementById('calendarModal').style.display = 'none'; }
         
         function changeYear(delta) {
             tempCalendarConfig.annee += delta;
@@ -592,40 +705,28 @@
         function renderMonthsCheckboxes() {
             const container = document.getElementById('monthsCheckboxGrid');
             const joursOuverture = tempCalendarConfig.joursOuverture || {};
-            
             container.innerHTML = MOIS_NOMS.map((nom, i) => {
                 const moisNum = i + 1;
                 const isActive = joursOuverture[moisNum] && joursOuverture[moisNum].length > 0;
-                return `
-                    <div class="month-checkbox-item ${isActive ? 'active' : ''}" onclick="toggleMonth(${moisNum})">
-                        <input type="checkbox" ${isActive ? 'checked' : ''} onclick="event.stopPropagation(); toggleMonth(${moisNum})">
-                        <span>${nom}</span>
-                    </div>
-                `;
+                return `<div class="month-checkbox-item ${isActive ? 'active' : ''}" onclick="toggleMonth(${moisNum})"><input type="checkbox" ${isActive ? 'checked' : ''} onclick="event.stopPropagation(); toggleMonth(${moisNum})"><span>${nom}</span></div>`;
             }).join('');
         }
         
         function toggleMonth(mois) {
             if (!tempCalendarConfig.joursOuverture) tempCalendarConfig.joursOuverture = {};
-            
             if (tempCalendarConfig.joursOuverture[mois] && tempCalendarConfig.joursOuverture[mois].length > 0) {
-                // Désactiver le mois
                 tempCalendarConfig.joursOuverture[mois] = [];
                 if (tempCalendarConfig.fermeMatin) tempCalendarConfig.fermeMatin[mois] = [];
             } else {
-                // Activer le mois avec quelques jours par défaut (weekends)
                 const jours = [];
                 const annee = tempCalendarConfig.annee;
                 const nbJours = new Date(annee, mois, 0).getDate();
                 for (let j = 1; j <= nbJours; j++) {
                     const date = new Date(annee, mois - 1, j);
-                    if (date.getDay() === 0 || date.getDay() === 6) { // Samedi ou Dimanche
-                        jours.push(j);
-                    }
+                    if (date.getDay() === 0 || date.getDay() === 6) jours.push(j);
                 }
                 tempCalendarConfig.joursOuverture[mois] = jours;
             }
-            
             renderMonthsCheckboxes();
             updateMonthSelect();
         }
@@ -633,22 +734,16 @@
         function updateMonthSelect() {
             const select = document.getElementById('selectMonthConfig');
             const joursOuverture = tempCalendarConfig.joursOuverture || {};
-            
-            select.innerHTML = '<option value="">-- Sélectionner un mois --</option>' +
-                MOIS_NOMS.map((nom, i) => {
-                    const moisNum = i + 1;
-                    const isActive = joursOuverture[moisNum] && joursOuverture[moisNum].length > 0;
-                    return `<option value="${moisNum}" ${!isActive ? 'disabled' : ''}>${nom} ${!isActive ? '(inactif)' : ''}</option>`;
-                }).join('');
+            select.innerHTML = '<option value="">-- Sélectionner un mois --</option>' + MOIS_NOMS.map((nom, i) => {
+                const moisNum = i + 1;
+                const isActive = joursOuverture[moisNum] && joursOuverture[moisNum].length > 0;
+                return `<option value="${moisNum}" ${!isActive ? 'disabled' : ''}>${nom} ${!isActive ? '(inactif)' : ''}</option>`;
+            }).join('');
         }
         
         function loadMonthCalendar() {
             const mois = parseInt(document.getElementById('selectMonthConfig').value);
-            if (!mois) {
-                document.getElementById('monthCalendarZone').style.display = 'none';
-                return;
-            }
-            
+            if (!mois) { document.getElementById('monthCalendarZone').style.display = 'none'; return; }
             document.getElementById('monthCalendarZone').style.display = 'block';
             renderMonthCalendar(mois);
         }
@@ -658,81 +753,47 @@
             const annee = tempCalendarConfig.annee;
             const joursOuverture = tempCalendarConfig.joursOuverture[mois] || [];
             const fermeMatin = (tempCalendarConfig.fermeMatin && tempCalendarConfig.fermeMatin[mois]) || [];
-            
-            // Entêtes jours
             const joursNoms = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
             let html = joursNoms.map(j => `<div class="calendar-header">${j}</div>`).join('');
-            
-            // Premier jour du mois
             const premierJour = new Date(annee, mois - 1, 1);
             let jourSemaine = premierJour.getDay();
-            jourSemaine = jourSemaine === 0 ? 6 : jourSemaine - 1; // Lundi = 0
-            
-            // Cases vides avant le premier jour
-            for (let i = 0; i < jourSemaine; i++) {
-                html += '<div class="calendar-day empty"></div>';
-            }
-            
-            // Jours du mois
+            jourSemaine = jourSemaine === 0 ? 6 : jourSemaine - 1;
+            for (let i = 0; i < jourSemaine; i++) { html += '<div class="calendar-day empty"></div>'; }
             const nbJours = new Date(annee, mois, 0).getDate();
             for (let j = 1; j <= nbJours; j++) {
                 const isOpen = joursOuverture.includes(j);
                 const isMorningClosed = fermeMatin.includes(j);
-                
                 let classes = 'calendar-day';
                 if (isOpen) classes += ' selected';
                 if (isMorningClosed) classes += ' morning-closed';
-                
-                html += `
-                    <div class="${classes}" onclick="toggleDay(${mois}, ${j})" ondblclick="toggleMorning(${mois}, ${j})">
-                        ${j}
-                        ${isMorningClosed ? '<span class="morning-icon">🌅</span>' : ''}
-                    </div>
-                `;
+                html += `<div class="${classes}" onclick="toggleDay(${mois}, ${j})" ondblclick="toggleMorning(${mois}, ${j})">${j}${isMorningClosed ? '<span class="morning-icon">🌅</span>' : ''}</div>`;
             }
-            
             grid.innerHTML = html;
         }
         
         function toggleDay(mois, jour) {
             if (!tempCalendarConfig.joursOuverture[mois]) tempCalendarConfig.joursOuverture[mois] = [];
-            
             const index = tempCalendarConfig.joursOuverture[mois].indexOf(jour);
             if (index > -1) {
-                // Fermer le jour
                 tempCalendarConfig.joursOuverture[mois].splice(index, 1);
-                // Retirer aussi de fermeMatin si présent
                 if (tempCalendarConfig.fermeMatin && tempCalendarConfig.fermeMatin[mois]) {
                     const mIdx = tempCalendarConfig.fermeMatin[mois].indexOf(jour);
                     if (mIdx > -1) tempCalendarConfig.fermeMatin[mois].splice(mIdx, 1);
                 }
             } else {
-                // Ouvrir le jour
                 tempCalendarConfig.joursOuverture[mois].push(jour);
                 tempCalendarConfig.joursOuverture[mois].sort((a, b) => a - b);
             }
-            
             renderMonthCalendar(mois);
             renderMonthsCheckboxes();
         }
         
         function toggleMorning(mois, jour) {
-            // Vérifier que le jour est ouvert
-            if (!tempCalendarConfig.joursOuverture[mois] || !tempCalendarConfig.joursOuverture[mois].includes(jour)) {
-                return; // Jour fermé, on ne peut pas mettre "fermé le matin"
-            }
-            
+            if (!tempCalendarConfig.joursOuverture[mois] || !tempCalendarConfig.joursOuverture[mois].includes(jour)) return;
             if (!tempCalendarConfig.fermeMatin) tempCalendarConfig.fermeMatin = {};
             if (!tempCalendarConfig.fermeMatin[mois]) tempCalendarConfig.fermeMatin[mois] = [];
-            
             const index = tempCalendarConfig.fermeMatin[mois].indexOf(jour);
-            if (index > -1) {
-                tempCalendarConfig.fermeMatin[mois].splice(index, 1);
-            } else {
-                tempCalendarConfig.fermeMatin[mois].push(jour);
-                tempCalendarConfig.fermeMatin[mois].sort((a, b) => a - b);
-            }
-            
+            if (index > -1) { tempCalendarConfig.fermeMatin[mois].splice(index, 1); } else { tempCalendarConfig.fermeMatin[mois].push(jour); tempCalendarConfig.fermeMatin[mois].sort((a, b) => a - b); }
             renderMonthCalendar(mois);
         }
         
@@ -765,8 +826,7 @@
                 setUserPresence(selectedUser);
                 listenOnlineUsers();
                 setupFirebaseListeners(); setTimeout(loadPecheursListe, 1500);
-                renderMonths(); 
-                updateCounts(); 
+                showMonths(); // Remplace renderMonths() pour initialiser proprement l'écran
             } else { 
                 document.getElementById('errorLogin').textContent = '❌ Mot de passe incorrect';
                 document.getElementById('errorLogin').style.display = 'block'; 
@@ -778,7 +838,6 @@
         
         // ===== SYSTÈME DE PRÉSENCE =====
         let pendingUserChange = null;
-        
         function initLoginUserSelect() {
             const select = document.getElementById('loginUser');
             const savedUser = localStorage.getItem('hardtUser');
@@ -799,7 +858,6 @@
                 }
             });
         }
-        
         function confirmChangeUser() {
             if (pendingUserChange) {
                 removeUserPresence();
@@ -813,9 +871,7 @@
             }
             document.getElementById('changeUserModal').style.display = 'none';
         }
-        
         function cancelChangeUser() { pendingUserChange = null; document.getElementById('changeUserModal').style.display = 'none'; }
-        
         function promptChangeUser() {
             const current = localStorage.getItem('hardtUser');
             if (!current || !controleurs.length) return;
@@ -832,7 +888,6 @@
                 showAlert('❌ Utilisateur non trouvé');
             }
         }
-        
         function setUserPresence(userName) {
             if (!userName) return;
             const presenceRef = dbCentral.ref('presence/hardt/' + userName);
@@ -844,12 +899,10 @@
                 }
             });
         }
-        
         function removeUserPresence() {
             const userName = localStorage.getItem('hardtUser');
             if (userName) dbCentral.ref('presence/hardt/' + userName).remove();
         }
-        
         function listenOnlineUsers() {
             dbCentral.ref('presence/hardt').on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -866,7 +919,6 @@
                 }
             });
         }
-        
         function getCurrentUser() { return localStorage.getItem('hardtUser') || ''; }
         
         function accesControleur() { 
@@ -876,16 +928,10 @@
             const annee = today.getFullYear();
             const configAnnee = getAnnee();
             
-            if (annee !== configAnnee) { 
-                showAlert(`📅 Application configurée pour ${configAnnee}`); 
-                return; 
-            } 
+            if (annee !== configAnnee) { showAlert(`📅 Application configurée pour ${configAnnee}`); return; } 
             
             const joursOuverts = getJoursOuverture()[mois + 1] || []; 
-            if (!joursOuverts.includes(jour)) { 
-                showAlert("🚫 Étang fermé aujourd'hui"); 
-                return; 
-            } 
+            if (!joursOuverts.includes(jour)) { showAlert("🚫 Étang fermé aujourd'hui"); return; } 
             
             const key = `${annee}-${String(mois + 1).padStart(2, '0')}-${String(jour).padStart(2, '0')}`; 
             const dateFull = today.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }); 
@@ -895,7 +941,6 @@
         }
         
         function checkAdminPassword() { return prompt("🔐 Mot de passe admin :") === "admin"; }
-        function hideAll() { ['monthsPage', 'daysPage', 'postesPage', 'infractionsMenuPage', 'infractionsDetailPage'].forEach(id => { document.getElementById(id).classList.add('hidden'); }); }
         
         function renderMonths() { 
             const grid = document.getElementById('monthsGrid'); 
@@ -913,37 +958,6 @@
             }).join(''); 
         }
         
-        function showMonths() { hideAll(); document.getElementById('monthsPage').classList.remove('hidden'); }
-        
-        function showDays(m, name) { 
-            curM = m; 
-            curMName = name; 
-            hideAll(); 
-            document.getElementById('daysPage').classList.remove('hidden'); 
-            document.getElementById('monthTitle').textContent = name + ' ' + getAnnee(); 
-            
-            const grid = document.getElementById('daysGrid'); 
-            const moisNum = m + 1;
-            const jours = getJoursOuverture()[moisNum] || []; 
-            const fermeMatin = getFermeMatin()[moisNum] || [];
-            const annee = getAnnee();
-            
-            grid.innerHTML = jours.map(j => { 
-                const date = new Date(annee, m, j); 
-                const dateFull = date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }); 
-                const key = `${annee}-${String(moisNum).padStart(2, '0')}-${String(j).padStart(2, '0')}`; 
-                const isFermeMatin = fermeMatin.includes(j); 
-                const dayRes = reservations[key] || {}; 
-                let postesRes = 0; 
-                for (let i = 1; i <= 12; i++) { if (i !== 4 && dayRes[i] && dayRes[i].nom) postesRes++; } 
-                const postesLibres = 11 - postesRes; 
-                return `<div class="day-card" onclick="showPostes(${j}, '${key}', '${dateFull}')"><div style="color: ${postesLibres === 0 ? '#dc3545' : '#28a745'}; font-size: 0.85em;">${postesLibres === 0 ? 'COMPLET' : postesLibres + ' libre(s)'}</div><div class="day-number">${dateFull}</div>${isFermeMatin ? '<div class="closed-morning">⚠️ FERMÉ LE MATIN</div>' : ''}</div>`; 
-            }).join(''); 
-        }
-        
-        function showPostes(j, key, dateFull) { curDKey = key; curFullDate = dateFull; hideAll(); document.getElementById('postesPage').classList.remove('hidden'); document.getElementById('postePageTitle').textContent = dateFull + " " + getAnnee(); renderPostes(); }
-        function backToDays() { showDays(curM, curMName); }
-        
         function renderPostes() { const grid = document.getElementById('postesGrid'); grid.innerHTML = ''; if (!reservations[curDKey]) reservations[curDKey] = {}; let libres = 0, reserves = 0, controles = 0; for (let i = 1; i <= 12; i++) { const data = reservations[curDKey][i] || { nom: '', prenom: '', controlled: false }; if (i !== 4) { if (data.nom) { reserves++; if (data.controlled) controles++; } else { libres++; } } grid.appendChild(createBox(i, data)); } document.getElementById('statLibre').textContent = libres; document.getElementById('statReserve').textContent = reserves; document.getElementById('statControle').textContent = controles; }
         
         function createBox(n, data) { const div = document.createElement('div'); const isControleur = n === 4; const hasName = data.nom && data.nom.trim() !== ''; let className = 'poste-box '; if (isControleur) className += 'controleur'; else if (data.controlled) className += 'controle'; else if (hasName) className += 'reserve'; else className += 'libre'; div.className = className; div.onclick = (e) => { if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') openModal(n, data); }; let html = '<div class="poste-content">'; html += `<div class="poste-title">Poste ${n}</div>`; if (data.controlled && data.heure) html += `<div class="poste-heure">🕒 ${data.heure}</div>`; if (hasName) { html += `<div class="poste-nom">${data.nom.toUpperCase()} ${data.prenom}</div>`; if (isUserValid(data.nom, data.prenom)) html += '<div class="badge-peche">🪪 Carte valide</div>'; html += `<button class="btn-info" onclick="event.stopPropagation(); checkInfo('${escapeHtml(data.nom)}', '${escapeHtml(data.prenom)}')">ℹ️ Info</button>`; } html += '</div>'; if (!isControleur) { if (data.controlled) { html += `<div class="control-zone" onclick="event.stopPropagation(); toggleControle(${n})" style="cursor:pointer;"><span class="control-label checked">✅ Contrôlé par ${data.controleur || 'inconnu'}</span></div>`; } else { html += `<div class="control-zone"><input type="checkbox" id="check_${n}" onclick="event.stopPropagation(); toggleControle(${n})"><label class="control-label">Cliquer pour contrôler</label></div>`; } } div.innerHTML = html; return div; }
@@ -955,14 +969,11 @@
             pendingControlePoste = n; 
             const currentUser = getCurrentUser();
             const select = document.getElementById('selectControleur');
-            console.log('DEBUG toggleControle - currentUser:', currentUser, '- hardtUser:', localStorage.getItem('hardtUser'));
-            // TOUJOURS pré-remplir et verrouiller avec l'utilisateur connecté
             if (currentUser && currentUser !== '') {
                 select.innerHTML = '<option value="' + currentUser + '">' + currentUser + '</option>';
                 select.value = currentUser;
                 select.disabled = true;
             } else {
-                // Pas d'utilisateur connecté - utiliser la liste
                 updateControleurSelect();
                 select.value = reservations[curDKey][n].controleur || '';
                 select.disabled = false;
@@ -982,7 +993,6 @@
                 const now = new Date(); 
                 poste.heure = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0'); 
                 saveReservations(); 
-                // Envoyer notification aux autres contrôleurs
                 envoyerNotificationControle(pendingControlePoste, controleur, poste.nom, poste.prenom);
             } 
             closeControleurModal(); 
@@ -1037,11 +1047,9 @@
         
         // ===== AUTOCOMPLÉTION PÊCHEURS =====
         var allPecheursHardt = [];
-        
         function loadPecheursListe() {
             var seen = {};
             allPecheursHardt = [];
-            // Source 1: Fiches de renseignement
             dbCentral.ref('fiches').once('value').then(function(snap) {
                 var data = snap.val() || {};
                 Object.values(data).forEach(function(f) {
@@ -1050,8 +1058,6 @@
                         if (!seen[key]) { seen[key] = true; allPecheursHardt.push({ nom: f.nom.toUpperCase(), prenom: f.prenom || '' }); }
                     }
                 });
-                console.log('📋 Fiches chargées: ' + allPecheursHardt.length);
-                // Source 2: Contacts tickets
                 return dbCentral.ref('contactsTickets').once('value');
             }).then(function(snap) {
                 var data = snap.val() || {};
@@ -1061,7 +1067,6 @@
                         if (!seen[key]) { seen[key] = true; allPecheursHardt.push({ nom: c.nom.toUpperCase(), prenom: c.prenom || '' }); }
                     }
                 });
-                // Source 3: Réservations Hardt existantes
                 return database.ref('reservations').once('value');
             }).then(function(snap) {
                 var dates = snap.val() || {};
@@ -1076,7 +1081,6 @@
                     }
                 }
                 allPecheursHardt.sort(function(a, b) { return (a.nom + a.prenom).localeCompare(b.nom + b.prenom); });
-                console.log('✅ Total pêcheurs autocomplétion: ' + allPecheursHardt.length);
             }).catch(function(e) { console.error('Erreur chargement pêcheurs:', e); });
         }
         
@@ -1091,7 +1095,6 @@
                     '<strong>' + p.nom + '</strong> ' + p.prenom + '</div>';
             }).join('');
             box.style.display = 'block';
-            // Store matches for selection
             box._matches = matches.slice(0, 8);
         }
         
@@ -1106,135 +1109,80 @@
             box.style.display = 'none';
         }
         
-        // Fermer suggestions si clic en dehors
         document.addEventListener('click', function(e) {
             var box = document.getElementById('suggestionsBox');
             if (box && e.target.id !== 'modalNom' && !box.contains(e.target)) box.style.display = 'none';
         });
         
-        function showInfractionsMenu() { hideAll(); document.getElementById('infractionsMenuPage').classList.remove('hidden'); updateCounts(); }
-        function updateCounts() { document.getElementById('countAvertissement').textContent = (infractions.avertissements ? infractions.avertissements.length : 0) + ' dossier(s)'; document.getElementById('countBanni').textContent = (infractions.bannis ? infractions.bannis.length : 0) + ' dossier(s)'; }
-        
-        function showInfractionList(type) { hideAll(); document.getElementById('infractionsDetailPage').classList.remove('hidden'); document.getElementById('detailTitle').textContent = type === 'avertissements' ? '⚠️ AVERTISSEMENTS' : '🚫 EXCLUSIONS'; const list = infractions[type] || []; const container = document.getElementById('detailList'); if (list.length === 0) { container.innerHTML = '<p style="text-align:center; color:#666;">Aucun dossier</p>'; return; } if (type === 'avertissements') { container.innerHTML = list.map((item, index) => `<div class="infraction-item ${item.archived ? 'archive' : 'avertissement'}"><div class="infraction-header"><div class="infraction-info"><strong>${(item.nom || 'N/A').toUpperCase()} ${item.prenom || ''}</strong>${item.archived ? '<span class="archive-badge">📁 Archivé</span>' : ''}${item.controleurSanction ? '<span class="controleur-badge">👮 ' + item.controleurSanction + '</span>' : ''}<br><small>📅 ${item.date || ''}</small><br><small>📝 ${item.motif || ''}</small></div><div class="infraction-actions"><button class="btn btn-delete" onclick="removeAvertissement(${index})">🗑️</button></div></div></div>`).join(''); } else { container.innerHTML = list.map((item, index) => { let typeLabel = item.typeExclusion === 'temporaire' ? `<span style="background:#ff9800;color:white;padding:2px 8px;border-radius:4px;font-size:0.8em;">⏱️ Temporaire</span>` : `<span style="background:#dc3545;color:white;padding:2px 8px;border-radius:4px;font-size:0.8em;">🚫 Définitive</span>`; let finExclusion = ''; let isExpired = false; if (item.typeExclusion === 'temporaire' && item.dateFin) { const now = new Date(); const fin = new Date(item.dateFin); isExpired = now > fin; if (isExpired) { typeLabel = `<span style="background:#28a745;color:white;padding:2px 8px;border-radius:4px;font-size:0.8em;">✅ Expirée</span>`; finExclusion = `<br><small style="color:#28a745;">Exclusion terminée le ${new Date(item.dateFin).toLocaleDateString('fr-FR')}</small>`; } else { finExclusion = `<br><small style="color:#ff9800;">Fin de l'exclusion : ${new Date(item.dateFin).toLocaleDateString('fr-FR')}</small>`; } } let motifsHtml = ''; if (item.motifs && item.motifs.length > 0) { motifsHtml = `<div class="motifs-list"><h4>📋 Historique des infractions :</h4>${item.motifs.map((m, i) => `<div class="motif-item"><strong>#${i+1}</strong> - ${m.date || ''}: ${m.motif || ''}${m.controleurSanction ? ' <em>(👮 ' + m.controleurSanction + ')</em>' : ''}</div>`).join('')}</div>`; } else if (item.motif) { motifsHtml = `<div class="motifs-list"><h4>📋 Motif :</h4><div class="motif-item">${item.motif}</div></div>`; } let actionButtons = isExpired ? `<button class="btn btn-save" onclick="validerExclusionExpiree(${index})" style="background:#28a745;">✅ Valider</button>` : `<button class="btn btn-unban" onclick="leverExclusion(${index})">🔓 Lever</button>`; actionButtons += `<button class="btn btn-delete" onclick="removeBanni(${index})">🗑️</button>`; return `<div class="infraction-item banni"><div class="infraction-header"><div class="infraction-info"><strong>${(item.nom || 'N/A').toUpperCase()} ${item.prenom || ''}</strong> ${typeLabel}${item.controleurSanction ? '<span class="controleur-badge">👮 ' + item.controleurSanction + '</span>' : ''}<br><small>📅 Exclu le : ${item.date || ''}</small>${finExclusion}${motifsHtml}</div><div class="infraction-actions">${actionButtons}</div></div></div>`; }).join(''); } }
+        function updateCounts() { 
+            document.getElementById('countAvertissement').textContent = (infractions.avertissements ? infractions.avertissements.length : 0) + ' dossier(s)'; 
+            document.getElementById('countBanni').textContent = (infractions.bannis ? infractions.bannis.length : 0) + ' dossier(s)'; 
+        }
         
         async function removeAvertissement(index) { 
             if (!checkAdminPassword()) return; 
             if (!confirm('Archiver cet avertissement ?')) return;
-            
             try {
-                // Récupérer les données ACTUELLES depuis Firebase
                 const snap = await dbCentral.ref('infractions/avertissements').once('value');
                 let currentAvert = snap.val() || [];
                 if (!Array.isArray(currentAvert)) currentAvert = Object.values(currentAvert);
-                
                 const avert = currentAvert[index];
-                if (!avert) {
-                    showAlert("❌ Avertissement non trouvé");
-                    return;
-                }
-                
-                await dbCentral.ref('infractions/archives').push({
-                    ...avert,
-                    type: 'avertissement',
-                    dateArchive: new Date().toLocaleDateString('fr-FR'),
-                    raisonArchive: 'Archivé manuellement'
-                });
+                if (!avert) { showAlert("❌ Avertissement non trouvé"); return; }
+                await dbCentral.ref('infractions/archives').push({ ...avert, type: 'avertissement', dateArchive: new Date().toLocaleDateString('fr-FR'), raisonArchive: 'Archivé manuellement' });
                 currentAvert.splice(index, 1); 
                 await dbCentral.ref('infractions/avertissements').set(currentAvert);
                 showInfractionList('avertissements'); 
                 showAlert("✅ Avertissement archivé."); 
-            } catch(e) {
-                console.error('Erreur removeAvertissement:', e);
-                showAlert("❌ Erreur: " + e.message);
-            }
+            } catch(e) { console.error('Erreur:', e); showAlert("❌ Erreur: " + e.message); }
         }
         
         async function removeBanni(index) { 
             if (!checkAdminPassword()) return; 
-            if (!confirm('Supprimer définitivement cette exclusion ? (Préférez "Lever" ou "Valider" pour archiver)')) return; 
-            
+            if (!confirm('Supprimer définitivement cette exclusion ?')) return; 
             try {
-                // Récupérer les données ACTUELLES depuis Firebase
                 const snap = await dbCentral.ref('infractions/bannis').once('value');
                 let currentBannis = snap.val() || [];
                 if (!Array.isArray(currentBannis)) currentBannis = Object.values(currentBannis);
-                
                 currentBannis.splice(index, 1); 
                 await dbCentral.ref('infractions/bannis').set(currentBannis);
                 showInfractionList('bannis'); 
                 showAlert("✅ Exclusion supprimée."); 
-            } catch(e) {
-                console.error('Erreur removeBanni:', e);
-                showAlert("❌ Erreur: " + e.message);
-            }
+            } catch(e) { console.error('Erreur:', e); showAlert("❌ Erreur: " + e.message); }
         }
         
         async function leverExclusion(index) { 
             if (!checkAdminPassword()) return; 
             if (!confirm('Lever cette exclusion et l\'archiver ?')) return;
-            
             try {
-                // Récupérer les données ACTUELLES depuis Firebase
                 const snap = await dbCentral.ref('infractions/bannis').once('value');
                 let currentBannis = snap.val() || [];
                 if (!Array.isArray(currentBannis)) currentBannis = Object.values(currentBannis);
-                
                 const b = currentBannis[index]; 
-                if (!b) {
-                    showAlert("❌ Exclusion non trouvée");
-                    return;
-                }
-                
-                await dbCentral.ref('infractions/archives').push({
-                    ...b,
-                    type: 'bannissement',
-                    dateArchive: new Date().toLocaleDateString('fr-FR'),
-                    raisonArchive: 'Exclusion levée'
-                });
+                if (!b) { showAlert("❌ Exclusion non trouvée"); return; }
+                await dbCentral.ref('infractions/archives').push({ ...b, type: 'bannissement', dateArchive: new Date().toLocaleDateString('fr-FR'), raisonArchive: 'Exclusion levée' });
                 currentBannis.splice(index, 1); 
                 await dbCentral.ref('infractions/bannis').set(currentBannis);
                 showInfractionList('bannis'); 
                 showAlert(`✅ Exclusion levée et archivée pour ${b.nom} ${b.prenom}`); 
-            } catch(e) {
-                console.error('Erreur leverExclusion:', e);
-                showAlert("❌ Erreur: " + e.message);
-            }
+            } catch(e) { console.error('Erreur:', e); showAlert("❌ Erreur: " + e.message); }
         }
         
         async function validerExclusionExpiree(index) { 
             try {
-                // Récupérer les données ACTUELLES depuis Firebase
                 const snap = await dbCentral.ref('infractions/bannis').once('value');
                 let currentBannis = snap.val() || [];
                 if (!Array.isArray(currentBannis)) currentBannis = Object.values(currentBannis);
-                
                 const b = currentBannis[index]; 
-                if (!b || b.typeExclusion !== 'temporaire') {
-                    showAlert("❌ Cette exclusion n'est pas temporaire");
-                    return;
-                }
-                const now = new Date();
-                const fin = new Date(b.dateFin);
-                if (now <= fin) {
-                    showAlert("❌ Cette exclusion n'est pas encore expirée");
-                    return;
-                }
+                if (!b || b.typeExclusion !== 'temporaire') { showAlert("❌ Cette exclusion n'est pas temporaire"); return; }
+                const now = new Date(); const fin = new Date(b.dateFin);
+                if (now <= fin) { showAlert("❌ Cette exclusion n'est pas encore expirée"); return; }
                 if (!confirm(`Valider la fin d'exclusion de ${b.nom} ${b.prenom} et archiver ?`)) return;
-                
-                await dbCentral.ref('infractions/archives').push({
-                    ...b,
-                    type: 'bannissement',
-                    dateArchive: new Date().toLocaleDateString('fr-FR'),
-                    raisonArchive: 'Exclusion temporaire terminée (1 mois écoulé)'
-                });
+                await dbCentral.ref('infractions/archives').push({ ...b, type: 'bannissement', dateArchive: new Date().toLocaleDateString('fr-FR'), raisonArchive: 'Exclusion temporaire terminée' });
                 currentBannis.splice(index, 1); 
                 await dbCentral.ref('infractions/bannis').set(currentBannis);
                 showInfractionList('bannis'); 
                 showAlert(`✅ Exclusion de ${b.nom} ${b.prenom} validée et archivée.<br><br>Le pêcheur peut à nouveau réserver.`); 
-            } catch(e) {
-                console.error('Erreur validerExclusionExpiree:', e);
-                showAlert("❌ Erreur: " + e.message);
-            }
+            } catch(e) { console.error('Erreur:', e); showAlert("❌ Erreur: " + e.message); }
         }
         
         function donnerAvertissement() { 
@@ -1248,9 +1196,7 @@
         }
         function closeMotif() { document.getElementById('motifModal').style.display = 'none'; }
         
-        // Variable pour stocker les données de la 2ème infraction
         let pendingExclusionData = null;
-        
         async function confirmerAvertissement() { 
             const nom = document.getElementById('modalNom').value.trim().toUpperCase(); 
             const prenom = document.getElementById('modalPrenom').value.trim(); 
@@ -1261,37 +1207,27 @@
             const fn = (nom + ' ' + prenomF).toLowerCase(); 
             
             try {
-                // Récupérer les données ACTUELLES depuis Firebase
                 const snap = await dbCentral.ref('infractions/avertissements').once('value');
                 let currentAvert = snap.val() || [];
                 if (!Array.isArray(currentAvert)) currentAvert = Object.values(currentAvert);
-                
                 const avertExistants = currentAvert.filter(a => a && (a.nom + ' ' + a.prenom).toLowerCase() === fn && !a.archived); 
                 
                 if (avertExistants.length >= 1) { 
                     pendingExclusionData = { motif, controleurSanction };
-                    closeMotif(); 
-                    ouvrirChoixExclusion(avertExistants[0]); 
-                    return; 
+                    closeMotif(); ouvrirChoixExclusion(avertExistants[0]); return; 
                 } 
                 
                 currentAvert.push({ id: Date.now().toString(), nom, prenom: prenomF, motif, controleurSanction, date: dateNow }); 
                 await dbCentral.ref('infractions/avertissements').set(currentAvert);
                 
-                // Notification Telegram
                 const heure = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
                 const dateTelegram = new Date().toLocaleDateString('fr-FR');
                 const msgTelegram = '⚠️ *AVERTISSEMENT*\n📅 ' + dateTelegram + '\n👤 ' + nom + ' ' + prenomF + '\n📍 Hardt\n💬 ' + motif + '\n👮 ' + controleurSanction + '\n🕐 ' + heure;
                 await envoyerNotificationTelegram(msgTelegram);
                 
-                console.log('✅ Avertissement sauvegardé');
-                closeMotif(); 
-                closeModal(); 
+                closeMotif(); closeModal(); 
                 showAlert(`⚠️ <strong>1er AVERTISSEMENT</strong> pour ${nom} ${prenomF}<br><br>📜 Selon le règlement :<br>• Prochain écart = <strong>EXCLUSION</strong><br><br>👮 Par: ${controleurSanction}`);
-            } catch(e) {
-                console.error('Erreur confirmerAvertissement:', e);
-                showAlert('❌ Erreur: ' + e.message);
-            }
+            } catch(e) { console.error('Erreur:', e); showAlert('❌ Erreur: ' + e.message); }
         }
         
         function ouvrirChoixExclusion(avertissementExistant = null) { 
@@ -1310,7 +1246,6 @@
                 document.getElementById('exclusionMotifGroup').style.display = 'block';
                 document.getElementById('exclusionControleurGroup').style.display = 'block';
                 document.getElementById('exclusionMotif').value = '';
-                // Pré-remplir et verrouiller le contrôleur
                 const currentUser = getCurrentUser();
                 const selectExcl = document.getElementById('exclusionControleur');
                 selectExcl.innerHTML = '<option value="' + currentUser + '">' + currentUser + '</option>';
@@ -1333,8 +1268,7 @@
             
             let motif, controleurSanction;
             if (pendingExclusionData) {
-                motif = pendingExclusionData.motif;
-                controleurSanction = pendingExclusionData.controleurSanction;
+                motif = pendingExclusionData.motif; controleurSanction = pendingExclusionData.controleurSanction;
             } else {
                 motif = document.getElementById('exclusionMotif').value || "Non spécifié"; 
                 controleurSanction = getCurrentUser() || document.getElementById('exclusionControleur').value || "Non spécifié";
@@ -1347,63 +1281,31 @@
             const fn = (nom + ' ' + prenomF).toLowerCase(); 
             
             try {
-                // 1. Récupérer les données ACTUELLES depuis Firebase
                 const avertSnap = await dbCentral.ref('infractions/avertissements').once('value');
                 const bannisSnap = await dbCentral.ref('infractions/bannis').once('value');
+                let currentAvert = avertSnap.val() || []; if (!Array.isArray(currentAvert)) currentAvert = Object.values(currentAvert);
+                let currentBannis = bannisSnap.val() || []; if (!Array.isArray(currentBannis)) currentBannis = Object.values(currentBannis);
                 
-                let currentAvert = avertSnap.val() || [];
-                if (!Array.isArray(currentAvert)) currentAvert = Object.values(currentAvert);
-                
-                let currentBannis = bannisSnap.val() || [];
-                if (!Array.isArray(currentBannis)) currentBannis = Object.values(currentBannis);
-                
-                // 2. Trouver les avertissements existants pour cette personne
                 const avertExistants = currentAvert.filter(a => a && (a.nom + ' ' + a.prenom).toLowerCase() === fn && !a.archived);
-                
-                // 3. Créer l'historique des motifs
                 let motifs = avertExistants.map(a => ({ motif: a.motif, date: a.date, controleurSanction: a.controleurSanction })); 
                 motifs.push({ motif, date: dateNow, controleurSanction }); 
                 
-                // 4. Calculer la date de fin si temporaire
                 let dateFin = null; 
                 if (typeExclusion === 'temporaire') { 
-                    dateFin = new Date(); 
-                    dateFin.setMonth(dateFin.getMonth() + 1); 
-                    dateFin = dateFin.toISOString(); 
+                    dateFin = new Date(); dateFin.setMonth(dateFin.getMonth() + 1); dateFin = dateFin.toISOString(); 
                 } 
                 
-                // 5. Archiver les avertissements existants
                 for (const a of avertExistants) {
-                    await dbCentral.ref('infractions/archives').push({
-                        ...a,
-                        type: 'avertissement',
-                        dateArchive: new Date().toLocaleDateString('fr-FR'),
-                        raisonArchive: 'Converti en exclusion'
-                    });
+                    await dbCentral.ref('infractions/archives').push({ ...a, type: 'avertissement', dateArchive: new Date().toLocaleDateString('fr-FR'), raisonArchive: 'Converti en exclusion' });
                 }
                 
-                // 6. Créer le nouveau banni
-                const newBanni = { 
-                    id: Date.now().toString(), 
-                    nom, 
-                    prenom: prenomF, 
-                    motifs, 
-                    motif, 
-                    controleurSanction, 
-                    date: dateNow, 
-                    typeExclusion, 
-                    dateFin 
-                };
+                const newBanni = { id: Date.now().toString(), nom, prenom: prenomF, motifs, motif, controleurSanction, date: dateNow, typeExclusion, dateFin };
                 currentBannis.push(newBanni);
-                
-                // 7. Supprimer les avertissements de cette personne
                 const newAvert = currentAvert.filter(a => !a || (a.nom + ' ' + a.prenom).toLowerCase() !== fn || a.archived);
                 
-                // 8. Sauvegarder dans Firebase
                 await dbCentral.ref('infractions/avertissements').set(newAvert);
                 await dbCentral.ref('infractions/bannis').set(currentBannis);
                 
-                // Notification Telegram
                 const heure = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
                 const dateTelegram = new Date().toLocaleDateString('fr-FR');
                 const typeExclTelegram = typeExclusion === 'temporaire' ? '⏱️ Temporaire (1 mois)' : '🚫 Définitive';
@@ -1411,18 +1313,11 @@
                 const msgTelegram = '🚫 *EXCLUSION*\n📅 ' + dateTelegram + '\n👤 ' + nom + ' ' + prenomF + '\n' + typeExclTelegram + finTelegram + '\n📍 Hardt\n💬 ' + motif + '\n👮 ' + controleurSanction + '\n🕐 ' + heure;
                 await envoyerNotificationTelegram(msgTelegram);
                 
-                console.log('✅ Exclusion sauvegardée:', newBanni);
-                
-                pendingExclusionData = null;
-                closeExclusion(); 
-                closeModal(); 
+                pendingExclusionData = null; closeExclusion(); closeModal(); 
                 const typeText = typeExclusion === 'temporaire' ? 'TEMPORAIRE (1 mois)' : 'DÉFINITIVE'; 
                 const finText = typeExclusion === 'temporaire' ? `<br>📅 Fin de l'exclusion : ${new Date(dateFin).toLocaleDateString('fr-FR')}` : ''; 
                 showAlert(`🚫 <strong>EXCLUSION ${typeText}</strong><br><br>${nom} ${prenomF} est maintenant exclu(e).${finText}<br><br>👮 Par: ${controleurSanction}`);
-            } catch(e) {
-                console.error('Erreur confirmerExclusion:', e);
-                showAlert('❌ Erreur: ' + e.message);
-            }
+            } catch(e) { console.error('Erreur:', e); showAlert('❌ Erreur: ' + e.message); }
         }
         
         function checkInfo(nom, prenom) { 
@@ -1435,9 +1330,7 @@
             if (bannissement) { 
                 let isExpired = false;
                 if (bannissement.typeExclusion === 'temporaire' && bannissement.dateFin) {
-                    const now = new Date();
-                    const fin = new Date(bannissement.dateFin);
-                    isExpired = now > fin;
+                    const now = new Date(); const fin = new Date(bannissement.dateFin); isExpired = now > fin;
                 }
                 if (isExpired) {
                     html += '<p style="color:#28a745;font-weight:bold;">✅ Exclusion temporaire EXPIRÉE</p>';
@@ -1445,9 +1338,7 @@
                 } else {
                     const typeText = bannissement.typeExclusion === 'temporaire' ? '⏱️ EXCLU TEMPORAIREMENT' : '🚫 EXCLU DÉFINITIVEMENT';
                     html += `<p style="color:#dc3545;font-weight:bold;">${typeText}</p>`;
-                    if (bannissement.typeExclusion === 'temporaire' && bannissement.dateFin) {
-                        html += `<p style="color:#ff9800;">📅 Fin de l'exclusion : ${new Date(bannissement.dateFin).toLocaleDateString('fr-FR')}</p>`;
-                    }
+                    if (bannissement.typeExclusion === 'temporaire' && bannissement.dateFin) { html += `<p style="color:#ff9800;">📅 Fin de l'exclusion : ${new Date(bannissement.dateFin).toLocaleDateString('fr-FR')}</p>`; }
                     if (bannissement.controleurSanction) html += `<p>👮 Sanctionné par: <strong>${bannissement.controleurSanction}</strong></p>`;
                 }
                 if (bannissement.motifs && bannissement.motifs.length > 0) { 
@@ -1455,20 +1346,15 @@
                     bannissement.motifs.forEach((m, i) => { html += `<div class="info-motif-item"><strong>#${i+1}</strong> - ${m.date || ''}: ${m.motif || ''}${m.controleurSanction ? '<br>👮 ' + m.controleurSanction : ''}</div>`; }); 
                     html += '</div>'; 
                 } 
-            } else { 
-                html += '<p style="color: #28a745;">✅ Non exclu</p>'; 
-            } 
+            } else { html += '<p style="color: #28a745;">✅ Non exclu</p>'; } 
             if (avertissements.length > 0) { 
                 html += `<p style="font-weight:bold;color:#ffc107;">⚠️ AVERTISSEMENT EN COURS</p>`;
                 html += `<p style="color:#dc3545;"><strong>📜 Prochain écart = EXCLUSION</strong></p>`;
                 html += '<div class="info-motifs" style="background:#fff3cd;"><h4>Détail de l\'avertissement :</h4>'; 
                 avertissements.forEach((a, i) => { html += `<div class="info-motif-item">${a.date || ''}: ${a.motif || ''}${a.controleurSanction ? '<br>👮 ' + a.controleurSanction : ''}</div>`; }); 
                 html += '</div>'; 
-            } else if (!bannissement) {
-                html += '<p style="color:#28a745;">✅ Aucun avertissement</p>';
-            }
-            html += '</div>'; 
-            showAlert(html); 
+            } else if (!bannissement) { html += '<p style="color:#28a745;">✅ Aucun avertissement</p>'; }
+            html += '</div>'; showAlert(html); 
         }
         
         function openAdmin() { if (prompt("Code Admin :") === "admin") { renderAdminList(); document.getElementById('adminModal').style.display = 'block'; } }
@@ -1499,79 +1385,12 @@
                         }
                         listenOnlineUsers();
                         setupFirebaseListeners(); setTimeout(loadPecheursListe, 1500);
-                        renderMonths(); 
-                        updateCounts(); 
+                        showMonths(); // Ouvre l'accueil proprement
                     } 
                 }, 100); 
             }
-            
-        // ===== BOTTOM NAV BAR =====
-        var resaPageHistory = [];
-        var resaNav = document.getElementById('resaNav');
-        
-        function updateResaNav() {
-            var isHome = !document.getElementById('monthsPage').classList.contains('hidden');
-            // nav always visible
-        }
-        
-        // Override hideAll to track history
-        var _originalHideAll = hideAll;
-        function getVisiblePage() {
-            var pages = ['monthsPage', 'daysPage', 'postesPage', 'infractionsMenuPage', 'infractionsDetailPage'];
-            for (var i = 0; i < pages.length; i++) {
-                if (!document.getElementById(pages[i]).classList.contains('hidden')) return pages[i];
-            }
-            return 'monthsPage';
-        }
-        
-        // Wrap navigation functions to track history
-        var _showMonths = showMonths;
-        showMonths = function() { resaPageHistory = []; _showMonths(); updateResaNav(); };
-        
-        var _showDays = showDays;
-        showDays = function(m, name) { resaPageHistory.push('monthsPage'); _showDays(m, name); updateResaNav(); };
-        
-        var _showPostes = showPostes;
-        showPostes = function(j, key, dateFull) { resaPageHistory.push(getVisiblePage()); _showPostes(j, key, dateFull); updateResaNav(); };
-        
-        var _showInfractionsMenu = showInfractionsMenu;
-        showInfractionsMenu = function() { resaPageHistory.push(getVisiblePage()); _showInfractionsMenu(); updateResaNav(); };
-        
-        var _showInfractionList = showInfractionList;
-        showInfractionList = function(type) { resaPageHistory.push('infractionsMenuPage'); _showInfractionList(type); updateResaNav(); };
-        
-        var _backToDays = backToDays;
-        backToDays = function() { resaPageHistory.pop(); _backToDays(); updateResaNav(); };
-        
-        document.getElementById('resaNavAccueil').addEventListener('click', function() {
-            window.location.href = 'index.html';
-        });
-        
-        document.getElementById('resaNavRetour').addEventListener('click', function() {
-            var isHome = !document.getElementById('monthsPage').classList.contains('hidden');
-            if (isHome) {
-                window.location.href = document.referrer || 'index.html';
-                return;
-            }
-            var prev = resaPageHistory.pop();
-            if (prev) {
-                hideAll();
-                document.getElementById(prev).classList.remove('hidden');
-            } else {
-                showMonths();
-            }
-        });
-        
-
-
-        window.addEventListener('beforeunload', function() { removeUserPresence(); });
+            window.addEventListener('beforeunload', function() { removeUserPresence(); });
         });
     </script>
-
-    <div class="resa-nav" id="resaNav">
-        <button class="resa-nav-btn" id="resaNavAccueil">🏠 Accueil</button>
-        <button class="resa-nav-btn" id="resaNavRetour">← Retour</button>
-
-    </div>
 </body>
 </html>
