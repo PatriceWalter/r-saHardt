@@ -1391,7 +1391,7 @@
             } catch(e) { console.error('Erreur:', e); showAlert('❌ Erreur: ' + e.message); }
         }
         
-        function checkInfo(nom, prenom) { 
+        async function checkInfo(nom, prenom) { 
             const fullName = (nom + ' ' + prenom).toLowerCase(); 
             const avertissements = infractions.avertissements ? infractions.avertissements.filter(a => a && a.nom && a.prenom && (a.nom + ' ' + a.prenom).toLowerCase() === fullName && !a.archived) : []; 
             const bannissement = infractions.bannis ? infractions.bannis.find(b => b && b.nom && b.prenom && (b.nom + ' ' + b.prenom).toLowerCase() === fullName) : null; 
@@ -1426,6 +1426,29 @@
                 avertissements.forEach((a, i) => { html += `<div class="info-motif-item">${a.date || ''}: ${a.motif || ''}${a.controleurSanction ? '<br>👮 ' + a.controleurSanction : ''}</div>`; }); 
                 html += '</div>'; 
             } else if (!bannissement) { html += '<p style="color:#28a745;">✅ Aucun avertissement</p>'; }
+            try {
+                const fichesSnap = await dbCentral.ref('fiches').once('value');
+                const fichesData = fichesSnap.val() || {};
+                const ficheTrouvee = Object.values(fichesData).find(f => f && f.nom && (f.nom + ' ' + (f.prenom || '')).toLowerCase() === fullName);
+                html += '<hr style="margin:15px 0;border-top:1px solid #ddd;">';
+                if (ficheTrouvee) {
+                    const f = ficheTrouvee;
+                    html += '<h4 style="color:#1a472a;margin-bottom:8px;">📋 Fiche de renseignement</h4>';
+                    html += '<div class="info-motifs" style="background:#e8f5e9;">';
+                    html += '<div class="info-motif-item">📍 ' + (f.adresse || '') + '<br>' + (f.codePostal || '') + ' ' + (f.ville || '') + '</div>';
+                    html += '<div class="info-motif-item">📞 ' + (f.telephone || 'Non renseigné') + '</div>';
+                    if (f.email) html += '<div class="info-motif-item">📧 ' + f.email + '</div>';
+                    if (f.urgence && (f.urgence.nom || f.urgence.telephone)) {
+                        html += '<div class="info-motif-item">🚨 Urgence : ' + (f.urgence.nom || '') + ' ' + (f.urgence.prenom || '') + (f.urgence.telephone ? ' — ' + f.urgence.telephone : '') + '</div>';
+                    }
+                    if (f.date) html += '<div class="info-motif-item">📅 Inscrit le ' + f.date + '</div>';
+                    html += '</div>';
+                } else {
+                    html += '<p style="color:#856404;background:#fff3cd;padding:8px;border-radius:6px;">⚠️ Aucune fiche de renseignement remplie pour cette personne.</p>';
+                }
+            } catch (e) {
+                html += '<p style="color:#dc3545;">Erreur lors de la récupération de la fiche.</p>';
+            }
             html += '</div>'; showAlert(html); 
         }
         
