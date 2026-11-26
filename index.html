@@ -720,6 +720,10 @@
                 }
                 updateMainTitle();
                 renderMonths();
+                if (location.hash === '#reglages-calendrier' && sessionStorage.getItem('logged') === 'true') {
+                    history.replaceState(history.state, '', location.pathname + location.search);
+                    openAdmin(true);
+                }
             });
         }
         
@@ -1450,7 +1454,7 @@
             html += '</div>'; showAlert(html); 
         }
         
-        function openAdmin() { if (prompt("Code Admin :") === "admin") { renderAdminList(); document.getElementById('adminModal').style.display = 'block'; } }
+        function openAdmin(calendarOnly = false) { if (prompt("Code Admin :") === "admin") { if (calendarOnly === true) { openCalendarManager(); return; } renderAdminList(); document.getElementById('adminModal').style.display = 'block'; } }
         function closeAdmin() { document.getElementById('adminModal').style.display = 'none'; }
 function seasonClock(now = new Date()) {
     const parts = new Intl.DateTimeFormat('fr-FR', {timeZone:'Europe/Paris', year:'numeric', month:'2-digit', day:'2-digit'}).formatToParts(now);
