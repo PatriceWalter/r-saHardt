@@ -860,6 +860,17 @@
             updateMainTitle();
         }
         
+        function startLakeView(selectedUser) {
+                document.getElementById('loginPage').style.display = 'none'; 
+                document.getElementById('mainApp').style.display = 'block'; 
+                document.body.className = 'app-mode'; 
+ 
+                document.getElementById('currentUserDisplay').textContent = '👤 ' + selectedUser;
+                setUserPresence(selectedUser);
+                listenOnlineUsers();
+                setupFirebaseListeners(); setTimeout(loadPecheursListe, 1500);
+                showMonths();
+        }
         function checkLogin() { 
             const selectedUser = document.getElementById('loginUser').value;
             if (!selectedUser) { 
@@ -871,15 +882,8 @@
             if (document.getElementById('loginPass').value === "911") { 
                 if (!firebaseReady) { showAlert("⚠️ Connexion Firebase..."); return; } 
                 localStorage.setItem('hardtUser', selectedUser);
-                document.getElementById('loginPage').style.display = 'none'; 
-                document.getElementById('mainApp').style.display = 'block'; 
-                document.body.className = 'app-mode'; 
-                sessionStorage.setItem('logged', 'true'); 
-                document.getElementById('currentUserDisplay').textContent = '👤 ' + selectedUser;
-                setUserPresence(selectedUser);
-                listenOnlineUsers();
-                setupFirebaseListeners(); setTimeout(loadPecheursListe, 1500);
-                showMonths();
+                sessionStorage.setItem('logged','true');
+                startLakeView(selectedUser);
             } else { 
                 document.getElementById('errorLogin').textContent = '❌ Mot de passe incorrect';
                 document.getElementById('errorLogin').style.display = 'block'; 
@@ -1454,7 +1458,35 @@
             html += '</div>'; showAlert(html); 
         }
         
-        function openAdmin(calendarOnly = false) { if (prompt("Code Admin :") === "admin") { if (calendarOnly === true) { openCalendarManager(); return; } renderAdminList(); document.getElementById('adminModal').style.display = 'block'; } }
+        function showGearAdministration() {
+            renderAdminList();
+            document.getElementById('adminModal').style.display='block';
+        }
+        function openAdmin(calendarOnly=false) {
+            if(prompt("Code Admin :")!=="admin")return;
+            if(calendarOnly===true)openCalendarManager();
+            else showGearAdministration();
+        }
+        function requestCentralEntry() {
+            const parentTab=window.opener;
+            if(location.hash!=='#administration-etang' || !parentTab)return false;
+            try {if(parentTab.location.origin!==location.origin || !['/appli-contr-leurs/','/appli-contr-leurs/index.html'].includes(parentTab.location.pathname))return false;}catch{return false;}
+            function receive(event) {
+                if(event.origin!==location.origin || event.source!==parentTab || event.data?.type!=='aappma-entree-etang')return;
+                window.removeEventListener('message',receive);
+                if(event.data.code!=="admin" || typeof event.data.user!=='string' || !event.data.user || !firebaseReady)return;
+                history.replaceState(history.state,'',location.pathname+location.search);
+                window.opener=null;
+                localStorage.setItem('hardtUser',event.data.user);
+                sessionStorage.setItem('logged','true');
+                startLakeView(event.data.user);
+                showGearAdministration();
+            }
+            window.addEventListener('message',receive);
+            parentTab.postMessage('aappma-etang-pret',location.origin);
+            setTimeout(()=>window.removeEventListener('message',receive),60000);
+            return true;
+        }
         function closeAdmin() { document.getElementById('adminModal').style.display = 'none'; }
 function seasonClock(now = new Date()) {
     const parts = new Intl.DateTimeFormat('fr-FR', {timeZone:'Europe/Paris', year:'numeric', month:'2-digit', day:'2-digit'}).formatToParts(now);
@@ -1554,7 +1586,7 @@ function startCardWatch() {
                 document.getElementById('firebaseStatus').innerHTML = '✅ Firebase connecté'; 
                 document.getElementById('firebaseStatus').style.color = 'green'; 
             } 
-            if (sessionStorage.getItem('logged') === 'true') { 
+            if (!requestCentralEntry() && sessionStorage.getItem('logged') === 'true') { 
                 const checkFb = setInterval(() => { 
                     if (firebaseReady) { 
                         clearInterval(checkFb); 
