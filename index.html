@@ -700,12 +700,7 @@
                 console.log('📡 Infractions synchronisées et sécurisées'); 
             }); 
             
-            dbCentral.ref('validUsers').on('value', (snapshot) => { 
-                const data = snapshot.val(); 
-                validUsers = data ? Object.values(data).filter(x => x && x.nom) : []; 
-                if (document.getElementById('postesPage').style.display === 'block') renderPostes(); 
-                console.log('🪪 Cartes valides synchronisées depuis base centrale'); 
-            }); 
+            startCardWatch(); 
             
             dbCentral.ref('controleurs').on('value', (snapshot) => { 
                 const data = snapshot.val(); 
@@ -730,7 +725,6 @@
         
         function saveReservations() { if (!firebaseReady) return; database.ref('reservations').set(reservations); }
         function saveInfractions() { if (!firebaseReady) return; dbCentral.ref('infractions').set(infractions); }
-        function saveValidUsers() { if (!firebaseReady) return; const usersObj = {}; validUsers.forEach((u, i) => { usersObj['user_' + i] = u; }); dbCentral.ref('validUsers').set(usersObj); }
         function saveCalendrierConfig() { if (!firebaseReady) return; database.ref('calendrierConfig').set(calendrierConfig); }
         
         function getJoursOuverture() { return calendrierConfig.joursOuverture || DEFAULT_JOURS_OUVERTURE; }
@@ -1095,7 +1089,11 @@
         
         function deleteModal() { if (reservations[curDKey] && reservations[curDKey][curP]) { delete reservations[curDKey][curP]; saveReservations(); renderPostes(); } closeModal(); }
         function updateControlText() { const heure = document.getElementById('modalHeure').value; if (heure) { document.getElementById('controlStatusText').textContent = "✅ Contrôlé à " + heure; document.getElementById('controlStatusText').style.color = "#17a2b8"; } else { document.getElementById('controlStatusText').textContent = "Non contrôlé"; document.getElementById('controlStatusText').style.color = "#666"; } }
-        function isUserValid(nom, prenom) { return validUsers.some(u => u && u.nom && u.prenom && u.nom.toLowerCase() === nom.trim().toLowerCase() && u.prenom.toLowerCase() === prenom.trim().toLowerCase()); }
+        function isUserValid(nom, prenom) {
+            if (!nom || !prenom || watchedYear !== seasonClock().year) return false;
+            const key=personKey({nom,prenom});
+            return validUsers.some(person => personKey(person)===key);
+        }
         function checkCardBadge() { document.getElementById('modalBadgeZone').style.display = isUserValid(document.getElementById('modalNom').value, document.getElementById('modalPrenom').value) ? 'block' : 'none'; }
         
         // ===== AUTOCOMPLÉTION PÊCHEURS =====
@@ -1454,9 +1452,95 @@
         
         function openAdmin() { if (prompt("Code Admin :") === "admin") { renderAdminList(); document.getElementById('adminModal').style.display = 'block'; } }
         function closeAdmin() { document.getElementById('adminModal').style.display = 'none'; }
-        function addValidUser() { let nom = document.getElementById('adminAddNom').value.trim().toUpperCase(); let prenom = document.getElementById('adminAddPrenom').value.trim(); if (nom && prenom) { prenom = prenom.charAt(0).toUpperCase() + prenom.slice(1).toLowerCase(); validUsers.push({ nom: nom, prenom: prenom }); saveValidUsers(); renderAdminList(); document.getElementById('adminAddNom').value = ""; document.getElementById('adminAddPrenom').value = ""; } }
-        function renderAdminList() { const container = document.getElementById('adminValidList'); container.innerHTML = validUsers.length === 0 ? '<p style="color:#666; text-align:center;">Aucun pêcheur</p>' : validUsers.map((u, i) => `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; background:#f8f9fa; padding:8px 12px; border-radius:5px;"><span>${u.nom} ${u.prenom}</span><button onclick="removeValidUser(${i})" style="color:red; border:none; background:none; cursor:pointer;">✖</button></div>`).join(''); }
-        function removeValidUser(index) { if (confirm('Supprimer ?')) { validUsers.splice(index, 1); saveValidUsers(); renderAdminList(); } }
+function seasonClock(now = new Date()) {
+    const parts = new Intl.DateTimeFormat('fr-FR', {timeZone:'Europe/Paris', year:'numeric', month:'2-digit', day:'2-digit'}).formatToParts(now);
+    const part = name => Number(parts.find(p => p.type === name).value);
+    const year = part('year');
+    return {year, last:year + Number(part('month') === 12 && part('day') >= 15)};
+}
+function seasonPath(year) {
+    return Number(year) === 2026 ? 'validUsers' : 'validUsersByYear/' + year;
+}
+function personKey(person) {
+    const clean = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toLocaleLowerCase('fr');
+    return JSON.stringify([clean(person.nom),clean(person.prenom)]);
+}
+function members(data) {
+    return Object.values(data || {}).filter(p => p && typeof p.nom === 'string' && p.nom.trim());
+}
+async function changeCard(year, person, add) {
+    const clock = seasonClock();
+    if (year < clock.year || year > clock.last) throw Error('Cette saison est fermée à la saisie.');
+    const ref = dbCentral.ref(seasonPath(year));
+    const key = personKey(person);
+    const id = ref.push().key;
+    await ref.once('value');
+    const result = await ref.transaction(data => {
+        const rows = {...(data || {})};
+        const existing = Object.keys(rows).filter(k => rows[k]?.nom && personKey(rows[k]) === key);
+        if (add) {
+            if (existing.length) return;
+            rows[id] = person;
+        } else {
+            if (!existing.length) return;
+            existing.forEach(k => delete rows[k]);
+        }
+        return rows;
+    }, undefined, false);
+    if (!result.committed) throw Error(add ? 'Cette carte existe déjà pour cette saison.' : 'Cette carte a déjà été retirée.');
+}
+let watchedYear = 0, seasonRef = null, seasonCallback = null;
+function watchCardYear() {
+    if (!firebaseReady) return;
+    const year = seasonClock().year;
+    if (watchedYear === year) return;
+    if (seasonRef) seasonRef.off('value',seasonCallback);
+    watchedYear = year;
+    validUsers = [];
+    function refresh() {
+        if (document.getElementById('postesPage').style.display === 'block') renderPostes();
+        checkCardBadge();
+        renderAdminList();
+    }
+    seasonRef = dbCentral.ref(seasonPath(year));
+    seasonCallback = snap => {
+        if (watchedYear !== year) return;
+        validUsers = members(snap.val());
+        refresh();
+    };
+    seasonRef.on('value',seasonCallback, () => { if(watchedYear===year){ validUsers=[]; refresh(); showAlert('Lecture du registre des cartes impossible.'); }});
+    refresh();
+}
+async function addValidUser() {
+    const surname = document.getElementById('adminAddNom'), first = document.getElementById('adminAddPrenom');
+    const person = {nom:surname.value.trim().toUpperCase(),prenom:first.value.trim()};
+    if (!person.nom || !person.prenom) return;
+    try { await changeCard(seasonClock().year,person,true); surname.value=''; first.value=''; }
+    catch(e) { window.alert(e.message); }
+}
+async function removeValidUser(index) {
+    const person = validUsers[index], year=watchedYear;
+    if (!person || !confirm('Retirer la carte '+year+' de '+person.nom+' '+(person.prenom||'')+' ?')) return;
+    try { await changeCard(year,person,false); } catch(e) { window.alert(e.message); }
+}
+function startCardWatch() {
+    if (!watchedYear) {
+        setInterval(watchCardYear,15000);
+        window.addEventListener('focus',watchCardYear);
+    }
+    watchCardYear();
+}
+
+        function renderAdminList() {
+            const list=document.getElementById('adminValidList');list.replaceChildren();
+            if (!validUsers.length) list.textContent='Aucun pêcheur';
+            validUsers.forEach((p,i)=>{
+                const row=document.createElement('div'), button=document.createElement('button');
+                row.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:8px';
+                row.append(document.createTextNode(p.nom+' '+(p.prenom||'')));
+                button.textContent='Retirer';button.onclick=()=>removeValidUser(i);row.append(button);list.append(row);
+            });
+        }
         function showAlert(msg) { document.getElementById('alertBody').innerHTML = msg; document.getElementById('alertModal').style.display = 'block'; }
         function closeAlert() { document.getElementById('alertModal').style.display = 'none'; }
         
